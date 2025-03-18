@@ -1,0 +1,41 @@
+name: Notify Discord on Pull Request Events
+
+on:
+  pull_request:
+    branches:
+      - main
+      - test
+    types: [opened, ready_for_review, closed, merged, draft]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Add reviewers
+        run: gh pr edit --add-reviewer Softanglez-Coder/diucse-alumni-developers ${{ github.event.number }}
+        env:
+          GH_TOKEN: ${{ secrets.PAT }}
+
+      - name: Send notification to Discord
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL_CODE_REVIEW }}
+        run: |
+          if [ "${{ github.event.action }}" == "opened" ]; then
+            MESSAGE="A new pull request has been created: ${{ github.event.pull_request.html_url }}"
+          elif [ "${{ github.event.action }}" == "draft" ]; then
+            MESSAGE="A pull request has been marked as draft: ${{ github.event.pull_request.html_url }}"
+          elif [ "${{ github.event.action }}" == "ready_for_review" ]; then
+            MESSAGE="A pull request has been marked for review: ${{ github.event.pull_request.html_url }}"
+          elif [ "${{ github.event.action }}" == "closed" ] && [ "${{ github.event.pull_request.merged }}" == "true" ]; then
+            MESSAGE="A pull request has been merged: ${{ github.event.pull_request.html_url }}"
+          else
+            MESSAGE=""
+          fi
+
+          if [ ! -z "$MESSAGE" ]; then
+            curl -H "Content-Type: application/json" -d "{\"content\": \"$MESSAGE\"}" $DISCORD_WEBHOOK_URL
+          fi
