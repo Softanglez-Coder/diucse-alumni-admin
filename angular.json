@@ -5,7 +5,12 @@
   "projects": {
     "diucse-alumni-admin": {
       "projectType": "application",
-      "schematics": {},
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss",
+          "changeDetection": "OnPush"
+        }
+      },
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
@@ -22,7 +27,7 @@
               }
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.scss"
             ]
           },
           "configurations": {
@@ -75,7 +80,7 @@
               }
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.scss"
             ]
           }
         }
