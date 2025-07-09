@@ -232,10 +232,25 @@ export class LoginComponent implements OnInit {
       
       this.authService.login({ email, password }).subscribe({
         next: (success) => {
-          this.isLoading = false;
           if (success) {
-            this.router.navigate(['/apps/dashboard']);
+            // Login successful, now fetch user data
+            this.authService.checkAuthenticationStatus().subscribe({
+              next: (isAuthenticated) => {
+                this.isLoading = false;
+                if (isAuthenticated) {
+                  this.router.navigate(['/apps/dashboard']);
+                } else {
+                  this.errorMessage = 'Failed to load user data';
+                }
+              },
+              error: (error) => {
+                this.isLoading = false;
+                this.errorMessage = 'Failed to load user data';
+                console.error('User data fetch error:', error);
+              }
+            });
           } else {
+            this.isLoading = false;
             this.errorMessage = 'Invalid email or password';
           }
         },

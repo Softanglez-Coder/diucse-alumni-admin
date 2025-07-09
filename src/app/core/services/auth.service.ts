@@ -32,13 +32,14 @@ export class AuthService {
   }
 
   login(credentials: LoginCredentials): Observable<boolean> {
-    return this.apiService.post<{user: User, token: string}>('/auth/login', credentials)
+    return this.apiService.post<any>('/auth/login', credentials)
       .pipe(
         map(response => {
-          // Set cookie with token
-          document.cookie = `auth_token=${response.token}; path=/; secure; samesite=strict`;
-          localStorage.setItem('auth_token', response.token);
-          this.currentUserSubject.next(response.user);
+          console.log('Login response:', response);
+          console.log('Login successful - cookie set by backend');
+          
+          // Login successful, but no user data in response
+          // We'll fetch user data from /auth/me after login
           return true;
         }),
         catchError(error => {
@@ -49,70 +50,77 @@ export class AuthService {
   }
 
   logout(): void {
-    // Remove cookie
-    document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-    localStorage.removeItem('auth_token');
+    // Clear client-side user data
     this.currentUserSubject.next(null);
+    
+    // Call logout endpoint to clear server-side cookie
+    this.apiService.post('/auth/logout', {}).subscribe({
+      next: () => {
+        console.log('Logout successful - server cookie cleared');
+      },
+      error: (error) => {
+        console.warn('Logout endpoint failed:', error);
+      }
+    });
+    
     this.router.navigate(['/auth/login']);
   }
 
   isAuthenticated(): boolean {
-    return this.getToken() !== null && this.currentUserSubject.value !== null;
+    // For cookie-based auth, we only check if user is loaded
+    // The actual authentication is handled by the cookie sent with requests
+    return this.currentUserSubject.value !== null;
+  }
+
+  checkAuthenticationStatus(): Observable<boolean> {
+    console.log('Checking cookie-based authentication status');
+    
+    // If user is already loaded, return true immediately
+    if (this.currentUserSubject.value) {
+      console.log('User already loaded:', this.currentUserSubject.value);
+      return of(true);
+    }
+
+    // For cookie-based auth, just call /auth/me - the cookie will be sent automatically
+    console.log('Making request to /auth/me (cookie will be sent automatically)');
+    return this.apiService.get<{user: User}>('/auth/me')
+      .pipe(
+        map((response: any) => {
+          console.log('Auth/me response:', response);
+          if (response && (response.user || response.data || response)) {
+            // Handle different response structures
+            const user = response.user || response.data || response;
+            this.currentUserSubject.next(user);
+            console.log('User loaded from API:', user);
+            return true;
+          }
+          return false;
+        }),
+        catchError((error) => {
+          console.warn('Auth verification failed:', error);
+          
+          // For cookie-based auth, if /auth/me fails, user is not authenticated
+          console.log('Cookie-based auth failed, user not authenticated');
+          this.currentUserSubject.next(null);
+          return of(false);
+        })
+      );
   }
 
   getCurrentUser(): User | null {
     return this.currentUserSubject.value;
   }
 
-  getToken(): string | null {
-    // First try localStorage
-    const token = localStorage.getItem('auth_token');
-    if (token) {
-      return token;
-    }
-
-    // Fallback to cookie
-    const cookies = document.cookie.split(';');
-    for (let cookie of cookies) {
-      const [name, value] = cookie.trim().split('=');
-      if (name === 'auth_token') {
-        return value;
-      }
-    }
-    return null;
-  }
-
   private checkAuthStatus(): void {
-    const token = this.getToken();
-    if (token) {
-      // Verify token with backend
-      this.apiService.get<{user: User}>('/auth/verify')
-        .pipe(
-          catchError(() => {
-            this.logout();
-            return of(null);
-          })
-        )
-        .subscribe((response: any) => {
-          if (response) {
-            this.currentUserSubject.next(response.user);
-          }
-        });
-    }
-  }
-
-  refreshToken(): Observable<boolean> {
-    return this.apiService.post<{token: string}>('/auth/refresh', {})
-      .pipe(
-        map((response: any) => {
-          document.cookie = `auth_token=${response.token}; path=/; secure; samesite=strict`;
-          localStorage.setItem('auth_token', response.token);
-          return true;
-        }),
-        catchError(() => {
-          this.logout();
-          return of(false);
-        })
-      );
+    this.checkAuthenticationStatus().subscribe({
+      next: (isAuthenticated) => {
+        if (!isAuthenticated) {
+          console.log('User not authenticated on startup');
+        }
+      },
+      error: (error) => {
+        console.error('Error checking auth status:', error);
+      }
+    });
   }
 }

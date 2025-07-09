@@ -26,7 +26,8 @@ export class ApiService {
   get<T>(endpoint: string, params?: HttpParams | { [key: string]: any }): Observable<T> {
     const options = {
       params: params instanceof HttpParams ? params : new HttpParams({ fromObject: params || {} }),
-      headers: this.getHeaders()
+      headers: this.getHeaders(),
+      withCredentials: true // Include cookies in requests
     };
     
     return this.http.get<T>(`${this.baseUrl}${endpoint}`, options);
@@ -37,7 +38,8 @@ export class ApiService {
    */
   post<T>(endpoint: string, body?: any): Observable<T> {
     return this.http.post<T>(`${this.baseUrl}${endpoint}`, body, {
-      headers: this.getHeaders()
+      headers: this.getHeaders(),
+      withCredentials: true // Include cookies in requests
     });
   }
 
@@ -46,7 +48,8 @@ export class ApiService {
    */
   put<T>(endpoint: string, body?: any): Observable<T> {
     return this.http.put<T>(`${this.baseUrl}${endpoint}`, body, {
-      headers: this.getHeaders()
+      headers: this.getHeaders(),
+      withCredentials: true // Include cookies in requests
     });
   }
 
@@ -55,7 +58,8 @@ export class ApiService {
    */
   delete<T>(endpoint: string): Observable<T> {
     return this.http.delete<T>(`${this.baseUrl}${endpoint}`, {
-      headers: this.getHeaders()
+      headers: this.getHeaders(),
+      withCredentials: true // Include cookies in requests
     });
   }
 
@@ -64,7 +68,8 @@ export class ApiService {
    */
   patch<T>(endpoint: string, body?: any): Observable<T> {
     return this.http.patch<T>(`${this.baseUrl}${endpoint}`, body, {
-      headers: this.getHeaders()
+      headers: this.getHeaders(),
+      withCredentials: true // Include cookies in requests
     });
   }
 
