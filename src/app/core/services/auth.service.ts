@@ -64,6 +64,7 @@ export class AuthService {
       }
     });
     
+    // Redirect to login without any return URL
     this.router.navigate(['/auth/login']);
   }
 
@@ -104,10 +105,8 @@ export class AuthService {
           console.log('Cookie-based auth failed, user not authenticated');
           this.currentUserSubject.next(null);
           
-          // If it's a 401, redirect to login
-          if (error.status === 401) {
-            this.router.navigate(['/auth/login']);
-          }
+          // Don't redirect here - let the guard handle redirections
+          // The guard will properly capture the intended URL
           
           return of(false);
         })

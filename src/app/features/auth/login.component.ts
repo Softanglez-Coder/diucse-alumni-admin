@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
@@ -31,7 +31,14 @@ import { AuthService } from '../../core/services/auth.service';
         <div class="login-header">
           <i class="pi pi-graduation-cap text-5xl text-primary mb-4"></i>
           <h1 class="text-2xl font-bold text-gray-800 mb-2">Alumni Admin</h1>
-          <p class="text-gray-600 mb-6">Sign in to your account</p>
+          <p class="text-gray-600 mb-2">Sign in to your account</p>
+          <div *ngIf="returnUrl !== '/apps/dashboard'" class="mb-4">
+            <p-message 
+              severity="info" 
+              text="Please sign in to access the requested page"
+              styleClass="w-full text-sm">
+            </p-message>
+          </div>
         </div>
 
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
@@ -203,11 +210,13 @@ export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   isLoading = false;
   errorMessage = '';
+  returnUrl = '/apps/dashboard';
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -217,9 +226,14 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit() {
+    // Get return URL from query params or default to dashboard
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/apps/dashboard';
+    console.log('LoginComponent: returnUrl from query params:', this.returnUrl);
+    console.log('LoginComponent: All query params:', this.route.snapshot.queryParams);
+    
     // Redirect if already authenticated
     if (this.authService.isAuthenticated()) {
-      this.router.navigate(['/apps/dashboard']);
+      this.router.navigate([this.returnUrl]);
     }
   }
 
@@ -238,7 +252,7 @@ export class LoginComponent implements OnInit {
               next: (isAuthenticated) => {
                 this.isLoading = false;
                 if (isAuthenticated) {
-                  this.router.navigate(['/apps/dashboard']);
+                  this.router.navigate([this.returnUrl]);
                 } else {
                   this.errorMessage = 'Failed to load user data';
                 }
