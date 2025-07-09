@@ -202,6 +202,28 @@ export const routes: Routes = [
                 ]
             },
             {
+                path: 'membership',
+                children: [
+                    { 
+                        path: '', 
+                        pathMatch: 'full', 
+                        loadComponent: () => import('./features/membership/membership.component').then(c => c.MembershipComponent)
+                    },
+                    { 
+                        path: 'new', 
+                        loadComponent: () => import('./features/membership/membership-form.component').then(c => c.MembershipFormComponent)
+                    },
+                    { 
+                        path: ':id/edit', 
+                        loadComponent: () => import('./features/membership/membership-form.component').then(c => c.MembershipFormComponent)
+                    },
+                    { 
+                        path: ':id', 
+                        loadComponent: () => import('./features/membership/membership-form.component').then(c => c.MembershipFormComponent)
+                    },
+                ]
+            },
+            {
                 path: 'scholarship',
                 children: [
                     { 

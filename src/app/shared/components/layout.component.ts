@@ -333,6 +333,11 @@ export class LayoutComponent implements OnInit, OnDestroy {
       routerLink: ['/apps/donations']
     },
     {
+      label: 'Membership',
+      icon: 'pi pi-id-card',
+      routerLink: ['/apps/membership']
+    },
+    {
       label: 'Scholarships',
       icon: 'pi pi-star',
       routerLink: ['/apps/scholarship']

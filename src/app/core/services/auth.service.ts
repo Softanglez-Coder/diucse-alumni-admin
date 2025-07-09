@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { Router } from '@angular/router';
 import { catchError, map } from 'rxjs/operators';
+import { ApiService } from './api.service';
 
 export interface User {
   id: string;
@@ -24,21 +24,20 @@ export class AuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
-  private apiUrl = 'https://api.example.com'; // Replace with your API URL
-
   constructor(
-    private http: HttpClient,
+    private apiService: ApiService,
     private router: Router
   ) {
     this.checkAuthStatus();
   }
 
   login(credentials: LoginCredentials): Observable<boolean> {
-    return this.http.post<{user: User, token: string}>(`${this.apiUrl}/auth/login`, credentials)
+    return this.apiService.post<{user: User, token: string}>('/auth/login', credentials)
       .pipe(
         map(response => {
           // Set cookie with token
           document.cookie = `auth_token=${response.token}; path=/; secure; samesite=strict`;
+          localStorage.setItem('auth_token', response.token);
           this.currentUserSubject.next(response.user);
           return true;
         }),
@@ -52,6 +51,7 @@ export class AuthService {
   logout(): void {
     // Remove cookie
     document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+    localStorage.removeItem('auth_token');
     this.currentUserSubject.next(null);
     this.router.navigate(['/auth/login']);
   }
@@ -65,6 +65,13 @@ export class AuthService {
   }
 
   getToken(): string | null {
+    // First try localStorage
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      return token;
+    }
+
+    // Fallback to cookie
     const cookies = document.cookie.split(';');
     for (let cookie of cookies) {
       const [name, value] = cookie.trim().split('=');
@@ -79,14 +86,14 @@ export class AuthService {
     const token = this.getToken();
     if (token) {
       // Verify token with backend
-      this.http.get<{user: User}>(`${this.apiUrl}/auth/verify`)
+      this.apiService.get<{user: User}>('/auth/verify')
         .pipe(
           catchError(() => {
             this.logout();
             return of(null);
           })
         )
-        .subscribe(response => {
+        .subscribe((response: any) => {
           if (response) {
             this.currentUserSubject.next(response.user);
           }
@@ -95,10 +102,11 @@ export class AuthService {
   }
 
   refreshToken(): Observable<boolean> {
-    return this.http.post<{token: string}>(`${this.apiUrl}/auth/refresh`, {})
+    return this.apiService.post<{token: string}>('/auth/refresh', {})
       .pipe(
-        map(response => {
+        map((response: any) => {
           document.cookie = `auth_token=${response.token}; path=/; secure; samesite=strict`;
+          localStorage.setItem('auth_token', response.token);
           return true;
         }),
         catchError(() => {
