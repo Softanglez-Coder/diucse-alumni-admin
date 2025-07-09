@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --host admin.localhost --port 4300",
+    "start": "ng serve --host localhost --port 4300",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
@@ -18,6 +18,7 @@
     "@angular/router": "^20.0.0",
     "@primeuix/themes": "^1.2.1",
     "@tailwindcss/postcss": "^4.1.11",
+    "chart.js": "^4.5.0",
     "postcss": "^8.5.6",
     "primeng": "^20.0.0-rc.1",
     "rxjs": "~7.8.0",
