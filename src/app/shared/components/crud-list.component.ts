@@ -123,7 +123,7 @@ export interface ColumnConfig {
                   <span *ngSwitchCase="'date'">{{getNestedValue(item, col.field) | date:'short'}}</span>
                   <p-tag 
                     *ngSwitchCase="'status'" 
-                    [value]="getNestedValue(item, col.field)" 
+                    [value]="formatStatusValue(getNestedValue(item, col.field))" 
                     [severity]="getStatusSeverity(getNestedValue(item, col.field))">
                   </p-tag>
                   <p-tag 
@@ -364,6 +364,13 @@ export class CrudListComponent implements OnInit {
     return path.split('.').reduce((current, key) => current?.[key], obj);
   }
 
+  formatStatusValue(value: any): string {
+    if (typeof value === 'boolean') {
+      return value ? 'Active' : 'Inactive';
+    }
+    return value?.toString() || 'Unknown';
+  }
+
   formatBadgeValue(value: any): string {
     if (Array.isArray(value)) {
       return value.join(', ');
@@ -481,11 +488,18 @@ export class CrudListComponent implements OnInit {
     });
   }
 
-  getStatusSeverity(status: string): 'success' | 'warning' | 'danger' | 'info' {
+  getStatusSeverity(status: string | boolean): 'success' | 'warning' | 'danger' | 'info' {
+    // Handle boolean values
+    if (typeof status === 'boolean') {
+      return status ? 'success' : 'danger';
+    }
+    
+    // Handle string values
     switch (status?.toLowerCase()) {
       case 'active':
       case 'published':
       case 'approved':
+      case 'true':
         return 'success';
       case 'pending':
       case 'draft':
@@ -493,6 +507,7 @@ export class CrudListComponent implements OnInit {
       case 'inactive':
       case 'rejected':
       case 'cancelled':
+      case 'false':
         return 'danger';
       default:
         return 'info';

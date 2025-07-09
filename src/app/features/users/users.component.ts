@@ -12,17 +12,19 @@ import { CrudListComponent, CrudConfig } from '../../shared/components/crud-list
 export class UsersComponent {
   crudConfig: CrudConfig = {
     title: 'Users',
-    apiEndpoint: '/api/users',
+    apiEndpoint: '/users',
     createRoute: '/apps/users/new',
     editRoute: '/apps/users',
     viewRoute: '/apps/users',
-    searchFields: ['name', 'email', 'batch', 'designation'],
+    searchFields: ['name', 'email', 'batch.name', 'phone', 'roles'],
     columns: [
       { field: 'name', header: 'Name', type: 'text', sortable: true, filterable: true },
       { field: 'email', header: 'Email', type: 'text', sortable: true, filterable: true },
-      { field: 'batch', header: 'Batch', type: 'badge', sortable: true },
-      { field: 'designation', header: 'Designation', type: 'text', sortable: true },
-      { field: 'status', header: 'Status', type: 'status', sortable: true },
+      { field: 'batch.name', header: 'Batch', type: 'badge', sortable: true },
+      { field: 'phone', header: 'Phone', type: 'text', sortable: true },
+      { field: 'roles', header: 'Roles', type: 'badge', sortable: true },
+      { field: 'emailVerified', header: 'Email Verified', type: 'status', sortable: true },
+      { field: 'active', header: 'Status', type: 'status', sortable: true },
       { field: 'createdAt', header: 'Created', type: 'date', sortable: true },
       { field: 'actions', header: 'Actions', type: 'actions', width: '120px' }
     ]
