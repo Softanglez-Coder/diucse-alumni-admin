@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -101,57 +101,48 @@ export interface ColumnConfig {
           [rows]="rows" 
           [paginator]="true" 
           [loading]="loading"
-          [globalFilterFields]="config.searchFields"
           responsiveLayout="scroll"
-          [scrollable]="true"
-          scrollHeight="600px"
           [first]="first"
           [totalRecords]="totalRecords"
-          (onPage)="onPageChange($event)"
-          [lazy]="false">
+          (onPage)="onPageChange($event)">
           
           <ng-template pTemplate="header">
             <tr>
               <th *ngFor="let col of config.columns" 
-                  [pSortableColumn]="col.sortable ? col.field : undefined"
                   [style.width]="col.width">
                 {{col.header}}
-                <p-sortIcon 
-                  *ngIf="col.sortable" 
-                  [field]="col.field">
-                </p-sortIcon>
               </th>
             </tr>
           </ng-template>
 
-          <ng-template pTemplate="body" let-item>
+          <ng-template pTemplate="body" let-item let-i="rowIndex">
             <tr>
               <td *ngFor="let col of config.columns">
                 <ng-container [ngSwitch]="col.type">
-                  <span *ngSwitchCase="'text'">{{item[col.field]}}</span>
-                  <span *ngSwitchCase="'date'">{{item[col.field] | date:'short'}}</span>
+                  <span *ngSwitchCase="'text'">{{getNestedValue(item, col.field)}}</span>
+                  <span *ngSwitchCase="'date'">{{getNestedValue(item, col.field) | date:'short'}}</span>
                   <p-tag 
                     *ngSwitchCase="'status'" 
-                    [value]="item[col.field]" 
-                    [severity]="getStatusSeverity(item[col.field])">
+                    [value]="getNestedValue(item, col.field)" 
+                    [severity]="getStatusSeverity(getNestedValue(item, col.field))">
                   </p-tag>
                   <p-tag 
                     *ngSwitchCase="'badge'" 
-                    [value]="item[col.field]">
+                    [value]="formatBadgeValue(getNestedValue(item, col.field))">
                   </p-tag>
                   <div *ngSwitchCase="'actions'" class="action-buttons">
                     <button 
                       pButton 
                       icon="pi pi-eye" 
                       class="p-button-rounded p-button-text p-button-sm"
-                      [routerLink]="[config.viewRoute, item.id]"
+                      [routerLink]="[config.viewRoute, item._id]"
                       pTooltip="View">
                     </button>
                     <button 
                       pButton 
                       icon="pi pi-pencil" 
                       class="p-button-rounded p-button-text p-button-sm"
-                      [routerLink]="[config.editRoute, item.id]"
+                      [routerLink]="[config.editRoute, item._id]"
                       pTooltip="Edit">
                     </button>
                     <button 
@@ -162,6 +153,7 @@ export interface ColumnConfig {
                       pTooltip="Delete">
                     </button>
                   </div>
+                  <span *ngSwitchDefault>{{getNestedValue(item, col.field)}}</span>
                 </ng-container>
               </td>
             </tr>
@@ -275,7 +267,8 @@ export class CrudListComponent implements OnInit {
   constructor(
     private confirmationService: ConfirmationService,
     private messageService: MessageService,
-    private apiService: ApiService
+    private apiService: ApiService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -285,53 +278,100 @@ export class CrudListComponent implements OnInit {
   loadData() {
     this.loading = true;
     
-    this.apiService.get<ApiResponse<any[]>>(this.config.apiEndpoint).subscribe({
+    this.apiService.get<any>(this.config.apiEndpoint).subscribe({
       next: (response) => {
-        if (response.success) {
-          this.data = response.data || [];
+        // Handle different response formats
+        let dataArray: any[] = [];
+        if (Array.isArray(response)) {
+          dataArray = response;
+        } else if (response && typeof response === 'object') {
+          // Check if it's wrapped in a data property
+          if ('data' in response && Array.isArray((response as any).data)) {
+            dataArray = (response as any).data;
+          } else if ('items' in response && Array.isArray((response as any).items)) {
+            dataArray = (response as any).items;
+          } else {
+            console.warn('Unexpected response format:', response);
+            dataArray = [];
+          }
+        }
+        
+        // Update data in next tick to avoid ExpressionChangedAfterItHasBeenCheckedError
+        setTimeout(() => {
+          this.data = dataArray;
           this.filteredData = [...this.data];
           this.totalRecords = this.data.length;
-        } else {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: response.message || 'Failed to load data'
-          });
-          this.data = [];
-          this.filteredData = [];
-          this.totalRecords = 0;
-        }
-        this.loading = false;
+          this.loading = false;
+          this.cdr.detectChanges(); // Manually trigger change detection
+        }, 0);
       },
       error: (error) => {
         console.error('Error loading data:', error);
+        
+        let errorMessage = 'Failed to load data from server';
+        if (error.status === 0) {
+          errorMessage = 'Unable to connect to server. Please check if the server is running.';
+        } else if (error.status === 404) {
+          errorMessage = 'API endpoint not found. Please check the endpoint URL.';
+        } else if (error.status === 500) {
+          errorMessage = 'Server error. Please try again later.';
+        }
+        
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'Failed to load data from server'
+          detail: errorMessage
         });
-        this.data = [];
-        this.filteredData = [];
-        this.totalRecords = 0;
-        this.loading = false;
+        
+        setTimeout(() => {
+          this.data = [];
+          this.filteredData = [];
+          this.totalRecords = 0;
+          this.loading = false;
+          this.cdr.detectChanges(); // Manually trigger change detection
+        }, 0);
       }
     });
   }
 
   onSearch() {
     if (!this.searchValue) {
-      this.filteredData = [...this.data];
-      this.totalRecords = this.data.length;
+      setTimeout(() => {
+        this.filteredData = [...this.data];
+        this.totalRecords = this.data.length;
+        this.first = 0;
+        this.cdr.detectChanges(); // Manually trigger change detection
+      }, 0);
       return;
     }
 
-    this.filteredData = this.data.filter(item => 
-      this.config.searchFields.some(field => 
-        item[field]?.toString().toLowerCase().includes(this.searchValue.toLowerCase())
-      )
+    const filtered = this.data.filter(item => 
+      this.config.searchFields.some(field => {
+        const value = this.getNestedValue(item, field);
+        return value?.toString().toLowerCase().includes(this.searchValue.toLowerCase());
+      })
     );
-    this.totalRecords = this.filteredData.length;
-    this.first = 0; // Reset to first page when searching
+    
+    setTimeout(() => {
+      this.filteredData = filtered;
+      this.totalRecords = this.filteredData.length;
+      this.first = 0; // Reset to first page when searching
+      this.cdr.detectChanges(); // Manually trigger change detection
+    }, 0);
+  }
+
+  getNestedValue(obj: any, path: string): any {
+    return path.split('.').reduce((current, key) => current?.[key], obj);
+  }
+
+  formatBadgeValue(value: any): string {
+    if (Array.isArray(value)) {
+      return value.join(', ');
+    }
+    if (typeof value === 'boolean') {
+      return value ? 'Yes' : 'No';
+    }
+    return value?.toString() || '';
   }
 
   confirmDelete(item: any) {
@@ -348,24 +388,21 @@ export class CrudListComponent implements OnInit {
   deleteItem(item: any) {
     this.loading = true;
     
-    this.apiService.delete<ApiResponse<any>>(`${this.config.apiEndpoint}/${item.id}`).subscribe({
+    this.apiService.delete<any>(`${this.config.apiEndpoint}/${item._id}`).subscribe({
       next: (response) => {
-        if (response.success) {
-          this.data = this.data.filter(d => d.id !== item.id);
-          this.filteredData = this.filteredData.filter(d => d.id !== item.id);
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Success',
-            detail: 'Item deleted successfully'
-          });
-        } else {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: response.message || 'Failed to delete item'
-          });
-        }
-        this.loading = false;
+        setTimeout(() => {
+          this.data = this.data.filter(d => d._id !== item._id);
+          this.filteredData = this.filteredData.filter(d => d._id !== item._id);
+          this.totalRecords = this.filteredData.length;
+          this.loading = false;
+          this.cdr.detectChanges(); // Manually trigger change detection
+        }, 0);
+        
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Item deleted successfully'
+        });
       },
       error: (error) => {
         console.error('Error deleting item:', error);
@@ -381,14 +418,9 @@ export class CrudListComponent implements OnInit {
 
   exportData() {
     // Try to export data, fallback to client-side export if server doesn't support it
-    this.apiService.get<ApiResponse<any[]>>(`${this.config.apiEndpoint}/export`).subscribe({
+    this.apiService.get<any[]>(`${this.config.apiEndpoint}/export`).subscribe({
       next: (response) => {
-        if (response.success) {
-          this.exportToCSV(response.data);
-        } else {
-          // Fallback to client-side export
-          this.exportToCSV(this.data);
-        }
+        this.exportToCSV(response);
       },
       error: (error) => {
         console.log('Server export not available, using client-side export');
@@ -417,8 +449,18 @@ export class CrudListComponent implements OnInit {
         this.config.columns
           .filter(col => col.type !== 'actions')
           .map(col => {
-            const value = item[col.field];
-            return typeof value === 'string' ? `"${value}"` : value;
+            const value = this.getNestedValue(item, col.field);
+            let formattedValue = value;
+            
+            if (Array.isArray(value)) {
+              formattedValue = value.join('; ');
+            } else if (typeof value === 'boolean') {
+              formattedValue = value ? 'Yes' : 'No';
+            } else if (value == null) {
+              formattedValue = '';
+            }
+            
+            return typeof formattedValue === 'string' ? `"${formattedValue}"` : formattedValue;
           })
           .join(',')
       )
