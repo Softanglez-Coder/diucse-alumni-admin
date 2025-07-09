@@ -12,6 +12,7 @@ import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { ApiService, ApiResponse } from '../../core/services/api.service';
 
 export interface CrudConfig {
   title: string;
@@ -97,13 +98,17 @@ export interface ColumnConfig {
 
         <p-table 
           [value]="filteredData" 
-          [rows]="10" 
+          [rows]="rows" 
           [paginator]="true" 
           [loading]="loading"
           [globalFilterFields]="config.searchFields"
           responsiveLayout="scroll"
           [scrollable]="true"
-          scrollHeight="600px">
+          scrollHeight="600px"
+          [first]="first"
+          [totalRecords]="totalRecords"
+          (onPage)="onPageChange($event)"
+          [lazy]="false">
           
           <ng-template pTemplate="header">
             <tr>
@@ -263,10 +268,14 @@ export class CrudListComponent implements OnInit {
   filteredData: any[] = [];
   loading = false;
   searchValue = '';
+  totalRecords = 0;
+  first = 0;
+  rows = 10;
 
   constructor(
     private confirmationService: ConfirmationService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private apiService: ApiService
   ) {}
 
   ngOnInit() {
@@ -275,17 +284,44 @@ export class CrudListComponent implements OnInit {
 
   loadData() {
     this.loading = true;
-    // Simulate API call
-    setTimeout(() => {
-      this.data = this.generateMockData();
-      this.filteredData = [...this.data];
-      this.loading = false;
-    }, 1000);
+    
+    this.apiService.get<ApiResponse<any[]>>(this.config.apiEndpoint).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.data = response.data || [];
+          this.filteredData = [...this.data];
+          this.totalRecords = this.data.length;
+        } else {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: response.message || 'Failed to load data'
+          });
+          this.data = [];
+          this.filteredData = [];
+          this.totalRecords = 0;
+        }
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error loading data:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to load data from server'
+        });
+        this.data = [];
+        this.filteredData = [];
+        this.totalRecords = 0;
+        this.loading = false;
+      }
+    });
   }
 
   onSearch() {
     if (!this.searchValue) {
       this.filteredData = [...this.data];
+      this.totalRecords = this.data.length;
       return;
     }
 
@@ -294,6 +330,8 @@ export class CrudListComponent implements OnInit {
         item[field]?.toString().toLowerCase().includes(this.searchValue.toLowerCase())
       )
     );
+    this.totalRecords = this.filteredData.length;
+    this.first = 0; // Reset to first page when searching
   }
 
   confirmDelete(item: any) {
@@ -308,21 +346,96 @@ export class CrudListComponent implements OnInit {
   }
 
   deleteItem(item: any) {
-    this.data = this.data.filter(d => d.id !== item.id);
-    this.filteredData = this.filteredData.filter(d => d.id !== item.id);
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Success',
-      detail: 'Item deleted successfully'
+    this.loading = true;
+    
+    this.apiService.delete<ApiResponse<any>>(`${this.config.apiEndpoint}/${item.id}`).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.data = this.data.filter(d => d.id !== item.id);
+          this.filteredData = this.filteredData.filter(d => d.id !== item.id);
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'Item deleted successfully'
+          });
+        } else {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: response.message || 'Failed to delete item'
+          });
+        }
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error deleting item:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to delete item from server'
+        });
+        this.loading = false;
+      }
     });
   }
 
   exportData() {
-    // Implement export functionality
+    // Try to export data, fallback to client-side export if server doesn't support it
+    this.apiService.get<ApiResponse<any[]>>(`${this.config.apiEndpoint}/export`).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.exportToCSV(response.data);
+        } else {
+          // Fallback to client-side export
+          this.exportToCSV(this.data);
+        }
+      },
+      error: (error) => {
+        console.log('Server export not available, using client-side export');
+        this.exportToCSV(this.data);
+      }
+    });
+  }
+
+  private exportToCSV(data: any[]) {
+    if (!data || data.length === 0) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Export',
+        detail: 'No data to export'
+      });
+      return;
+    }
+
+    const headers = this.config.columns
+      .filter(col => col.type !== 'actions')
+      .map(col => col.header);
+    
+    const csvContent = [
+      headers.join(','),
+      ...data.map(item => 
+        this.config.columns
+          .filter(col => col.type !== 'actions')
+          .map(col => {
+            const value = item[col.field];
+            return typeof value === 'string' ? `"${value}"` : value;
+          })
+          .join(',')
+      )
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${this.config.title.toLowerCase().replace(/\s+/g, '-')}-export.csv`;
+    link.click();
+    window.URL.revokeObjectURL(url);
+    
     this.messageService.add({
-      severity: 'info',
-      summary: 'Export',
-      detail: 'Export functionality will be implemented'
+      severity: 'success',
+      summary: 'Success',
+      detail: 'Data exported successfully'
     });
   }
 
@@ -344,32 +457,11 @@ export class CrudListComponent implements OnInit {
     }
   }
 
-  private generateMockData(): any[] {
-    // Generate mock data based on config
-    const mockData = [];
-    for (let i = 1; i <= 25; i++) {
-      const item: any = { id: i };
-      
-      this.config.columns.forEach(col => {
-        switch (col.type) {
-          case 'text':
-            item[col.field] = `Sample ${col.field} ${i}`;
-            break;
-          case 'date':
-            item[col.field] = new Date(2024, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1);
-            break;
-          case 'status':
-            item[col.field] = ['Active', 'Inactive', 'Pending'][Math.floor(Math.random() * 3)];
-            break;
-          case 'badge':
-            item[col.field] = `Badge ${i}`;
-            break;
-        }
-      });
-      
-      mockData.push(item);
-    }
-    
-    return mockData;
+  onPageChange(event: any) {
+    this.first = event.first;
+    this.rows = event.rows;
+    // For client-side pagination, we don't need to reload data
+    // For server-side pagination, you would call loadData() with pagination parameters
   }
+
 }
