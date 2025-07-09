@@ -28,7 +28,8 @@ export class AuthService {
     private apiService: ApiService,
     private router: Router
   ) {
-    this.checkAuthStatus();
+    // Don't check auth status in constructor to avoid circular dependency
+    // Auth status will be checked when needed by the guard
   }
 
   login(credentials: LoginCredentials): Observable<boolean> {
@@ -102,6 +103,12 @@ export class AuthService {
           // For cookie-based auth, if /auth/me fails, user is not authenticated
           console.log('Cookie-based auth failed, user not authenticated');
           this.currentUserSubject.next(null);
+          
+          // If it's a 401, redirect to login
+          if (error.status === 401) {
+            this.router.navigate(['/auth/login']);
+          }
+          
           return of(false);
         })
       );
@@ -109,18 +116,5 @@ export class AuthService {
 
   getCurrentUser(): User | null {
     return this.currentUserSubject.value;
-  }
-
-  private checkAuthStatus(): void {
-    this.checkAuthenticationStatus().subscribe({
-      next: (isAuthenticated) => {
-        if (!isAuthenticated) {
-          console.log('User not authenticated on startup');
-        }
-      },
-      error: (error) => {
-        console.error('Error checking auth status:', error);
-      }
-    });
   }
 }

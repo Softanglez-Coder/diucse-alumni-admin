@@ -11,6 +11,12 @@ The backend uses **pure cookie-based authentication** with no user data or token
 5. **Authentication check** → Call `/auth/me` (cookie validates automatically)
 6. **Logout** → Call `/auth/logout` (server clears cookie)
 
+## Circular Dependency Fix
+Fixed Angular circular dependency error by:
+- **Removed AuthService from interceptor** - Interceptor now just redirects to login on 401
+- **Removed constructor auth check** - Auth status checked when needed by guard
+- **Simplified error handling** - AuthService handles 401 redirects directly
+
 ## Login Process
 ```typescript
 1. POST /auth/login → Server sets cookie, returns success
@@ -19,11 +25,11 @@ The backend uses **pure cookie-based authentication** with no user data or token
 ```
 
 ## Changes Made
-1. **Simplified login response** - Only checks success/failure
-2. **Separate user fetch** - Call `/auth/me` after login to get user data
-3. **Pure cookie auth** - Server handles all cookie operations
-4. **Added `withCredentials: true`** - All API requests include cookies
-5. **Two-step login** - Login then fetch user data
+1. **Fixed circular dependency** - AuthService ↔ AuthInterceptor ↔ ApiService
+2. **Simplified interceptor** - Only redirects to login on 401
+3. **Removed constructor auth check** - Prevents circular dependency
+4. **Two-step login** - Login then fetch user data
+5. **Pure cookie auth** - Server handles all cookie operations
 
 ## Updated Login Flow
 ```typescript
@@ -55,8 +61,9 @@ login() {
 5. **Logout** → Cookie should be cleared
 
 ## Expected Behavior
+- ✅ No circular dependency errors
 - ✅ Server sets cookie on login
 - ✅ `/auth/me` returns user data after login
 - ✅ Cookie sent automatically with all requests
 - ✅ Page refresh maintains authentication
-- ✅ Logout clears server cookie
+- ✅ 401 errors redirect to login properly
