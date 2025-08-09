@@ -278,8 +278,7 @@ export class EventFormComponent implements OnInit {
 
     this.loading = true;
     this.eventService.getEventById(this.eventId).subscribe({
-      next: (response) => {
-        const event = response.data;
+      next: (event) => {
         this.eventForm.patchValue({
           title: event.title,
           fee: event.fee,
@@ -312,8 +311,7 @@ export class EventFormComponent implements OnInit {
   loadEventForDuplication(duplicateId: string) {
     this.loading = true;
     this.eventService.getEventById(duplicateId).subscribe({
-      next: (response) => {
-        const event = response.data;
+      next: (event) => {
         // Pre-fill form but reset certain fields for the new event
         this.eventForm.patchValue({
           title: `Copy of ${event.title}`,
@@ -375,7 +373,7 @@ export class EventFormComponent implements OnInit {
         : this.eventService.createEvent(eventData as CreateEventDto);
 
       operation.subscribe({
-        next: (response) => {
+        next: (event) => {
           this.messageService.add({
             severity: 'success',
             summary: 'Success',

@@ -259,8 +259,8 @@ export class EventDetailComponent implements OnInit {
 
     this.loading = true;
     this.eventService.getEventById(this.eventId).subscribe({
-      next: (response) => {
-        this.event = response.data;
+      next: (event) => {
+        this.event = event;
         this.loading = false;
       },
       error: (error) => {
@@ -341,8 +341,8 @@ export class EventDetailComponent implements OnInit {
     if (!this.event) return;
 
     this.eventService.publishEvent(this.event._id).subscribe({
-      next: (response) => {
-        this.event = response.data;
+      next: (event) => {
+        this.event = event;
         this.messageService.add({
           severity: 'success',
           summary: 'Success',
@@ -363,8 +363,8 @@ export class EventDetailComponent implements OnInit {
     if (!this.event) return;
 
     this.eventService.unpublishEvent(this.event._id, justification).subscribe({
-      next: (response) => {
-        this.event = response.data;
+      next: (event) => {
+        this.event = event;
         this.messageService.add({
           severity: 'success',
           summary: 'Success',
@@ -385,8 +385,8 @@ export class EventDetailComponent implements OnInit {
     if (!this.event) return;
 
     this.eventService.openEventRegistration(this.event._id).subscribe({
-      next: (response) => {
-        this.event = response.data;
+      next: (event) => {
+        this.event = event;
         this.messageService.add({
           severity: 'success',
           summary: 'Success',
@@ -407,8 +407,8 @@ export class EventDetailComponent implements OnInit {
     if (!this.event) return;
 
     this.eventService.closeEventRegistration(this.event._id, justification).subscribe({
-      next: (response) => {
-        this.event = response.data;
+      next: (event) => {
+        this.event = event;
         this.messageService.add({
           severity: 'success',
           summary: 'Success',

@@ -295,9 +295,12 @@ export class EventsComponent implements OnInit {
 
     const loadMethod = this.getLoadMethod();
     loadMethod.subscribe({
-      next: (response) => {
-        this.events = response.data;
-        this.loading = false;
+      next: (events) => {
+        // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
+        setTimeout(() => {
+          this.events = events || [];
+          this.loading = false;
+        });
       },
       error: (error) => {
         console.error('Error loading events:', error);
@@ -306,7 +309,10 @@ export class EventsComponent implements OnInit {
           summary: 'Error',
           detail: 'Failed to load events'
         });
-        this.loading = false;
+        setTimeout(() => {
+          this.events = [];
+          this.loading = false;
+        });
       }
     });
   }
