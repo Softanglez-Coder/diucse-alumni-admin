@@ -16,54 +16,22 @@ import { CrudListComponent, CrudConfig } from '../../shared/components/crud-list
 export class BatchesComponent implements OnInit {
   crudConfig: CrudConfig = {
     title: 'Batches',
-    apiEndpoint: '/api/batches',
+    apiEndpoint: '/batches',
     createRoute: '/apps/batches/new',
     editRoute: '/apps/batches',
     viewRoute: '/apps/batches',
-    searchFields: ['name', 'year', 'program'],
+    searchFields: ['name'],
     columns: [
-      { 
-        field: 'name', 
-        header: 'Name', 
+      {
+        field: 'name',
+        header: 'Name',
         type: 'text',
         sortable: true,
         filterable: true
       },
-      { 
-        field: 'year', 
-        header: 'Year', 
-        type: 'text',
-        sortable: true,
-        width: '100px'
-      },
-      { 
-        field: 'program', 
-        header: 'Program', 
-        type: 'text',
-        sortable: true
-      },
-      { 
-        field: 'studentCount', 
-        header: 'Students', 
-        type: 'text',
-        width: '100px'
-      },
-      { 
-        field: 'status', 
-        header: 'Status', 
-        type: 'status',
-        width: '100px'
-      },
-      { 
-        field: 'graduationDate', 
-        header: 'Graduation', 
-        type: 'date',
-        width: '150px',
-        sortable: true
-      },
-      { 
-        field: 'actions', 
-        header: 'Actions', 
+      {
+        field: 'actions',
+        header: 'Actions',
         type: 'actions',
         width: '150px'
       }
