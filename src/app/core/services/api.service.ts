@@ -29,7 +29,7 @@ export class ApiService {
       headers: this.getHeaders(),
       withCredentials: true // Include cookies in requests
     };
-    
+
     return this.http.get<T>(`${this.baseUrl}${endpoint}`, options);
   }
 
@@ -79,15 +79,16 @@ export class ApiService {
   upload<T>(endpoint: string, file: File, additionalData?: any): Observable<T> {
     const formData = new FormData();
     formData.append('file', file);
-    
+
     if (additionalData) {
       Object.keys(additionalData).forEach(key => {
         formData.append(key, additionalData[key]);
       });
     }
 
-    return this.http.post<T>(`${this.baseUrl}${endpoint}`, formData, {
-      headers: this.getFileUploadHeaders()
+    return this.http.patch<T>(`${this.baseUrl}${endpoint}`, formData, {
+      headers: this.getFileUploadHeaders(),
+      withCredentials: true // Include cookies in requests
     });
   }
 

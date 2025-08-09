@@ -7,15 +7,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { FileUploadModule } from 'primeng/fileupload';
 import { InputNumberModule } from 'primeng/inputnumber';
-
-export interface Banner {
-  id?: number;
-  title: string;
-  imageUrl: string;
-  link: string;
-  isActive: boolean;
-  position: number;
-}
+import { BannerService, Banner as BannerModel, CreateBannerDto } from './banner.service';
 
 @Component({
   selector: 'app-banner-form',
@@ -38,9 +30,9 @@ export interface Banner {
             <h1 class="text-2xl font-bold text-gray-900">
               {{ isEditMode ? 'Edit Banner' : 'Create Banner' }}
             </h1>
-            <button 
-              pButton 
-              icon="pi pi-arrow-left" 
+            <button
+              pButton
+              icon="pi pi-arrow-left"
               class="p-button-text"
               [routerLink]="['/apps/banners']"
               label="Back to List">
@@ -52,7 +44,7 @@ export interface Banner {
           <div *ngIf="successMessage" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
             {{ successMessage }}
           </div>
-          
+
           <div *ngIf="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
             {{ errorMessage }}
           </div>
@@ -62,14 +54,14 @@ export interface Banner {
               <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
                 Title *
               </label>
-              <input 
-                pInputText 
+              <input
+                pInputText
                 id="title"
                 formControlName="title"
                 placeholder="Enter banner title"
                 class="w-full"
                 [class.ng-invalid]="bannerForm.get('title')?.invalid && bannerForm.get('title')?.touched">
-              <div *ngIf="bannerForm.get('title')?.invalid && bannerForm.get('title')?.touched" 
+              <div *ngIf="bannerForm.get('title')?.invalid && bannerForm.get('title')?.touched"
                    class="text-red-600 text-sm mt-1">
                 <div *ngIf="bannerForm.get('title')?.errors?.['required']">Title is required</div>
                 <div *ngIf="bannerForm.get('title')?.errors?.['minlength']">Title must be at least 3 characters</div>
@@ -77,85 +69,105 @@ export interface Banner {
             </div>
 
             <div class="form-group">
-              <label for="imageUrl" class="block text-sm font-medium text-gray-700 mb-2">
-                Image URL *
+              <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                Description
               </label>
-              <input 
-                pInputText 
-                id="imageUrl"
-                formControlName="imageUrl"
-                placeholder="Enter image URL"
+              <textarea
+                pInputText
+                id="description"
+                formControlName="description"
+                placeholder="Enter banner description"
                 class="w-full"
-                [class.ng-invalid]="bannerForm.get('imageUrl')?.invalid && bannerForm.get('imageUrl')?.touched">
-              <div *ngIf="bannerForm.get('imageUrl')?.invalid && bannerForm.get('imageUrl')?.touched" 
+                rows="3">
+              </textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="image" class="block text-sm font-medium text-gray-700 mb-2">
+                Image
+              </label>
+              <div class="space-y-2">
+                <input
+                  pInputText
+                  id="image"
+                  formControlName="image"
+                  placeholder="Enter image URL"
+                  class="w-full"
+                  [class.ng-invalid]="bannerForm.get('image')?.invalid && bannerForm.get('image')?.touched">
+
+                <div *ngIf="bannerId">
+                  <p-fileUpload
+                    mode="basic"
+                    name="file"
+                    [auto]="false"
+                    chooseLabel="Choose Image"
+                    accept="image/*"
+                    (onSelect)="onFileSelect($event)"
+                    class="w-full">
+                  </p-fileUpload>
+
+                  <small class="text-gray-500">
+                    Upload a new image file or enter an image URL above
+                  </small>
+                </div>
+
+                <div *ngIf="!bannerId">
+                  <small class="text-gray-500">
+                    Save banner first to upload image file
+                  </small>
+                </div>
+              </div>
+              <div *ngIf="bannerForm.get('image')?.invalid && bannerForm.get('image')?.touched"
                    class="text-red-600 text-sm mt-1">
-                <div *ngIf="bannerForm.get('imageUrl')?.errors?.['required']">Image URL is required</div>
-                <div *ngIf="bannerForm.get('imageUrl')?.errors?.['pattern']">Please enter a valid URL</div>
+                <div *ngIf="bannerForm.get('image')?.errors?.['pattern']">Please enter a valid URL</div>
               </div>
             </div>
 
             <div class="form-group">
               <label for="link" class="block text-sm font-medium text-gray-700 mb-2">
-                Link *
+                Link
               </label>
-              <input 
-                pInputText 
+              <input
+                pInputText
                 id="link"
                 formControlName="link"
                 placeholder="Enter link URL"
                 class="w-full"
                 [class.ng-invalid]="bannerForm.get('link')?.invalid && bannerForm.get('link')?.touched">
-              <div *ngIf="bannerForm.get('link')?.invalid && bannerForm.get('link')?.touched" 
+              <div *ngIf="bannerForm.get('link')?.invalid && bannerForm.get('link')?.touched"
                    class="text-red-600 text-sm mt-1">
                 <div *ngIf="bannerForm.get('link')?.errors?.['required']">Link is required</div>
               </div>
             </div>
 
             <div class="form-group">
-              <label for="position" class="block text-sm font-medium text-gray-700 mb-2">
-                Position *
+              <label for="order" class="block text-sm font-medium text-gray-700 mb-2">
+                Order
               </label>
-              <p-inputNumber 
-                id="position"
-                formControlName="position"
-                placeholder="Enter position"
+              <p-inputNumber
+                id="order"
+                formControlName="order"
+                placeholder="Enter display order"
                 [min]="1"
                 [max]="100"
                 class="w-full">
               </p-inputNumber>
-              <div *ngIf="bannerForm.get('position')?.invalid && bannerForm.get('position')?.touched" 
+              <div *ngIf="bannerForm.get('order')?.invalid && bannerForm.get('order')?.touched"
                    class="text-red-600 text-sm mt-1">
-                <div *ngIf="bannerForm.get('position')?.errors?.['required']">Position is required</div>
-                <div *ngIf="bannerForm.get('position')?.errors?.['min']">Position must be at least 1</div>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="isActive" class="block text-sm font-medium text-gray-700 mb-2">
-                Active Status
-              </label>
-              <div class="flex items-center">
-                <input 
-                  type="checkbox"
-                  id="isActive"
-                  formControlName="isActive"
-                  class="mr-2">
-                <label for="isActive" class="text-sm text-gray-600">
-                  {{ bannerForm.get('isActive')?.value ? 'Active' : 'Inactive' }}
-                </label>
+                <div *ngIf="bannerForm.get('order')?.errors?.['min']">Order must be at least 1</div>
               </div>
             </div>
 
             <div class="form-actions flex justify-end space-x-4 pt-6">
-              <button 
-                pButton 
+              <button
+                pButton
                 type="button"
                 label="Cancel"
                 class="p-button-outlined"
                 [routerLink]="['/apps/banners']">
               </button>
-              <button 
-                pButton 
+              <button
+                pButton
                 type="submit"
                 [label]="isEditMode ? 'Update' : 'Create'"
                 [disabled]="bannerForm.invalid || loading"
@@ -200,20 +212,22 @@ export class BannerFormComponent implements OnInit {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private bannerService = inject(BannerService);
 
   bannerForm: FormGroup = this.fb.group({
     title: ['', [Validators.required, Validators.minLength(3)]],
-    imageUrl: ['', [Validators.required, Validators.pattern(/^https?:\/\/.+/)]],
-    link: ['', [Validators.required]],
-    position: [1, [Validators.required, Validators.min(1)]],
-    isActive: [true]
+    description: [''],
+    image: ['', [Validators.pattern(/^https?:\/\/.+/)]],
+    link: [''],
+    order: [null, [Validators.min(1)]]
   });
 
   isEditMode = false;
-  bannerId: number | null = null;
+  bannerId: string | null = null;
   loading = false;
   successMessage = '';
   errorMessage = '';
+  selectedFile: File | null = null;
 
   ngOnInit() {
     this.bannerId = this.route.snapshot.params['id'];
@@ -226,38 +240,98 @@ export class BannerFormComponent implements OnInit {
 
   loadBanner() {
     this.loading = true;
-    // Mock data - replace with actual API call
-    setTimeout(() => {
-      const mockBanner: Banner = {
-        id: this.bannerId!,
-        title: 'Sample Banner',
-        imageUrl: 'https://via.placeholder.com/800x300',
-        link: '/sample-link',
-        position: 1,
-        isActive: true
-      };
+    this.bannerService.getById(this.bannerId!).subscribe({
+      next: (banner: BannerModel) => {
+        this.bannerForm.patchValue({
+          title: banner.title,
+          description: banner.description || '',
+          image: banner.image || '',
+          link: banner.link || '',
+          order: banner.order
+        });
+        this.loading = false;
+      },
+      error: (error: any) => {
+        this.errorMessage = 'Failed to load banner';
+        this.loading = false;
+        console.error('Error loading banner:', error);
+      }
+    });
+  }
 
-      this.bannerForm.patchValue(mockBanner);
-      this.loading = false;
-    }, 500);
+  onFileSelect(event: any) {
+    this.selectedFile = event.files[0];
+    // Upload immediately when file is selected
+    if (this.selectedFile && this.bannerId) {
+      this.uploadImage();
+    }
+  }
+
+  uploadImage() {
+    if (!this.selectedFile || !this.bannerId) {
+      return;
+    }
+
+    this.loading = true;
+    this.errorMessage = '';
+    this.bannerService.uploadImage(this.bannerId, this.selectedFile).subscribe({
+      next: (response: BannerModel) => {
+        this.bannerForm.patchValue({ image: response.image });
+        this.successMessage = 'Image uploaded successfully';
+        this.loading = false;
+        this.selectedFile = null;
+
+        // Clear the success message after 3 seconds
+        setTimeout(() => {
+          this.successMessage = '';
+        }, 3000);
+      },
+      error: (error: any) => {
+        this.errorMessage = 'Failed to upload image';
+        this.loading = false;
+        console.error('Error uploading image:', error);
+      }
+    });
   }
 
   onSubmit() {
     if (this.bannerForm.valid) {
       this.loading = true;
       this.errorMessage = '';
-      const formData = this.bannerForm.value;
+      const formData: CreateBannerDto = this.bannerForm.value;
 
-      // Mock API call
-      setTimeout(() => {
-        this.successMessage = `Banner ${this.isEditMode ? 'updated' : 'created'} successfully`;
-        this.loading = false;
-        
-        // Navigate back to list after 2 seconds
-        setTimeout(() => {
-          this.router.navigate(['/apps/banners']);
-        }, 2000);
-      }, 1000);
+      // Remove empty optional fields
+      Object.keys(formData).forEach(key => {
+        if ((formData as any)[key] === '' || (formData as any)[key] === null) {
+          delete (formData as any)[key];
+        }
+      });
+
+      const request = this.isEditMode
+        ? this.bannerService.update(this.bannerId!, formData)
+        : this.bannerService.create(formData);
+
+      request.subscribe({
+        next: (banner: BannerModel) => {
+          if (!this.isEditMode) {
+            this.bannerId = banner._id!;
+            this.isEditMode = true;
+          }
+
+          this.successMessage = `Banner ${this.isEditMode ? 'updated' : 'created'} successfully`;
+          this.loading = false;
+
+          // Navigate back to list after 2 seconds
+          setTimeout(() => {
+            this.router.navigate(['/apps/banners']);
+          }, 2000);
+        },
+        error: (error: any) => {
+          this.errorMessage = 'Failed to save banner';
+          this.loading = false;
+          console.error('Error saving banner:', error);
+        }
+      });
     } else {
       this.errorMessage = 'Please fill all required fields correctly';
       this.markFormGroupTouched();

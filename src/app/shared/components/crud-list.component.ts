@@ -30,7 +30,7 @@ export interface CrudConfig {
 export interface ColumnConfig {
   field: string;
   header: string;
-  type: 'text' | 'date' | 'status' | 'badge' | 'actions';
+  type: 'text' | 'date' | 'status' | 'badge' | 'image' | 'actions';
   sortable?: boolean;
   filterable?: boolean;
   width?: string;
@@ -125,6 +125,15 @@ export interface ColumnConfig {
                 <ng-container [ngSwitch]="col.type">
                   <span *ngSwitchCase="'text'">{{getNestedValue(item, col.field)}}</span>
                   <span *ngSwitchCase="'date'">{{getNestedValue(item, col.field) | date:'short'}}</span>
+                  <div *ngSwitchCase="'image'" class="image-cell">
+                    <img
+                      *ngIf="getNestedValue(item, col.field)"
+                      [src]="getNestedValue(item, col.field)"
+                      [alt]="item.title || 'Image'"
+                      class="table-image"
+                      (error)="onImageError($event)">
+                    <span *ngIf="!getNestedValue(item, col.field)" class="text-gray-400 text-sm">No image</span>
+                  </div>
                   <p-tag
                     *ngSwitchCase="'status'"
                     [value]="formatStatusValue(getNestedValue(item, col.field))"
@@ -213,6 +222,20 @@ export interface ColumnConfig {
     .action-buttons {
       display: flex;
       gap: 0.5rem;
+    }
+
+    .image-cell {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .table-image {
+      width: 60px;
+      height: 40px;
+      object-fit: cover;
+      border-radius: 4px;
+      border: 1px solid #e5e7eb;
     }
 
     .empty-state {
@@ -518,6 +541,18 @@ export class CrudListComponent implements OnInit {
         return 'danger';
       default:
         return 'info';
+    }
+  }
+
+  onImageError(event: any) {
+    // Hide broken images and show a placeholder
+    event.target.style.display = 'none';
+    const parent = event.target.parentElement;
+    if (parent && !parent.querySelector('.image-error')) {
+      const errorSpan = document.createElement('span');
+      errorSpan.className = 'image-error text-gray-400 text-xs';
+      errorSpan.textContent = 'Image unavailable';
+      parent.appendChild(errorSpan);
     }
   }
 

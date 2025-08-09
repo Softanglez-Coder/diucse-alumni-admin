@@ -2,17 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { CrudListComponent, CrudConfig } from '../../shared/components/crud-list.component';
-
-export interface Banner {
-  id: number;
-  title: string;
-  imageUrl: string;
-  link: string;
-  isActive: boolean;
-  position: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { Banner } from './banner.service';
 
 @Component({
   selector: 'app-banners',
@@ -27,48 +17,54 @@ export interface Banner {
 export class BannersComponent implements OnInit {
   crudConfig: CrudConfig = {
     title: 'Banners',
-    apiEndpoint: '/api/banners',
+    apiEndpoint: '/banners',
     createRoute: '/apps/banners/new',
     editRoute: '/apps/banners',
     viewRoute: '/apps/banners',
-    searchFields: ['title', 'link'],
+    searchFields: ['title', 'description', 'link'],
     columns: [
-      { 
-        field: 'title', 
-        header: 'Title', 
+      {
+        field: 'title',
+        header: 'Title',
         type: 'text',
         sortable: true,
         filterable: true
       },
-      { 
-        field: 'link', 
-        header: 'Link', 
+      {
+        field: 'description',
+        header: 'Description',
         type: 'text',
         sortable: true
       },
-      { 
-        field: 'position', 
-        header: 'Position', 
+      {
+        field: 'image',
+        header: 'Image',
+        type: 'image',
+        width: '120px'
+      },
+      {
+        field: 'link',
+        header: 'Link',
+        type: 'text',
+        sortable: true
+      },
+      {
+        field: 'order',
+        header: 'Order',
         type: 'text',
         width: '100px',
         sortable: true
       },
-      { 
-        field: 'isActive', 
-        header: 'Status', 
-        type: 'status',
-        width: '100px'
-      },
-      { 
-        field: 'createdAt', 
-        header: 'Created', 
+      {
+        field: 'createdAt',
+        header: 'Created',
         type: 'date',
         width: '150px',
         sortable: true
       },
-      { 
-        field: 'actions', 
-        header: 'Actions', 
+      {
+        field: 'actions',
+        header: 'Actions',
         type: 'actions',
         width: '150px'
       }
