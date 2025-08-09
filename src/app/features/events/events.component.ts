@@ -16,7 +16,7 @@ import { CrudListComponent, CrudConfig } from '../../shared/components/crud-list
 export class EventsComponent implements OnInit {
   crudConfig: CrudConfig = {
     title: 'Events',
-    apiEndpoint: '/api/events',
+    apiEndpoint: '/events',
     createRoute: '/apps/events/new',
     editRoute: '/apps/events',
     viewRoute: '/apps/events',
