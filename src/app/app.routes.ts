@@ -253,14 +253,6 @@ export const routes: Routes = [
                         pathMatch: 'full',
                         loadComponent: () => import('./features/settings/settings.component').then(c => c.SettingsComponent)
                     },
-                    {
-                        path: 'general',
-                        loadComponent: () => import('./features/settings/general-settings.component').then(c => c.GeneralSettingsComponent)
-                    },
-                    {
-                        path: 'profile',
-                        loadComponent: () => import('./features/settings/profile-settings.component').then(c => c.ProfileSettingsComponent)
-                    },
                 ]
             },
             {

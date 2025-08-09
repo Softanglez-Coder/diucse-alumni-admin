@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CardModule } from 'primeng/card';
@@ -12,6 +12,9 @@ import { DialogModule } from 'primeng/dialog';
 import { TagModule } from 'primeng/tag';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { SettingsService, Setting } from './settings.service';
+import { Subscription } from 'rxjs';
+import { timeout, catchError } from 'rxjs/operators';
+import { of, throwError } from 'rxjs';
 
 @Component({
   selector: 'app-settings',
@@ -302,13 +305,14 @@ import { SettingsService, Setting } from './settings.service';
     }
   `]
 })
-export class SettingsComponent implements OnInit {
+export class SettingsComponent implements OnInit, OnDestroy {
   settings: Setting[] = [];
   displayDialog = false;
   editMode = false;
   loading = false;
   saving = false;
   selectedSetting: Setting | null = null;
+  private subscriptions: Subscription[] = [];
 
   settingForm: FormGroup;
 
@@ -316,7 +320,8 @@ export class SettingsComponent implements OnInit {
     private settingsService: SettingsService,
     private fb: FormBuilder,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
+    private cdr: ChangeDetectorRef
   ) {
     this.settingForm = this.fb.group({
       group: ['', Validators.required],
@@ -331,23 +336,68 @@ export class SettingsComponent implements OnInit {
     this.loadSettings();
   }
 
+  ngOnDestroy() {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+
   loadSettings() {
     this.loading = true;
-    this.settingsService.getAllSettings().subscribe({
-      next: (settings: Setting[]) => {
-        this.settings = settings;
-        this.loading = false;
-      },
-      error: (error: any) => {
-        console.error('Error loading settings:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to load settings'
-        });
-        this.loading = false;
-      }
-    });
+    console.log('Loading settings...');
+
+    const subscription = this.settingsService.getAllSettings()
+      .pipe(
+        timeout(8000), // 8 second timeout
+        catchError(error => {
+          console.error('Settings API error:', error);
+
+          // Show appropriate error message based on error type
+          if (error.name === 'TimeoutError') {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Connection Timeout',
+              detail: 'Unable to connect to the server. Please check your connection.'
+            });
+          } else if (error.status === 0) {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Network Error',
+              detail: 'Cannot reach the server. Please check if the backend is running.'
+            });
+          } else {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: `Failed to load settings: ${error.message || 'Unknown error'}`
+            });
+          }
+
+          // Return empty array on error instead of throwing
+          return of([]);
+        })
+      )
+      .subscribe({
+        next: (settings: Setting[]) => {
+          console.log('Settings loaded successfully:', settings);
+          this.settings = settings;
+          this.loading = false;
+          this.cdr.detectChanges(); // Force change detection
+        },
+        error: (error: any) => {
+          console.error('Error loading settings after operators:', error);
+          this.loading = false;
+          this.cdr.detectChanges(); // Force change detection
+        },
+        complete: () => {
+          console.log('Settings loading completed');
+          // Ensure loading is always false when observable completes
+          if (this.loading) {
+            this.loading = false;
+            this.cdr.detectChanges(); // Force change detection
+          }
+        }
+      });
+
+    this.subscriptions.push(subscription);
   }
 
   showDialog() {
