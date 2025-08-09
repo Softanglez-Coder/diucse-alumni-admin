@@ -6,7 +6,7 @@ import { ApiService } from './api.service';
   providedIn: 'root'
 })
 export class DataService {
-  
+
   constructor(protected apiService: ApiService) {}
 
   /**
@@ -20,7 +20,10 @@ export class DataService {
    * Generic method to get a single record by ID
    */
   getById<T>(endpoint: string, id: string | number): Observable<T> {
-    return this.apiService.get<T>(`${endpoint}/${id}`);
+    console.log('DataService: Getting record by ID:', endpoint, id);
+    const url = `${endpoint}/${id}`;
+    console.log('DataService: Making request to:', url);
+    return this.apiService.get<T>(url);
   }
 
   /**

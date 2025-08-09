@@ -22,6 +22,9 @@ export interface CrudConfig {
   createRoute: string;
   editRoute: string;
   viewRoute: string;
+  disableEdit?: boolean;
+  disableDelete?: boolean;
+  disableCreate?: boolean;
 }
 
 export interface ColumnConfig {
@@ -55,10 +58,11 @@ export interface ColumnConfig {
     <div class="crud-container">
       <div class="crud-header">
         <h1 class="crud-title">{{config.title}}</h1>
-        <button 
-          pButton 
-          label="Add New" 
-          icon="pi pi-plus" 
+        <button
+          *ngIf="!config.disableCreate"
+          pButton
+          label="Add New"
+          icon="pi pi-plus"
           class="p-button-success"
           [routerLink]="config.createRoute">
         </button>
@@ -69,46 +73,46 @@ export interface ColumnConfig {
           <div class="p-toolbar-group-left">
             <span class="p-input-icon-left">
               <i class="pi pi-search"></i>
-              <input 
-                type="text" 
-                pInputText 
-                placeholder="Search..." 
+              <input
+                type="text"
+                pInputText
+                placeholder="Search..."
                 [(ngModel)]="searchValue"
                 (input)="onSearch()"
                 class="p-inputtext-sm">
             </span>
           </div>
           <div class="p-toolbar-group-right">
-            <button 
-              pButton 
-              label="Export" 
-              icon="pi pi-download" 
+            <button
+              pButton
+              label="Export"
+              icon="pi pi-download"
               class="p-button-outlined p-button-sm mr-2"
               (click)="exportData()">
             </button>
-            <button 
-              pButton 
-              label="Refresh" 
-              icon="pi pi-refresh" 
+            <button
+              pButton
+              label="Refresh"
+              icon="pi pi-refresh"
               class="p-button-outlined p-button-sm"
               (click)="loadData()">
             </button>
           </div>
         </p-toolbar>
 
-        <p-table 
-          [value]="filteredData" 
-          [rows]="rows" 
-          [paginator]="true" 
+        <p-table
+          [value]="filteredData"
+          [rows]="rows"
+          [paginator]="true"
           [loading]="loading"
           responsiveLayout="scroll"
           [first]="first"
           [totalRecords]="totalRecords"
           (onPage)="onPageChange($event)">
-          
+
           <ng-template pTemplate="header">
             <tr>
-              <th *ngFor="let col of config.columns" 
+              <th *ngFor="let col of config.columns"
                   [style.width]="col.width">
                 {{col.header}}
               </th>
@@ -121,33 +125,35 @@ export interface ColumnConfig {
                 <ng-container [ngSwitch]="col.type">
                   <span *ngSwitchCase="'text'">{{getNestedValue(item, col.field)}}</span>
                   <span *ngSwitchCase="'date'">{{getNestedValue(item, col.field) | date:'short'}}</span>
-                  <p-tag 
-                    *ngSwitchCase="'status'" 
-                    [value]="formatStatusValue(getNestedValue(item, col.field))" 
+                  <p-tag
+                    *ngSwitchCase="'status'"
+                    [value]="formatStatusValue(getNestedValue(item, col.field))"
                     [severity]="getStatusSeverity(getNestedValue(item, col.field))">
                   </p-tag>
-                  <p-tag 
-                    *ngSwitchCase="'badge'" 
+                  <p-tag
+                    *ngSwitchCase="'badge'"
                     [value]="formatBadgeValue(getNestedValue(item, col.field))">
                   </p-tag>
                   <div *ngSwitchCase="'actions'" class="action-buttons">
-                    <button 
-                      pButton 
-                      icon="pi pi-eye" 
+                    <button
+                      pButton
+                      icon="pi pi-eye"
                       class="p-button-rounded p-button-text p-button-sm"
                       [routerLink]="[config.viewRoute, item._id]"
                       pTooltip="View">
                     </button>
-                    <button 
-                      pButton 
-                      icon="pi pi-pencil" 
+                    <button
+                      *ngIf="!config.disableEdit"
+                      pButton
+                      icon="pi pi-pencil"
                       class="p-button-rounded p-button-text p-button-sm"
                       [routerLink]="[config.editRoute, item._id]"
                       pTooltip="Edit">
                     </button>
-                    <button 
-                      pButton 
-                      icon="pi pi-trash" 
+                    <button
+                      *ngIf="!config.disableDelete"
+                      pButton
+                      icon="pi pi-trash"
                       class="p-button-rounded p-button-text p-button-sm p-button-danger"
                       (click)="confirmDelete(item)"
                       pTooltip="Delete">
@@ -166,9 +172,10 @@ export interface ColumnConfig {
                   <i class="pi pi-info-circle text-4xl text-gray-400 mb-4"></i>
                   <h3 class="text-lg font-semibold text-gray-600 mb-2">No data found</h3>
                   <p class="text-gray-500 mb-4">Get started by adding your first item</p>
-                  <button 
-                    pButton 
-                    label="Add New" 
+                  <button
+                    *ngIf="!config.disableCreate"
+                    pButton
+                    label="Add New"
                     icon="pi pi-plus"
                     [routerLink]="config.createRoute">
                   </button>
@@ -255,7 +262,7 @@ export interface ColumnConfig {
 })
 export class CrudListComponent implements OnInit {
   @Input() config!: CrudConfig;
-  
+
   data: any[] = [];
   filteredData: any[] = [];
   loading = false;
@@ -277,7 +284,7 @@ export class CrudListComponent implements OnInit {
 
   loadData() {
     this.loading = true;
-    
+
     this.apiService.get<any>(this.config.apiEndpoint).subscribe({
       next: (response) => {
         // Handle different response formats
@@ -295,7 +302,7 @@ export class CrudListComponent implements OnInit {
             dataArray = [];
           }
         }
-        
+
         // Update data in next tick to avoid ExpressionChangedAfterItHasBeenCheckedError
         setTimeout(() => {
           this.data = dataArray;
@@ -307,7 +314,7 @@ export class CrudListComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading data:', error);
-        
+
         let errorMessage = 'Failed to load data from server';
         if (error.status === 0) {
           errorMessage = 'Unable to connect to server. Please check if the server is running.';
@@ -316,13 +323,13 @@ export class CrudListComponent implements OnInit {
         } else if (error.status === 500) {
           errorMessage = 'Server error. Please try again later.';
         }
-        
+
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
           detail: errorMessage
         });
-        
+
         setTimeout(() => {
           this.data = [];
           this.filteredData = [];
@@ -345,13 +352,13 @@ export class CrudListComponent implements OnInit {
       return;
     }
 
-    const filtered = this.data.filter(item => 
+    const filtered = this.data.filter(item =>
       this.config.searchFields.some(field => {
         const value = this.getNestedValue(item, field);
         return value?.toString().toLowerCase().includes(this.searchValue.toLowerCase());
       })
     );
-    
+
     setTimeout(() => {
       this.filteredData = filtered;
       this.totalRecords = this.filteredData.length;
@@ -394,7 +401,7 @@ export class CrudListComponent implements OnInit {
 
   deleteItem(item: any) {
     this.loading = true;
-    
+
     this.apiService.delete<any>(`${this.config.apiEndpoint}/${item._id}`).subscribe({
       next: (response) => {
         setTimeout(() => {
@@ -404,7 +411,7 @@ export class CrudListComponent implements OnInit {
           this.loading = false;
           this.cdr.detectChanges(); // Manually trigger change detection
         }, 0);
-        
+
         this.messageService.add({
           severity: 'success',
           summary: 'Success',
@@ -449,16 +456,16 @@ export class CrudListComponent implements OnInit {
     const headers = this.config.columns
       .filter(col => col.type !== 'actions')
       .map(col => col.header);
-    
+
     const csvContent = [
       headers.join(','),
-      ...data.map(item => 
+      ...data.map(item =>
         this.config.columns
           .filter(col => col.type !== 'actions')
           .map(col => {
             const value = this.getNestedValue(item, col.field);
             let formattedValue = value;
-            
+
             if (Array.isArray(value)) {
               formattedValue = value.join('; ');
             } else if (typeof value === 'boolean') {
@@ -466,7 +473,7 @@ export class CrudListComponent implements OnInit {
             } else if (value == null) {
               formattedValue = '';
             }
-            
+
             return typeof formattedValue === 'string' ? `"${formattedValue}"` : formattedValue;
           })
           .join(',')
@@ -480,7 +487,7 @@ export class CrudListComponent implements OnInit {
     link.download = `${this.config.title.toLowerCase().replace(/\s+/g, '-')}-export.csv`;
     link.click();
     window.URL.revokeObjectURL(url);
-    
+
     this.messageService.add({
       severity: 'success',
       summary: 'Success',
@@ -493,7 +500,7 @@ export class CrudListComponent implements OnInit {
     if (typeof status === 'boolean') {
       return status ? 'success' : 'danger';
     }
-    
+
     // Handle string values
     switch (status?.toLowerCase()) {
       case 'active':

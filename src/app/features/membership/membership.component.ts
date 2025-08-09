@@ -17,23 +17,21 @@ export class MembershipComponent implements OnInit {
     title: 'Membership Management',
     apiEndpoint: '/memberships',
     columns: [
-      { field: '_id', header: 'ID', type: 'text', sortable: true },
       { field: 'user.name', header: 'Member Name', type: 'text', sortable: true },
       { field: 'user.email', header: 'Email', type: 'text', sortable: true },
-      { field: 'user.batch', header: 'Batch', type: 'text', sortable: true },
+      { field: 'user.batch.name', header: 'Batch', type: 'text', sortable: true },
       { field: 'user.phone', header: 'Phone', type: 'text', sortable: true },
       { field: 'status', header: 'Status', type: 'status', sortable: true },
-      { field: 'user.roles', header: 'Roles', type: 'badge', sortable: true },
-      { field: 'user.active', header: 'Active', type: 'badge', sortable: true },
       { field: 'user.emailVerified', header: 'Email Verified', type: 'badge', sortable: true },
-      { field: 'createdAt', header: 'Created Date', type: 'date', sortable: true },
       { field: 'updatedAt', header: 'Updated Date', type: 'date', sortable: true },
       { field: 'actions', header: 'Actions', type: 'actions', width: '120px' }
     ],
     searchFields: ['user.name', 'user.email', 'status'],
     createRoute: '/apps/membership/new',
     editRoute: '/apps/membership',
-    viewRoute: '/apps/membership'
+    viewRoute: '/apps/membership',
+    disableEdit: true,
+    disableDelete: true
   };
 
   constructor(private membershipService: MembershipService) {}

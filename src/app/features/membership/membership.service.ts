@@ -1,17 +1,44 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { DataService } from '../../core/services/data.service';
+import { MembershipStatus } from '../../shared/enums';
 
 export interface Membership {
-  id: number;
-  memberName: string;
-  membershipType: string;
-  startDate: string;
-  endDate: string;
-  status: string;
-  fees: number;
-  createdAt?: string;
-  updatedAt?: string;
+  _id: string;
+  user: {
+    _id: string;
+    email: string;
+    roles: string[];
+    name: string;
+    active: boolean;
+    emailVerified: boolean;
+    batch: {
+      _id: string;
+      name: string;
+      createdAt: string;
+      updatedAt: string;
+      __v: number;
+    };
+    phone: string;
+    photo?: string;
+    currentPosition?: string;
+    company?: string;
+    createdAt: string;
+    updatedAt: string;
+    __v: number;
+  };
+  status: MembershipStatus;
+  justification: string | null;
+  paymentInfo?: {
+    paymentMethod: string;
+    transactionId: string;
+    paymentDate: string;
+    amount: number;
+    status: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
 }
 
 @Injectable({
@@ -30,8 +57,11 @@ export class MembershipService extends DataService {
   /**
    * Get membership by ID
    */
-  getMembershipById(id: number): Observable<Membership> {
-    return this.getById<Membership>(this.endpoint, id);
+  getMembershipById(id: string): Observable<Membership> {
+    console.log('MembershipService: Getting membership by ID:', id);
+    const result = this.getById<Membership>(this.endpoint, id);
+    console.log('MembershipService: Observable created:', result);
+    return result;
   }
 
   /**
@@ -44,14 +74,14 @@ export class MembershipService extends DataService {
   /**
    * Update membership
    */
-  updateMembership(id: number, membership: Partial<Membership>): Observable<Membership> {
+  updateMembership(id: string, membership: Partial<Membership>): Observable<Membership> {
     return this.update<Membership>(this.endpoint, id, membership);
   }
 
   /**
    * Delete membership
    */
-  deleteMembership(id: number): Observable<void> {
+  deleteMembership(id: string): Observable<void> {
     return this.delete<void>(this.endpoint, id);
   }
 
@@ -86,5 +116,33 @@ export class MembershipService extends DataService {
     expired: number;
   }> {
     return this.apiService.get<any>(`${this.endpoint}/stats`);
+  }
+
+  /**
+   * Change membership status to in-progress
+   */
+  setInProgress(id: string): Observable<Membership> {
+    return this.apiService.patch<Membership>(`${this.endpoint}/${id}/in-progress`, {});
+  }
+
+  /**
+   * Change membership status to payment required
+   */
+  setPaymentRequired(id: string): Observable<Membership> {
+    return this.apiService.patch<Membership>(`${this.endpoint}/${id}/payment-required`, {});
+  }
+
+  /**
+   * Approve membership
+   */
+  approveMembership(id: string): Observable<Membership> {
+    return this.apiService.patch<Membership>(`${this.endpoint}/${id}/approve`, {});
+  }
+
+  /**
+   * Reject membership
+   */
+  rejectMembership(id: string, justification: string): Observable<Membership> {
+    return this.apiService.patch<Membership>(`${this.endpoint}/${id}/reject`, { justification });
   }
 }
