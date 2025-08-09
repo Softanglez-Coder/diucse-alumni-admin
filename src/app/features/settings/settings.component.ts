@@ -9,7 +9,6 @@ import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
-import { TagModule } from 'primeng/tag';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { SettingsService, Setting } from './settings.service';
 import { Subscription } from 'rxjs';
@@ -29,8 +28,7 @@ import { of, throwError } from 'rxjs';
     TableModule,
     ToastModule,
     ConfirmDialogModule,
-    DialogModule,
-    TagModule
+    DialogModule
   ],
   providers: [MessageService, ConfirmationService],
   template: `
@@ -56,7 +54,7 @@ import { of, throwError } from 'rxjs';
             [paginator]="true"
             [rows]="10"
             [rowsPerPageOptions]="[10, 25, 50]"
-            [globalFilterFields]="['group', 'key', 'description']"
+            [globalFilterFields]="['key', 'description']"
             #dt
           >
             <ng-template pTemplate="caption">
@@ -74,10 +72,6 @@ import { of, throwError } from 'rxjs';
             </ng-template>
             <ng-template pTemplate="header">
               <tr>
-                <th pSortableColumn="group">
-                  Group
-                  <p-sortIcon field="group"></p-sortIcon>
-                </th>
                 <th pSortableColumn="key">
                   Key
                   <p-sortIcon field="key"></p-sortIcon>
@@ -93,12 +87,6 @@ import { of, throwError } from 'rxjs';
             </ng-template>
             <ng-template pTemplate="body" let-setting>
               <tr>
-                <td>
-                  <p-tag
-                    [value]="setting.group"
-                    [style]="getGroupTagStyle(setting.group)"
-                  ></p-tag>
-                </td>
                 <td>{{ setting.key }}</td>
                 <td>{{ setting.description }}</td>
                 <td>
@@ -129,7 +117,7 @@ import { of, throwError } from 'rxjs';
             </ng-template>
             <ng-template pTemplate="emptymessage">
               <tr>
-                <td colspan="6" class="text-center py-8">
+                <td colspan="5" class="text-center py-8">
                   <i class="pi pi-info-circle text-4xl text-gray-400 mb-4 block"></i>
                   <p class="text-gray-500">No settings found</p>
                   <button
@@ -155,37 +143,20 @@ import { of, throwError } from 'rxjs';
         [closable]="true"
       >
         <form [formGroup]="settingForm" (ngSubmit)="saveSetting()">
-          <div class="grid grid-cols-2 gap-4">
-            <div class="field">
-              <label for="group" class="block text-sm font-medium text-gray-700 mb-2">Group</label>
-              <input
-                id="group"
-                type="text"
-                pInputText
-                formControlName="group"
-                placeholder="e.g., membership, general, system"
-                [style]="{'width': '100%'}"
-              />
-              <small class="p-error" *ngIf="settingForm.get('group')?.invalid && settingForm.get('group')?.touched">
-                Group is required
-              </small>
-            </div>
-
-            <div class="field">
-              <label for="key" class="block text-sm font-medium text-gray-700 mb-2">Key</label>
-              <input
-                id="key"
-                type="text"
-                pInputText
-                formControlName="key"
-                placeholder="e.g., membership_fee, max_users"
-                [style]="{'width': '100%'}"
-                [readonly]="editMode"
-              />
-              <small class="p-error" *ngIf="settingForm.get('key')?.invalid && settingForm.get('key')?.touched">
-                Key is required
-              </small>
-            </div>
+          <div class="field">
+            <label for="key" class="block text-sm font-medium text-gray-700 mb-2">Key</label>
+            <input
+              id="key"
+              type="text"
+              pInputText
+              formControlName="key"
+              placeholder="e.g., membership_fee, max_users"
+              [style]="{'width': '100%'}"
+              [readonly]="editMode"
+            />
+            <small class="p-error" *ngIf="settingForm.get('key')?.invalid && settingForm.get('key')?.touched">
+              Key is required
+            </small>
           </div>
 
           <div class="field mt-4">
@@ -324,7 +295,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef
   ) {
     this.settingForm = this.fb.group({
-      group: ['', Validators.required],
       key: ['', Validators.required],
       description: ['', Validators.required],
       valueType: ['number', Validators.required],
@@ -421,7 +391,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
 
     this.settingForm.patchValue({
-      group: setting.group,
       key: setting.key,
       description: setting.description,
       valueType: valueType,
@@ -471,7 +440,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
 
     const settingData = {
-      group: formValue.group,
       key: formValue.key,
       description: formValue.description,
       value: processedValue
@@ -534,17 +502,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
         });
       }
     });
-  }
-
-  getGroupTagStyle(group: string): any {
-    const styles: any = {
-      'membership': { background: '#10b981', color: 'white' },
-      'general': { background: '#3b82f6', color: 'white' },
-      'system': { background: '#8b5cf6', color: 'white' },
-      'security': { background: '#ef4444', color: 'white' },
-      'notification': { background: '#f59e0b', color: 'white' }
-    };
-    return styles[group] || { background: '#6b7280', color: 'white' };
   }
 
   getValueClass(value: any): string {

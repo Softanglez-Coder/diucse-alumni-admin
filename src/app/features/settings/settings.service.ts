@@ -4,21 +4,12 @@ import { DataService } from '../../core/services/data.service';
 
 export interface Setting {
   _id: string;
-  group: string;
   key: string;
   description: string;
   value: any;
   createdAt: string;
   updatedAt: string;
   __v: number;
-}
-
-export enum SettingsGroup {
-  Membership = 'membership',
-  General = 'general',
-  System = 'system',
-  Security = 'security',
-  Notification = 'notification',
 }
 
 export enum SettingsKey {
@@ -87,13 +78,6 @@ export class SettingsService extends DataService {
    */
   deleteSetting(id: string): Observable<void> {
     return this.delete<void>(this.endpoint, id);
-  }
-
-  /**
-   * Get settings by group
-   */
-  getSettingsByGroup(group: SettingsGroup): Observable<Setting[]> {
-    return this.apiService.get<Setting[]>(`${this.endpoint}/groups/${group}`);
   }
 
   /**
