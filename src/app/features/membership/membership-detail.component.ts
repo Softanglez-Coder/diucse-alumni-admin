@@ -47,6 +47,18 @@ interface MembershipDetails {
     amount: number;
     status: string;
   };
+  invoice?: {
+    _id: string;
+    user: any;
+    amount: number;
+    status: string;
+    remarks: string;
+    paymentUrl: string;
+    validationId: string;
+    createdAt: string;
+    updatedAt: string;
+    __v: number;
+  };
   createdAt: string;
   updatedAt: string;
   __v: number;
@@ -220,35 +232,86 @@ interface StatusOption {
 
         <!-- Payment Information Card -->
         <p-card header="Payment Information" class="payment-card">
-          <div *ngIf="membership.paymentInfo; else noPaymentInfo">
-            <div class="payment-details">
+          <!-- Display Invoice Information when status is payment_required and invoice exists -->
+          <div *ngIf="membership.invoice && membership.status === 'payment_required'; else checkLegacyPayment">
+            <div class="invoice-section">
+              <h4 class="section-title">Invoice Details</h4>
               <div class="info-grid">
                 <div class="info-item">
-                  <label>Payment Method:</label>
-                  <span>{{ membership.paymentInfo.paymentMethod }}</span>
+                  <label>Invoice ID:</label>
+                  <span class="invoice-id">{{ membership.invoice._id }}</span>
                 </div>
                 <div class="info-item">
-                  <label>Transaction ID:</label>
-                  <span class="transaction-id">{{ membership.paymentInfo.transactionId }}</span>
+                  <label>Amount:</label>
+                  <span class="amount-due">৳{{ membership.invoice.amount }}</span>
                 </div>
                 <div class="info-item">
-                  <label>Payment Date:</label>
-                  <span>{{ membership.paymentInfo.paymentDate | date:'mediumDate' }}</span>
-                </div>
-                <div class="info-item">
-                  <label>Amount Paid:</label>
-                  <span class="amount-paid">\${{ membership.paymentInfo.amount }}</span>
-                </div>
-                <div class="info-item">
-                  <label>Payment Status:</label>
+                  <label>Invoice Status:</label>
                   <p-tag
-                    [value]="membership.paymentInfo.status"
-                    [severity]="getPaymentStatusSeverity(membership.paymentInfo.status)">
+                    [value]="membership.invoice.status"
+                    [severity]="getInvoiceStatusSeverity(membership.invoice.status)">
                   </p-tag>
                 </div>
+                <div class="info-item">
+                  <label>Remarks:</label>
+                  <span>{{ membership.invoice.remarks }}</span>
+                </div>
+                <div class="info-item">
+                  <label>Validation ID:</label>
+                  <span class="validation-id">{{ membership.invoice.validationId }}</span>
+                </div>
+                <div class="info-item">
+                  <label>Invoice Date:</label>
+                  <span>{{ membership.invoice.createdAt | date:'mediumDate' }}</span>
+                </div>
+              </div>
+
+              <div class="payment-actions" *ngIf="membership.invoice.paymentUrl">
+                <p-divider></p-divider>
+                <button
+                  pButton
+                  label="Open Payment Link"
+                  icon="pi pi-external-link"
+                  class="p-button-success"
+                  (click)="openPaymentUrl(membership.invoice.paymentUrl)">
+                </button>
+                <p class="payment-note">Click to open the payment portal in a new window</p>
               </div>
             </div>
           </div>
+
+          <ng-template #checkLegacyPayment>
+            <div *ngIf="membership.paymentInfo; else noPaymentInfo">
+              <div class="payment-details">
+                <h4 class="section-title">Payment Details</h4>
+                <div class="info-grid">
+                  <div class="info-item">
+                    <label>Payment Method:</label>
+                    <span>{{ membership.paymentInfo.paymentMethod }}</span>
+                  </div>
+                  <div class="info-item">
+                    <label>Transaction ID:</label>
+                    <span class="transaction-id">{{ membership.paymentInfo.transactionId }}</span>
+                  </div>
+                  <div class="info-item">
+                    <label>Payment Date:</label>
+                    <span>{{ membership.paymentInfo.paymentDate | date:'mediumDate' }}</span>
+                  </div>
+                  <div class="info-item">
+                    <label>Amount Paid:</label>
+                    <span class="amount-paid">৳{{ membership.paymentInfo.amount }}</span>
+                  </div>
+                  <div class="info-item">
+                    <label>Payment Status:</label>
+                    <p-tag
+                      [value]="membership.paymentInfo.status"
+                      [severity]="getPaymentStatusSeverity(membership.paymentInfo.status)">
+                    </p-tag>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ng-template>
 
           <ng-template #noPaymentInfo>
             <div class="no-payment-info">
@@ -505,6 +568,43 @@ interface StatusOption {
     .amount-paid {
       font-weight: 600;
       color: #059669;
+    }
+
+    .section-title {
+      margin: 0 0 1rem 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .invoice-section {
+      margin-bottom: 1rem;
+    }
+
+    .invoice-id,
+    .validation-id {
+      font-family: 'Courier New', monospace;
+      background: #f3f4f6;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.875rem;
+    }
+
+    .amount-due {
+      font-weight: 600;
+      color: #dc2626;
+      font-size: 1.1rem;
+    }
+
+    .payment-actions {
+      margin-top: 1rem;
+      text-align: center;
+    }
+
+    .payment-actions .payment-note {
+      margin-top: 0.5rem;
+      font-size: 0.875rem;
+      color: #6b7280;
     }
 
     .status-section {
@@ -830,6 +930,32 @@ export class MembershipDetailComponent implements OnInit {
         return 'danger';
       default:
         return 'info';
+    }
+  }
+
+  getInvoiceStatusSeverity(status: string): 'success' | 'warning' | 'danger' | 'info' {
+    switch (status?.toLowerCase()) {
+      case 'paid':
+      case 'completed':
+      case 'success':
+        return 'success';
+      case 'unpaid':
+      case 'pending':
+      case 'processing':
+        return 'warning';
+      case 'failed':
+      case 'cancelled':
+      case 'rejected':
+      case 'expired':
+        return 'danger';
+      default:
+        return 'info';
+    }
+  }
+
+  openPaymentUrl(paymentUrl: string): void {
+    if (paymentUrl) {
+      window.open(paymentUrl, '_blank', 'noopener,noreferrer');
     }
   }
 
