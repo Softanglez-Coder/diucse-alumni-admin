@@ -131,7 +131,7 @@ export const routes: Routes = [
                     },
                     {
                         path: ':id',
-                        loadComponent: () => import('./features/events/event-form.component').then(c => c.EventFormComponent)
+                        loadComponent: () => import('./features/events/event-detail.component').then(c => c.EventDetailComponent)
                     },
                 ]
             },
