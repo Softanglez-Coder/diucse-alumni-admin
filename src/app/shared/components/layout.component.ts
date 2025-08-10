@@ -33,8 +33,8 @@ import { Subject, takeUntil } from 'rxjs';
       <!-- Top Navigation -->
       <div class="layout-topbar">
         <div class="layout-topbar-left">
-          <button 
-            class="layout-menu-button p-button-text" 
+          <button
+            class="layout-menu-button p-button-text"
             (click)="toggleMenu()"
             pButton
             icon="pi pi-bars"
@@ -45,40 +45,40 @@ import { Subject, takeUntil } from 'rxjs';
             <span class="ml-2 text-xl font-bold">Alumni Admin</span>
           </span>
         </div>
-        
+
         <div class="layout-topbar-right">
           <div class="layout-topbar-search">
             <span class="p-input-icon-left">
               <i class="pi pi-search"></i>
-              <input 
-                type="text" 
-                pInputText 
+              <input
+                type="text"
+                pInputText
                 placeholder="Search..."
                 class="p-inputtext-sm">
             </span>
           </div>
-          
-          <button 
-            class="p-button-rounded p-button-text" 
+
+          <button
+            class="p-button-rounded p-button-text"
             pButton
             icon="pi pi-bell"
             pBadge
             badge="3"
             badgeClass="p-badge-danger">
           </button>
-          
-          <p-menu 
-            #userMenu 
-            [model]="userMenuItems" 
+
+          <p-menu
+            #userMenu
+            [model]="userMenuItems"
             [popup]="true">
           </p-menu>
-          
-          <button 
-            class="layout-topbar-profile p-button-text" 
+
+          <button
+            class="layout-topbar-profile p-button-text"
             pButton
             (click)="userMenu.toggle($event)"
             pRipple>
-            <p-avatar 
+            <p-avatar
               [image]="currentUser?.avatar || undefined"
               [label]="currentUser?.name?.charAt(0) || 'U'"
               shape="circle"
@@ -94,8 +94,8 @@ import { Subject, takeUntil } from 'rxjs';
       <div class="layout-sidebar" [class.active]="sidebarVisible">
         <div class="layout-menu">
           <div class="layout-menu-item" *ngFor="let item of menuItems">
-            <a 
-              [routerLink]="item.routerLink" 
+            <a
+              [routerLink]="item.routerLink"
               class="layout-menu-button"
               routerLinkActive="active">
               <i [class]="item.icon"></i>
@@ -113,8 +113,8 @@ import { Subject, takeUntil } from 'rxjs';
       </div>
 
       <!-- Mobile Sidebar Overlay -->
-      <div 
-        class="layout-sidebar-overlay" 
+      <div
+        class="layout-sidebar-overlay"
         [class.active]="sidebarVisible"
         (click)="hideSidebar()">
       </div>
@@ -308,39 +308,9 @@ export class LayoutComponent implements OnInit, OnDestroy {
       routerLink: ['/apps/batches']
     },
     {
-      label: 'Blogs',
-      icon: 'pi pi-book',
-      routerLink: ['/apps/blogs']
-    },
-    {
-      label: 'Events',
-      icon: 'pi pi-calendar',
-      routerLink: ['/apps/events']
-    },
-    {
-      label: 'News',
-      icon: 'pi pi-newspaper',
-      routerLink: ['/apps/news']
-    },
-    {
-      label: 'Jobs',
-      icon: 'pi pi-briefcase',
-      routerLink: ['/apps/jobs']
-    },
-    {
-      label: 'Donations',
-      icon: 'pi pi-dollar',
-      routerLink: ['/apps/donations']
-    },
-    {
       label: 'Membership',
       icon: 'pi pi-id-card',
       routerLink: ['/apps/membership']
-    },
-    {
-      label: 'Scholarships',
-      icon: 'pi pi-star',
-      routerLink: ['/apps/scholarship']
     },
     {
       label: 'Settings',
