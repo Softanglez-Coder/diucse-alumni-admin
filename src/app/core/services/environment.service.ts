@@ -55,7 +55,7 @@ export class EnvironmentService {
     if (isLocalhost) {
       return 'http://localhost:4300';
     } else if (isProduction) {
-      return 'https://csediualumni.com/admin';
+      return 'https://admin.csediualumni.com';
     } else {
       return 'http://localhost:4300';
     }
