@@ -28,11 +28,6 @@ import { ApiService } from '../../core/services/api.service';
   providers: [MessageService],
   template: `
     <div class="user-details-container">
-      <!-- Debug Info (remove in production) -->
-      <div class="debug-info" style="background: #f0f0f0; padding: 10px; margin-bottom: 10px; font-size: 12px;">
-        <strong>Debug:</strong> isLoading = {{isLoading}}, userData exists = {{!!userData}}, userId = {{userId}}
-      </div>
-
       <div class="page-header">
         <h1 class="page-title">User Details</h1>
         <button
