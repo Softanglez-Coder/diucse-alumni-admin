@@ -17,6 +17,8 @@ export class UsersComponent {
     editRoute: '/apps/users',
     viewRoute: '/apps/users',
     searchFields: ['name', 'email', 'batch.name', 'phone', 'roles'],
+    disableDelete: true,
+    disableEdit: true,
     columns: [
       { field: 'name', header: 'Name', type: 'text', sortable: true, filterable: true },
       { field: 'email', header: 'Email', type: 'text', sortable: true, filterable: true },
