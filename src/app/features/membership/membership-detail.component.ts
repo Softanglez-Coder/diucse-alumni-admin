@@ -232,8 +232,8 @@ interface StatusOption {
 
         <!-- Payment Information Card -->
         <p-card header="Payment Information" class="payment-card">
-          <!-- Display Invoice Information when status is payment_required and invoice exists -->
-          <div *ngIf="membership.invoice && membership.status === 'payment_required'; else checkLegacyPayment">
+          <!-- Display Invoice Information when invoice exists (regardless of membership status) -->
+          <div *ngIf="membership.invoice; else checkLegacyPayment">
             <div class="invoice-section">
               <h4 class="section-title">Invoice Details</h4>
               <div class="info-grid">
@@ -266,7 +266,7 @@ interface StatusOption {
                 </div>
               </div>
 
-              <div class="payment-actions" *ngIf="membership.invoice.paymentUrl">
+              <div class="payment-actions" *ngIf="membership.invoice.paymentUrl && membership.invoice.status !== 'paid'">
                 <p-divider></p-divider>
                 <button
                   pButton
@@ -276,6 +276,16 @@ interface StatusOption {
                   (click)="openPaymentUrl(membership.invoice.paymentUrl)">
                 </button>
                 <p class="payment-note">Click to open the payment portal in a new window</p>
+              </div>
+
+              <!-- Show payment completion message for paid invoices -->
+              <div *ngIf="membership.invoice.status === 'paid'" class="payment-completed">
+                <p-divider></p-divider>
+                <div class="success-message">
+                  <i class="pi pi-check-circle" style="color: #10b981; font-size: 1.2rem; margin-right: 0.5rem;"></i>
+                  <span style="color: #10b981; font-weight: 600;">Payment completed successfully</span>
+                </div>
+                <p class="payment-note">This invoice has been paid and processed.</p>
               </div>
             </div>
           </div>
@@ -665,6 +675,17 @@ interface StatusOption {
     .payment-note {
       font-size: 0.875rem;
       color: #9ca3af;
+    }
+
+    .payment-completed {
+      text-align: center;
+    }
+
+    .success-message {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 0.5rem;
     }
 
     .timeline {
