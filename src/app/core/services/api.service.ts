@@ -1,7 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { API_BASE_URL } from '../index';
 
 export interface ApiResponse<T> {
   success: boolean;
@@ -17,7 +17,7 @@ export class ApiService {
   private readonly baseUrl: string;
 
   constructor(private http: HttpClient) {
-    this.baseUrl = environment.apiUrl;
+    this.baseUrl = inject(API_BASE_URL);
   }
 
   /**

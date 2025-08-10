@@ -1,20 +1,26 @@
-import { Injectable } from '@angular/core';
-import { environment } from '../../../environments/environment';
+import { Injectable, inject } from '@angular/core';
+import { API_BASE_URL } from '../index';
 
 @Injectable({
   providedIn: 'root'
 })
 export class EnvironmentService {
-  
+  private readonly apiBaseUrl: string;
+
+  constructor() {
+    this.apiBaseUrl = inject(API_BASE_URL);
+  }
+
   /**
    * Get current environment information
    */
   getEnvironmentInfo() {
+    const isProduction = this.isProduction();
     return {
-      production: environment.production,
-      apiUrl: environment.apiUrl,
-      frontendUrl: environment.frontendUrl,
-      environment: environment.production ? 'production' : 'development'
+      production: isProduction,
+      apiUrl: this.apiBaseUrl,
+      frontendUrl: this.getFrontendUrl(),
+      environment: isProduction ? 'production' : 'development'
     };
   }
 
@@ -22,35 +28,44 @@ export class EnvironmentService {
    * Check if running in production
    */
   isProduction(): boolean {
-    return environment.production;
+    return window.location.hostname.includes('csediualumni.com');
   }
 
   /**
    * Check if running in development
    */
   isDevelopment(): boolean {
-    return !environment.production;
+    return !this.isProduction();
   }
 
   /**
    * Get API base URL
    */
   getApiUrl(): string {
-    return environment.apiUrl;
+    return this.apiBaseUrl;
   }
 
   /**
    * Get frontend base URL
    */
   getFrontendUrl(): string {
-    return environment.frontendUrl;
+    const isProduction = this.isProduction();
+    const isLocalhost = window.location.hostname === 'localhost';
+
+    if (isLocalhost) {
+      return 'http://localhost:4300';
+    } else if (isProduction) {
+      return 'https://csediualumni.com/admin';
+    } else {
+      return 'http://localhost:4300';
+    }
   }
 
   /**
    * Build full API endpoint URL
    */
   buildApiUrl(endpoint: string): string {
-    const baseUrl = environment.apiUrl;
+    const baseUrl = this.apiBaseUrl;
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
     return `${baseUrl}${cleanEndpoint}`;
   }
@@ -59,7 +74,7 @@ export class EnvironmentService {
    * Build full frontend URL
    */
   buildFrontendUrl(path: string): string {
-    const baseUrl = environment.frontendUrl;
+    const baseUrl = this.getFrontendUrl();
     const cleanPath = path.startsWith('/') ? path : `/${path}`;
     return `${baseUrl}${cleanPath}`;
   }
