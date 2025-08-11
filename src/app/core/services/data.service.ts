@@ -37,7 +37,7 @@ export class DataService {
    * Generic method to update a record
    */
   update<T>(endpoint: string, id: string | number, data: Partial<T>): Observable<T> {
-    return this.apiService.put<T>(`${endpoint}/${id}`, data);
+    return this.apiService.patch<T>(`${endpoint}/${id}`, data);
   }
 
   /**
