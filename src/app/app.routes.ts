@@ -114,6 +114,20 @@ export const routes: Routes = [
                 ]
             },
             {
+                path: 'blogs',
+                children: [
+                    {
+                        path: '',
+                        pathMatch: 'full',
+                        loadComponent: () => import('./features/blogs/blogs.component').then(c => c.BlogsComponent)
+                    },
+                    {
+                        path: ':id',
+                        loadComponent: () => import('./features/blogs/blog-detail.component').then(c => c.BlogDetailComponent)
+                    },
+                ]
+            },
+            {
                 path: 'settings',
                 children: [
                     {

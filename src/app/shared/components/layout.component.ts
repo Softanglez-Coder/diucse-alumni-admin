@@ -308,6 +308,11 @@ export class LayoutComponent implements OnInit, OnDestroy {
       routerLink: ['/apps/batches']
     },
     {
+      label: 'Blogs',
+      icon: 'pi pi-file-edit',
+      routerLink: ['/apps/blogs']
+    },
+    {
       label: 'Membership',
       icon: 'pi pi-id-card',
       routerLink: ['/apps/membership']
