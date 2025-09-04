@@ -8,7 +8,7 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  role: string;
+  roles: string[];
   avatar?: string;
 }
 
@@ -38,7 +38,7 @@ export class AuthService {
         map(response => {
           console.log('Login response:', response);
           console.log('Login successful - cookie set by backend');
-          
+
           // Login successful, but no user data in response
           // We'll fetch user data from /auth/me after login
           return true;
@@ -53,7 +53,7 @@ export class AuthService {
   logout(): void {
     // Clear client-side user data
     this.currentUserSubject.next(null);
-    
+
     // Call logout endpoint to clear server-side cookie
     this.apiService.post('/auth/logout', {}).subscribe({
       next: () => {
@@ -63,7 +63,7 @@ export class AuthService {
         console.warn('Logout endpoint failed:', error);
       }
     });
-    
+
     // Redirect to login without any return URL
     this.router.navigate(['/auth/login']);
   }
@@ -76,7 +76,7 @@ export class AuthService {
 
   checkAuthenticationStatus(): Observable<boolean> {
     console.log('Checking cookie-based authentication status');
-    
+
     // If user is already loaded, return true immediately
     if (this.currentUserSubject.value) {
       console.log('User already loaded:', this.currentUserSubject.value);
@@ -100,14 +100,14 @@ export class AuthService {
         }),
         catchError((error) => {
           console.warn('Auth verification failed:', error);
-          
+
           // For cookie-based auth, if /auth/me fails, user is not authenticated
           console.log('Cookie-based auth failed, user not authenticated');
           this.currentUserSubject.next(null);
-          
+
           // Don't redirect here - let the guard handle redirections
           // The guard will properly capture the intended URL
-          
+
           return of(false);
         })
       );
@@ -115,5 +115,35 @@ export class AuthService {
 
   getCurrentUser(): User | null {
     return this.currentUserSubject.value;
+  }
+
+  hasRole(roleToCheck: string | string[]): boolean {
+    const user = this.getCurrentUser();
+    if (!user || !user.roles) return false;
+
+    const userRoles = user.roles;
+    const rolesToCheck = Array.isArray(roleToCheck) ? roleToCheck : [roleToCheck];
+
+    return rolesToCheck.some(role =>
+      userRoles.some((userRole: string) =>
+        userRole?.toLowerCase() === role?.toLowerCase()
+      )
+    );
+  }
+
+  hasAnyRole(roles: string[]): boolean {
+    return this.hasRole(roles);
+  }
+
+  isPublisher(): boolean {
+    return this.hasRole('Publisher');
+  }
+
+  isAdmin(): boolean {
+    return this.hasRole('Admin');
+  }
+
+  canPublish(): boolean {
+    return this.hasAnyRole(['Publisher', 'Admin']);
   }
 }

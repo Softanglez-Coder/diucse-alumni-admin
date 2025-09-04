@@ -249,7 +249,8 @@ export class BlogsComponent implements OnInit {
   ngOnInit() {
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
-      this.canPublish = user?.role === 'Publisher' || user?.role === 'publisher';
+      // Allow both Publishers and Admins to publish blogs
+      this.canPublish = this.authService.canPublish();
     });
 
     this.loadBlogs();

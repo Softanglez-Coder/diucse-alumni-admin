@@ -8,6 +8,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { SkeletonModule } from 'primeng/skeleton';
 import { DividerModule } from 'primeng/divider';
+import { TooltipModule } from 'primeng/tooltip';
 import { QuillViewComponent } from 'ngx-quill';
 import { Blog, BlogService, BlogStatus } from './blog.service';
 import { AuthService, User } from '../../core/services/auth.service';
@@ -25,6 +26,7 @@ import { MessageService, ConfirmationService } from 'primeng/api';
     ToastModule,
     SkeletonModule,
     DividerModule,
+    TooltipModule,
     QuillViewComponent
   ],
   providers: [MessageService, ConfirmationService],
@@ -39,25 +41,53 @@ import { MessageService, ConfirmationService } from 'primeng/api';
           (onClick)="goBack()">
         </p-button>
 
-        <div class="flex gap-2" *ngIf="blog && canPublish">
-          <p-button
-            *ngIf="blog.status !== BlogStatus.PUBLISHED"
+        @if (blog && canPublish) {
+          <div class="flex gap-2">
+            @if (blog.status === BlogStatus.IN_REVIEW) {
+              <p-button
             icon="pi pi-check-circle"
-            label="Publish"
+            label="Approve & Publish"
             severity="success"
             (onClick)="publishBlog()"
-            [loading]="publishing">
+            [loading]="publishing"
+            pTooltip="Approve this blog and publish it publicly"
+            tooltipPosition="bottom">
           </p-button>
 
           <p-button
-            *ngIf="blog.status === BlogStatus.PUBLISHED"
-            icon="pi pi-times-circle"
-            label="Unpublish"
-            severity="warn"
-            (onClick)="unpublishBlog()"
-            [loading]="unpublishing">
+            icon="pi pi-times"
+            label="Reject"
+            severity="danger"
+            [text]="true"
+            (onClick)="rejectBlog()"
+            [loading]="rejecting"
+            pTooltip="Reject this blog and send it back to draft"
+            tooltipPosition="bottom">
           </p-button>
+            } @else if (blog.status === BlogStatus.PUBLISHED) {
+              <p-button
+            icon="pi pi-times-circle"
+            label="Unpublish Blog"
+            severity="danger"
+            (onClick)="unpublishBlog()"
+            [loading]="unpublishing"
+            pTooltip="Hide this blog from public view"
+            tooltipPosition="bottom">
+          </p-button>
+
+          <p-button
+            icon="pi pi-eye"
+            label="View Public"
+            severity="info"
+            [text]="true"
+            (onClick)="viewPublicBlog()"
+            pTooltip="View this blog as it appears to the public"
+            tooltipPosition="bottom">
+          </p-button>
+            }
+
         </div>
+        }
       </div>
 
       <p-card *ngIf="!loading && blog" class="blog-card">
@@ -80,7 +110,7 @@ import { MessageService, ConfirmationService } from 'primeng/api';
                 <span class="email text-500">{{ blog.author.email }}</span>
               </div>
 
-              <div class="flex align-items-center gap-4 text-sm text-500">
+              <div class="flex align-items-center gap-4 text-sm text-500 mb-2">
                 <span>
                   <i class="pi pi-calendar mr-1"></i>
                   Created: {{ blog.createdAt | date:'medium' }}
@@ -89,6 +119,33 @@ import { MessageService, ConfirmationService } from 'primeng/api';
                   <i class="pi pi-clock mr-1"></i>
                   Updated: {{ blog.updatedAt | date:'medium' }}
                 </span>
+              </div>
+
+              <div class="publication-status" *ngIf="blog.status === BlogStatus.PUBLISHED">
+                <div class="flex align-items-center gap-2 text-sm">
+                  <i class="pi pi-globe text-green-500"></i>
+                  <span class="text-green-700 font-medium">
+                    This blog is publicly visible
+                  </span>
+                </div>
+              </div>
+
+              <div class="publication-status" *ngIf="blog.status === BlogStatus.DRAFT">
+                <div class="flex align-items-center gap-2 text-sm">
+                  <i class="pi pi-file-edit text-orange-500"></i>
+                  <span class="text-orange-700 font-medium">
+                    This blog is in draft mode - not visible to public
+                  </span>
+                </div>
+              </div>
+
+              <div class="publication-status" *ngIf="blog.status === BlogStatus.IN_REVIEW">
+                <div class="flex align-items-center gap-2 text-sm">
+                  <i class="pi pi-eye text-blue-500"></i>
+                  <span class="text-blue-700 font-medium">
+                    This blog is under review - not yet published
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -183,6 +240,26 @@ import { MessageService, ConfirmationService } from 'primeng/api';
       font-weight: 500;
       word-wrap: break-word;
       overflow-wrap: break-word;
+    }
+
+    .publication-status {
+      margin-top: 0.75rem;
+      padding: 0.5rem;
+      border-radius: 0.375rem;
+      background: rgba(243, 244, 246, 0.5);
+      border-left: 3px solid #e5e7eb;
+    }
+
+    .publication-status .text-green-700 {
+      color: #047857;
+    }
+
+    .publication-status .text-orange-700 {
+      color: #c2410c;
+    }
+
+    .publication-status .text-blue-700 {
+      color: #1d4ed8;
     }
 
     .blog-content {
@@ -327,6 +404,7 @@ export class BlogDetailComponent implements OnInit {
   loading = false;
   publishing = false;
   unpublishing = false;
+  rejecting = false;
   currentUser: User | null = null;
   canPublish = false;
 
@@ -346,7 +424,8 @@ export class BlogDetailComponent implements OnInit {
   ngOnInit() {
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
-      this.canPublish = user?.role === 'Publisher' || user?.role === 'publisher';
+      // Allow both Publishers and Admins to publish blogs
+      this.canPublish = this.authService.canPublish();
     });
 
     const id = this.route.snapshot.paramMap.get('id');
@@ -380,11 +459,15 @@ export class BlogDetailComponent implements OnInit {
   publishBlog() {
     if (!this.blog) return;
 
+    const isReview = this.blog.status === BlogStatus.IN_REVIEW;
+    const actionText = isReview ? 'approve and publish' : 'publish';
+    const headerText = isReview ? 'Confirm Approval & Publication' : 'Confirm Publication';
+
     this.confirmationService.confirm({
-      message: `Are you sure you want to publish "${this.blog.title}"?`,
-      header: 'Confirm Publication',
+      message: `Are you sure you want to ${actionText} "${this.blog.title}"?`,
+      header: headerText,
       icon: 'pi pi-check-circle',
-      acceptLabel: 'Yes, Publish',
+      acceptLabel: `Yes, ${isReview ? 'Approve & Publish' : 'Publish'}`,
       rejectLabel: 'Cancel',
       accept: () => {
         this.publishing = true;
@@ -397,7 +480,7 @@ export class BlogDetailComponent implements OnInit {
             this.messageService.add({
               severity: 'success',
               summary: 'Success',
-              detail: 'Blog published successfully'
+              detail: isReview ? 'Blog approved and published successfully' : 'Blog published successfully'
             });
           },
           error: (error) => {
@@ -453,8 +536,62 @@ export class BlogDetailComponent implements OnInit {
     });
   }
 
+  rejectBlog() {
+    if (!this.blog || this.blog.status !== BlogStatus.IN_REVIEW) return;
+
+    this.confirmationService.confirm({
+      message: `Are you sure you want to reject "${this.blog.title}" and send it back to draft?`,
+      header: 'Confirm Blog Rejection',
+      icon: 'pi pi-times',
+      acceptLabel: 'Yes, Reject',
+      rejectLabel: 'Cancel',
+      accept: () => {
+        this.rejecting = true;
+        this.cdr.detectChanges(); // Update UI immediately
+        this.blogService.setDraft(this.blog!._id).subscribe({
+          next: (updatedBlog) => {
+            this.blog = updatedBlog;
+            this.rejecting = false;
+            this.cdr.detectChanges(); // Force change detection
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Blog Rejected',
+              detail: 'Blog has been rejected and moved back to draft'
+            });
+          },
+          error: (error) => {
+            console.error('Error rejecting blog:', error);
+            this.rejecting = false;
+            this.cdr.detectChanges(); // Force change detection on error
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'Failed to reject blog'
+            });
+          }
+        });
+      }
+    });
+  }
+
   goBack() {
     this.router.navigate(['/apps/blogs']);
+  }
+
+  viewPublicBlog() {
+    if (!this.blog || this.blog.status !== BlogStatus.PUBLISHED) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Warning',
+        detail: 'Blog must be published to view publicly'
+      });
+      return;
+    }
+
+    // Open the public blog URL in a new tab
+    // You'll need to adjust this URL based on your public blog site structure
+    const publicUrl = `${window.location.origin}/blog/${this.blog._id}`;
+    window.open(publicUrl, '_blank');
   }
 
   getStatusDisplayText(status: BlogStatus): string {
