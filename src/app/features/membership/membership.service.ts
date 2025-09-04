@@ -42,7 +42,7 @@ export interface Membership {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class MembershipService extends DataService {
   private readonly endpoint = '/memberships';
@@ -74,7 +74,10 @@ export class MembershipService extends DataService {
   /**
    * Update membership
    */
-  updateMembership(id: string, membership: Partial<Membership>): Observable<Membership> {
+  updateMembership(
+    id: string,
+    membership: Partial<Membership>,
+  ): Observable<Membership> {
     return this.update<Membership>(this.endpoint, id, membership);
   }
 
@@ -95,7 +98,11 @@ export class MembershipService extends DataService {
   /**
    * Get paginated memberships
    */
-  getPaginatedMemberships(page: number = 1, limit: number = 10, filters?: any): Observable<{
+  getPaginatedMemberships(
+    page: number = 1,
+    limit: number = 10,
+    filters?: any,
+  ): Observable<{
     data: Membership[];
     total: number;
     page: number;
@@ -122,27 +129,38 @@ export class MembershipService extends DataService {
    * Change membership status to in-progress
    */
   setInProgress(id: string): Observable<Membership> {
-    return this.apiService.patch<Membership>(`${this.endpoint}/${id}/in-progress`, {});
+    return this.apiService.patch<Membership>(
+      `${this.endpoint}/${id}/in-progress`,
+      {},
+    );
   }
 
   /**
    * Change membership status to payment required
    */
   setPaymentRequired(id: string): Observable<Membership> {
-    return this.apiService.patch<Membership>(`${this.endpoint}/${id}/payment-required`, {});
+    return this.apiService.patch<Membership>(
+      `${this.endpoint}/${id}/payment-required`,
+      {},
+    );
   }
 
   /**
    * Approve membership
    */
   approveMembership(id: string): Observable<Membership> {
-    return this.apiService.patch<Membership>(`${this.endpoint}/${id}/approve`, {});
+    return this.apiService.patch<Membership>(
+      `${this.endpoint}/${id}/approve`,
+      {},
+    );
   }
 
   /**
    * Reject membership
    */
   rejectMembership(id: string, justification: string): Observable<Membership> {
-    return this.apiService.patch<Membership>(`${this.endpoint}/${id}/reject`, { justification });
+    return this.apiService.patch<Membership>(`${this.endpoint}/${id}/reject`, {
+      justification,
+    });
   }
 }

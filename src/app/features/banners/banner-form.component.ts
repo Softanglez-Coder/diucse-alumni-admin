@@ -1,13 +1,22 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+  ReactiveFormsModule,
+  FormBuilder,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { FileUploadModule } from 'primeng/fileupload';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { BannerService, Banner as BannerModel, CreateBannerDto } from './banner.service';
+import {
+  BannerService,
+  Banner as BannerModel,
+  CreateBannerDto,
+} from './banner.service';
 
 @Component({
   selector: 'app-banner-form',
@@ -20,7 +29,7 @@ import { BannerService, Banner as BannerModel, CreateBannerDto } from './banner.
     InputTextModule,
     ButtonModule,
     FileUploadModule,
-    InputNumberModule
+    InputNumberModule,
   ],
   template: `
     <div class="p-6 max-w-2xl mx-auto">
@@ -35,23 +44,36 @@ import { BannerService, Banner as BannerModel, CreateBannerDto } from './banner.
               icon="pi pi-arrow-left"
               class="p-button-text"
               [routerLink]="['/apps/banners']"
-              label="Back to List">
-            </button>
+              label="Back to List"
+            ></button>
           </div>
         </ng-template>
 
         <ng-template pTemplate="content">
-          <div *ngIf="successMessage" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+          <div
+            *ngIf="successMessage"
+            class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4"
+          >
             {{ successMessage }}
           </div>
 
-          <div *ngIf="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <div
+            *ngIf="errorMessage"
+            class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4"
+          >
             {{ errorMessage }}
           </div>
 
-          <form [formGroup]="bannerForm" (ngSubmit)="onSubmit()" class="space-y-6">
+          <form
+            [formGroup]="bannerForm"
+            (ngSubmit)="onSubmit()"
+            class="space-y-6"
+          >
             <div class="form-group">
-              <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                for="title"
+                class="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Title *
               </label>
               <input
@@ -60,16 +82,32 @@ import { BannerService, Banner as BannerModel, CreateBannerDto } from './banner.
                 formControlName="title"
                 placeholder="Enter banner title"
                 class="w-full"
-                [class.ng-invalid]="bannerForm.get('title')?.invalid && bannerForm.get('title')?.touched">
-              <div *ngIf="bannerForm.get('title')?.invalid && bannerForm.get('title')?.touched"
-                   class="text-red-600 text-sm mt-1">
-                <div *ngIf="bannerForm.get('title')?.errors?.['required']">Title is required</div>
-                <div *ngIf="bannerForm.get('title')?.errors?.['minlength']">Title must be at least 3 characters</div>
+                [class.ng-invalid]="
+                  bannerForm.get('title')?.invalid &&
+                  bannerForm.get('title')?.touched
+                "
+              />
+              <div
+                *ngIf="
+                  bannerForm.get('title')?.invalid &&
+                  bannerForm.get('title')?.touched
+                "
+                class="text-red-600 text-sm mt-1"
+              >
+                <div *ngIf="bannerForm.get('title')?.errors?.['required']">
+                  Title is required
+                </div>
+                <div *ngIf="bannerForm.get('title')?.errors?.['minlength']">
+                  Title must be at least 3 characters
+                </div>
               </div>
             </div>
 
             <div class="form-group">
-              <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                for="description"
+                class="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Description
               </label>
               <textarea
@@ -78,12 +116,16 @@ import { BannerService, Banner as BannerModel, CreateBannerDto } from './banner.
                 formControlName="description"
                 placeholder="Enter banner description"
                 class="w-full"
-                rows="3">
+                rows="3"
+              >
               </textarea>
             </div>
 
             <div class="form-group">
-              <label for="image" class="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                for="image"
+                class="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Image
               </label>
               <div class="space-y-2">
@@ -93,7 +135,11 @@ import { BannerService, Banner as BannerModel, CreateBannerDto } from './banner.
                   formControlName="image"
                   placeholder="Enter image URL"
                   class="w-full"
-                  [class.ng-invalid]="bannerForm.get('image')?.invalid && bannerForm.get('image')?.touched">
+                  [class.ng-invalid]="
+                    bannerForm.get('image')?.invalid &&
+                    bannerForm.get('image')?.touched
+                  "
+                />
 
                 <div *ngIf="bannerId">
                   <p-fileUpload
@@ -103,7 +149,8 @@ import { BannerService, Banner as BannerModel, CreateBannerDto } from './banner.
                     chooseLabel="Choose Image"
                     accept="image/*"
                     (onSelect)="onFileSelect($event)"
-                    class="w-full">
+                    class="w-full"
+                  >
                   </p-fileUpload>
 
                   <small class="text-gray-500">
@@ -117,14 +164,24 @@ import { BannerService, Banner as BannerModel, CreateBannerDto } from './banner.
                   </small>
                 </div>
               </div>
-              <div *ngIf="bannerForm.get('image')?.invalid && bannerForm.get('image')?.touched"
-                   class="text-red-600 text-sm mt-1">
-                <div *ngIf="bannerForm.get('image')?.errors?.['pattern']">Please enter a valid URL</div>
+              <div
+                *ngIf="
+                  bannerForm.get('image')?.invalid &&
+                  bannerForm.get('image')?.touched
+                "
+                class="text-red-600 text-sm mt-1"
+              >
+                <div *ngIf="bannerForm.get('image')?.errors?.['pattern']">
+                  Please enter a valid URL
+                </div>
               </div>
             </div>
 
             <div class="form-group">
-              <label for="link" class="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                for="link"
+                class="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Link
               </label>
               <input
@@ -133,15 +190,29 @@ import { BannerService, Banner as BannerModel, CreateBannerDto } from './banner.
                 formControlName="link"
                 placeholder="Enter link URL"
                 class="w-full"
-                [class.ng-invalid]="bannerForm.get('link')?.invalid && bannerForm.get('link')?.touched">
-              <div *ngIf="bannerForm.get('link')?.invalid && bannerForm.get('link')?.touched"
-                   class="text-red-600 text-sm mt-1">
-                <div *ngIf="bannerForm.get('link')?.errors?.['required']">Link is required</div>
+                [class.ng-invalid]="
+                  bannerForm.get('link')?.invalid &&
+                  bannerForm.get('link')?.touched
+                "
+              />
+              <div
+                *ngIf="
+                  bannerForm.get('link')?.invalid &&
+                  bannerForm.get('link')?.touched
+                "
+                class="text-red-600 text-sm mt-1"
+              >
+                <div *ngIf="bannerForm.get('link')?.errors?.['required']">
+                  Link is required
+                </div>
               </div>
             </div>
 
             <div class="form-group">
-              <label for="order" class="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                for="order"
+                class="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Order
               </label>
               <p-inputNumber
@@ -150,11 +221,19 @@ import { BannerService, Banner as BannerModel, CreateBannerDto } from './banner.
                 placeholder="Enter display order"
                 [min]="1"
                 [max]="100"
-                class="w-full">
+                class="w-full"
+              >
               </p-inputNumber>
-              <div *ngIf="bannerForm.get('order')?.invalid && bannerForm.get('order')?.touched"
-                   class="text-red-600 text-sm mt-1">
-                <div *ngIf="bannerForm.get('order')?.errors?.['min']">Order must be at least 1</div>
+              <div
+                *ngIf="
+                  bannerForm.get('order')?.invalid &&
+                  bannerForm.get('order')?.touched
+                "
+                class="text-red-600 text-sm mt-1"
+              >
+                <div *ngIf="bannerForm.get('order')?.errors?.['min']">
+                  Order must be at least 1
+                </div>
               </div>
             </div>
 
@@ -164,49 +243,51 @@ import { BannerService, Banner as BannerModel, CreateBannerDto } from './banner.
                 type="button"
                 label="Cancel"
                 class="p-button-outlined"
-                [routerLink]="['/apps/banners']">
-              </button>
+                [routerLink]="['/apps/banners']"
+              ></button>
               <button
                 pButton
                 type="submit"
                 [label]="isEditMode ? 'Update' : 'Create'"
                 [disabled]="bannerForm.invalid || loading"
-                [loading]="loading">
-              </button>
+                [loading]="loading"
+              ></button>
             </div>
           </form>
         </ng-template>
       </p-card>
     </div>
   `,
-  styles: [`
-    .form-group {
-      margin-bottom: 1.5rem;
-    }
+  styles: [
+    `
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
 
-    .form-actions {
-      border-top: 1px solid #e5e7eb;
-      margin-top: 2rem;
-      padding-top: 1.5rem;
-    }
+      .form-actions {
+        border-top: 1px solid #e5e7eb;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+      }
 
-    :host ::ng-deep .p-card-content {
-      padding: 2rem;
-    }
+      :host ::ng-deep .p-card-content {
+        padding: 2rem;
+      }
 
-    :host ::ng-deep .p-inputtext,
-    :host ::ng-deep .p-inputnumber {
-      width: 100%;
-    }
+      :host ::ng-deep .p-inputtext,
+      :host ::ng-deep .p-inputnumber {
+        width: 100%;
+      }
 
-    :host ::ng-deep .p-inputtext.ng-invalid.ng-touched {
-      border-color: #ef4444;
-    }
+      :host ::ng-deep .p-inputtext.ng-invalid.ng-touched {
+        border-color: #ef4444;
+      }
 
-    :host ::ng-deep .p-inputnumber.ng-invalid.ng-touched input {
-      border-color: #ef4444;
-    }
-  `]
+      :host ::ng-deep .p-inputnumber.ng-invalid.ng-touched input {
+        border-color: #ef4444;
+      }
+    `,
+  ],
 })
 export class BannerFormComponent implements OnInit {
   private fb = inject(FormBuilder);
@@ -219,7 +300,7 @@ export class BannerFormComponent implements OnInit {
     description: [''],
     image: ['', [Validators.pattern(/^https?:\/\/.+/)]],
     link: [''],
-    order: [null, [Validators.min(1)]]
+    order: [null, [Validators.min(1)]],
   });
 
   isEditMode = false;
@@ -247,7 +328,7 @@ export class BannerFormComponent implements OnInit {
           description: banner.description || '',
           image: banner.image || '',
           link: banner.link || '',
-          order: banner.order
+          order: banner.order,
         });
         this.loading = false;
       },
@@ -255,7 +336,7 @@ export class BannerFormComponent implements OnInit {
         this.errorMessage = 'Failed to load banner';
         this.loading = false;
         console.error('Error loading banner:', error);
-      }
+      },
     });
   }
 
@@ -290,7 +371,7 @@ export class BannerFormComponent implements OnInit {
         this.errorMessage = 'Failed to upload image';
         this.loading = false;
         console.error('Error uploading image:', error);
-      }
+      },
     });
   }
 
@@ -301,7 +382,7 @@ export class BannerFormComponent implements OnInit {
       const formData: CreateBannerDto = this.bannerForm.value;
 
       // Remove empty optional fields
-      Object.keys(formData).forEach(key => {
+      Object.keys(formData).forEach((key) => {
         if ((formData as any)[key] === '' || (formData as any)[key] === null) {
           delete (formData as any)[key];
         }
@@ -330,7 +411,7 @@ export class BannerFormComponent implements OnInit {
           this.errorMessage = 'Failed to save banner';
           this.loading = false;
           console.error('Error saving banner:', error);
-        }
+        },
       });
     } else {
       this.errorMessage = 'Please fill all required fields correctly';
@@ -339,7 +420,7 @@ export class BannerFormComponent implements OnInit {
   }
 
   private markFormGroupTouched() {
-    Object.keys(this.bannerForm.controls).forEach(key => {
+    Object.keys(this.bannerForm.controls).forEach((key) => {
       const control = this.bannerForm.get(key);
       control?.markAsTouched();
     });

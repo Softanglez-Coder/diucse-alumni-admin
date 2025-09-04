@@ -9,10 +9,10 @@ The membership settings feature provides a complete CRUD interface for managing 
 ```typescript
 interface Setting {
   _id: string;
-  group: string;        // e.g., "membership"
-  key: string;          // e.g., "membership_fee"
-  description: string;  // Human-readable description
-  value: any;          // The actual setting value
+  group: string; // e.g., "membership"
+  key: string; // e.g., "membership_fee"
+  description: string; // Human-readable description
+  value: any; // The actual setting value
   createdAt: string;
   updatedAt: string;
   __v: number;
@@ -22,19 +22,20 @@ interface Setting {
 ## Components
 
 ### 1. SettingsService
+
 **Location:** `src/app/features/settings/settings.service.ts`
 
 A service that handles all API interactions for settings management:
 
 ```typescript
-import { SettingsService, Setting, SettingsGroup, SettingsKey } from './settings.service';
+import { SettingsService, Setting, SettingsGroup, SettingsKey } from "./settings.service";
 
 // Create a new setting
 settingsService.createSetting({
   group: SettingsGroup.Membership,
   key: SettingsKey.MembershipFee,
-  description: 'How many fees needed to avail membership',
-  value: 1000
+  description: "How many fees needed to avail membership",
+  value: 1000,
 });
 
 // Get all settings by group
@@ -48,9 +49,11 @@ settingsService.deleteSetting(settingId);
 ```
 
 ### 2. MembershipSettingsComponent
+
 **Location:** `src/app/features/settings/membership-settings.component.ts`
 
 A complete UI component for managing membership settings with:
+
 - Data table showing all membership settings
 - Add/Edit dialog form
 - Delete confirmation
@@ -58,6 +61,7 @@ A complete UI component for managing membership settings with:
 - Toast notifications
 
 **Features:**
+
 - ✅ Create new membership settings
 - ✅ Edit existing settings
 - ✅ Delete settings with confirmation
@@ -66,6 +70,7 @@ A complete UI component for managing membership settings with:
 - ✅ Error handling
 
 ### 3. Settings Main Component
+
 **Location:** `src/app/features/settings/settings.component.ts`
 
 Updated to include a link to the membership settings page.
@@ -87,6 +92,7 @@ GET    /settings/:key     - Get setting by key
 ### Example API Request/Response
 
 **Create Setting Request:**
+
 ```json
 POST /settings
 {
@@ -98,6 +104,7 @@ POST /settings
 ```
 
 **Response:**
+
 ```json
 {
   "group": "membership",
@@ -134,17 +141,19 @@ The following route has been added to `app.routes.ts`:
 ## Enums
 
 ### SettingsGroup
+
 ```typescript
 export enum SettingsGroup {
-  Membership = 'membership',
+  Membership = "membership",
   // Add more groups as needed
 }
 ```
 
 ### SettingsKey
+
 ```typescript
 export enum SettingsKey {
-  MembershipFee = 'membership_fee',
+  MembershipFee = "membership_fee",
   // Add more keys as needed
 }
 ```
@@ -154,16 +163,16 @@ export enum SettingsKey {
 Here's how to use the settings in your components:
 
 ```typescript
-import { Component, OnInit } from '@angular/core';
-import { SettingsService, SettingsGroup, SettingsKey } from '../settings/settings.service';
+import { Component, OnInit } from "@angular/core";
+import { SettingsService, SettingsGroup, SettingsKey } from "../settings/settings.service";
 
 @Component({
-  selector: 'app-my-component',
+  selector: "app-my-component",
   template: `
     <div>
       <p>Membership Fee: {{ membershipFee | currency }}</p>
     </div>
-  `
+  `,
 })
 export class MyComponent implements OnInit {
   membershipFee = 0;
@@ -172,10 +181,9 @@ export class MyComponent implements OnInit {
 
   ngOnInit() {
     // Get membership fee setting
-    this.settingsService.getSettingByKey(SettingsKey.MembershipFee)
-      .subscribe(setting => {
-        this.membershipFee = setting.value;
-      });
+    this.settingsService.getSettingByKey(SettingsKey.MembershipFee).subscribe((setting) => {
+      this.membershipFee = setting.value;
+    });
   }
 }
 ```
@@ -189,6 +197,7 @@ export class MyComponent implements OnInit {
 ## Dependencies
 
 The component uses the following PrimeNG modules:
+
 - CardModule
 - ButtonModule
 - InputTextModule
@@ -209,21 +218,23 @@ The component uses the following PrimeNG modules:
 You can extend this system by:
 
 1. **Adding more setting types:**
+
    ```typescript
    export enum SettingsKey {
-     MembershipFee = 'membership_fee',
-     MembershipDuration = 'membership_duration',
-     MaxMembersPerBatch = 'max_members_per_batch'
+     MembershipFee = "membership_fee",
+     MembershipDuration = "membership_duration",
+     MaxMembersPerBatch = "max_members_per_batch",
    }
    ```
 
 2. **Adding validation rules:**
+
    ```typescript
    // In the component
    this.settingForm = this.fb.group({
-     key: ['', Validators.required],
-     description: ['', Validators.required],
-     value: [null, [Validators.required, Validators.min(0), Validators.max(10000)]]
+     key: ["", Validators.required],
+     description: ["", Validators.required],
+     value: [null, [Validators.required, Validators.min(0), Validators.max(10000)]],
    });
    ```
 

@@ -3,10 +3,9 @@ import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class DataService {
-
   constructor(protected apiService: ApiService) {}
 
   /**
@@ -36,7 +35,11 @@ export class DataService {
   /**
    * Generic method to update a record
    */
-  update<T>(endpoint: string, id: string | number, data: Partial<T>): Observable<T> {
+  update<T>(
+    endpoint: string,
+    id: string | number,
+    data: Partial<T>,
+  ): Observable<T> {
     return this.apiService.patch<T>(`${endpoint}/${id}`, data);
   }
 
@@ -58,7 +61,12 @@ export class DataService {
   /**
    * Generic method to get paginated records
    */
-  getPaginated<T>(endpoint: string, page: number = 1, limit: number = 10, params?: any): Observable<{
+  getPaginated<T>(
+    endpoint: string,
+    page: number = 1,
+    limit: number = 10,
+    params?: any,
+  ): Observable<{
     data: T[];
     total: number;
     page: number;

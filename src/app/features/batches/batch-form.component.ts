@@ -1,6 +1,11 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+  ReactiveFormsModule,
+  FormBuilder,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
@@ -21,7 +26,7 @@ interface Batch {
     RouterModule,
     CardModule,
     InputTextModule,
-    ButtonModule
+    ButtonModule,
   ],
   template: `
     <div class="p-6 max-w-2xl mx-auto">
@@ -36,23 +41,36 @@ interface Batch {
               icon="pi pi-arrow-left"
               class="p-button-text"
               [routerLink]="['/apps/batches']"
-              label="Back to List">
-            </button>
+              label="Back to List"
+            ></button>
           </div>
         </ng-template>
 
         <ng-template pTemplate="content">
-          <div *ngIf="successMessage" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+          <div
+            *ngIf="successMessage"
+            class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4"
+          >
             {{ successMessage }}
           </div>
 
-          <div *ngIf="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <div
+            *ngIf="errorMessage"
+            class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4"
+          >
             {{ errorMessage }}
           </div>
 
-          <form [formGroup]="batchForm" (ngSubmit)="onSubmit()" class="space-y-6">
+          <form
+            [formGroup]="batchForm"
+            (ngSubmit)="onSubmit()"
+            class="space-y-6"
+          >
             <div class="form-group">
-              <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                for="name"
+                class="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Batch Name *
               </label>
               <input
@@ -60,7 +78,8 @@ interface Batch {
                 id="name"
                 formControlName="name"
                 placeholder="Enter batch name"
-                class="w-full">
+                class="w-full"
+              />
             </div>
 
             <div class="form-actions flex justify-end space-x-4 pt-6">
@@ -69,41 +88,43 @@ interface Batch {
                 type="button"
                 label="Cancel"
                 class="p-button-outlined"
-                [routerLink]="['/apps/batches']">
-              </button>
+                [routerLink]="['/apps/batches']"
+              ></button>
               <button
                 pButton
                 type="submit"
                 [label]="isEditMode ? 'Update' : 'Create'"
                 [disabled]="batchForm.invalid || loading"
-                [loading]="loading">
-              </button>
+                [loading]="loading"
+              ></button>
             </div>
           </form>
         </ng-template>
       </p-card>
     </div>
   `,
-  styles: [`
-    .form-group {
-      margin-bottom: 1.5rem;
-    }
+  styles: [
+    `
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
 
-    .form-actions {
-      border-top: 1px solid #e5e7eb;
-      margin-top: 2rem;
-      padding-top: 1.5rem;
-    }
+      .form-actions {
+        border-top: 1px solid #e5e7eb;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+      }
 
-    :host ::ng-deep .p-card-content {
-      padding: 2rem;
-    }
+      :host ::ng-deep .p-card-content {
+        padding: 2rem;
+      }
 
-    :host ::ng-deep .p-inputtext,
-    :host ::ng-deep .p-inputnumber {
-      width: 100%;
-    }
-  `]
+      :host ::ng-deep .p-inputtext,
+      :host ::ng-deep .p-inputnumber {
+        width: 100%;
+      }
+    `,
+  ],
 })
 export class BatchFormComponent implements OnInit {
   private fb = inject(FormBuilder);
@@ -112,7 +133,7 @@ export class BatchFormComponent implements OnInit {
   private dataService = inject(DataService);
 
   batchForm: FormGroup = this.fb.group({
-    name: ['', [Validators.required]]
+    name: ['', [Validators.required]],
   });
 
   isEditMode = false;
@@ -141,7 +162,7 @@ export class BatchFormComponent implements OnInit {
         console.error('Error loading batch:', error);
         this.errorMessage = 'Failed to load batch details';
         this.loading = false;
-      }
+      },
     });
   }
 
@@ -168,9 +189,11 @@ export class BatchFormComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error saving batch:', error);
-          this.errorMessage = error.error?.message || `Failed to ${this.isEditMode ? 'update' : 'create'} batch`;
+          this.errorMessage =
+            error.error?.message ||
+            `Failed to ${this.isEditMode ? 'update' : 'create'} batch`;
           this.loading = false;
-        }
+        },
       });
     } else {
       this.errorMessage = 'Please fill all required fields correctly';
@@ -179,7 +202,7 @@ export class BatchFormComponent implements OnInit {
   }
 
   private markFormGroupTouched() {
-    Object.keys(this.batchForm.controls).forEach(key => {
+    Object.keys(this.batchForm.controls).forEach((key) => {
       const control = this.batchForm.get(key);
       control?.markAsTouched();
     });

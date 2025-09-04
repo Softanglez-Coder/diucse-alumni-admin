@@ -14,22 +14,26 @@ A modern, responsive Angular 20 admin dashboard for managing DIU CSE Alumni Asso
 ## Modules Implemented
 
 ### Core Features
+
 - **Dashboard**: Analytics, statistics, and overview
 - **Authentication**: Login/logout with form validation
 - **Users**: User management with profiles and roles
 - **Settings**: General settings and profile management
 
 ### Content Management
+
 - **Banners**: Homepage banner management
 - **Blogs**: Blog post creation and management
 - **News**: News article management
 - **Events**: Event scheduling and management
 
 ### Academic Management
+
 - **Batches**: Student batch management
 - **Scholarships**: Scholarship programs and applications
 
 ### Financial Management
+
 - **Donations**: Donation tracking and management
 - **Jobs**: Job posting and career opportunities
 
@@ -81,6 +85,7 @@ src/
 ## Authentication
 
 The application uses cookie-based authentication:
+
 - **Login**: `/auth/login`
 - **Protected Routes**: All `/apps/*` routes require authentication
 - **Auto-redirect**: Unauthenticated users are redirected to login
@@ -88,6 +93,7 @@ The application uses cookie-based authentication:
 ## Default Credentials
 
 For testing purposes:
+
 - **Username**: `admin@example.com`
 - **Password**: `admin123`
 
@@ -102,6 +108,7 @@ ng build
 ## Status
 
 ✅ **Completed Features**:
+
 - Authentication system with route guards
 - Responsive layout with navigation
 - User management (list, create, edit)
@@ -111,12 +118,14 @@ ng build
 - Modern UI with PrimeNG and Tailwind
 
 🔄 **In Progress**:
+
 - Real API integration (currently using mock data)
 - Advanced form controls and validation
 - File upload functionality
 - Advanced filtering and search
 
 🚧 **Future Enhancements**:
+
 - Email notifications
 - Bulk operations
 - Export/import functionality

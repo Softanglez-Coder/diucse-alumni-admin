@@ -27,7 +27,7 @@ import { MessageService, ConfirmationService } from 'primeng/api';
     SkeletonModule,
     DividerModule,
     TooltipModule,
-    QuillViewComponent
+    QuillViewComponent,
   ],
   providers: [MessageService, ConfirmationService],
   template: `
@@ -38,55 +38,59 @@ import { MessageService, ConfirmationService } from 'primeng/api';
           label="Back to Blogs"
           severity="secondary"
           [text]="true"
-          (onClick)="goBack()">
+          (onClick)="goBack()"
+        >
         </p-button>
 
         @if (blog && canPublish) {
           <div class="flex gap-2">
             @if (blog.status === BlogStatus.IN_REVIEW) {
               <p-button
-            icon="pi pi-check-circle"
-            label="Approve & Publish"
-            severity="success"
-            (onClick)="publishBlog()"
-            [loading]="publishing"
-            pTooltip="Approve this blog and publish it publicly"
-            tooltipPosition="bottom">
-          </p-button>
+                icon="pi pi-check-circle"
+                label="Approve & Publish"
+                severity="success"
+                (onClick)="publishBlog()"
+                [loading]="publishing"
+                pTooltip="Approve this blog and publish it publicly"
+                tooltipPosition="bottom"
+              >
+              </p-button>
 
-          <p-button
-            icon="pi pi-times"
-            label="Reject"
-            severity="danger"
-            [text]="true"
-            (onClick)="rejectBlog()"
-            [loading]="rejecting"
-            pTooltip="Reject this blog and send it back to draft"
-            tooltipPosition="bottom">
-          </p-button>
+              <p-button
+                icon="pi pi-times"
+                label="Reject"
+                severity="danger"
+                [text]="true"
+                (onClick)="rejectBlog()"
+                [loading]="rejecting"
+                pTooltip="Reject this blog and send it back to draft"
+                tooltipPosition="bottom"
+              >
+              </p-button>
             } @else if (blog.status === BlogStatus.PUBLISHED) {
               <p-button
-            icon="pi pi-times-circle"
-            label="Unpublish Blog"
-            severity="danger"
-            (onClick)="unpublishBlog()"
-            [loading]="unpublishing"
-            pTooltip="Hide this blog from public view"
-            tooltipPosition="bottom">
-          </p-button>
+                icon="pi pi-times-circle"
+                label="Unpublish Blog"
+                severity="danger"
+                (onClick)="unpublishBlog()"
+                [loading]="unpublishing"
+                pTooltip="Hide this blog from public view"
+                tooltipPosition="bottom"
+              >
+              </p-button>
 
-          <p-button
-            icon="pi pi-eye"
-            label="View Public"
-            severity="info"
-            [text]="true"
-            (onClick)="viewPublicBlog()"
-            pTooltip="View this blog as it appears to the public"
-            tooltipPosition="bottom">
-          </p-button>
+              <p-button
+                icon="pi pi-eye"
+                label="View Public"
+                severity="info"
+                [text]="true"
+                (onClick)="viewPublicBlog()"
+                pTooltip="View this blog as it appears to the public"
+                tooltipPosition="bottom"
+              >
+              </p-button>
             }
-
-        </div>
+          </div>
         }
       </div>
 
@@ -97,7 +101,8 @@ import { MessageService, ConfirmationService } from 'primeng/api';
               <h1 class="blog-title m-0">{{ blog.title }}</h1>
               <p-tag
                 [value]="getStatusDisplayText(blog.status)"
-                [severity]="getStatusSeverity(blog.status)">
+                [severity]="getStatusSeverity(blog.status)"
+              >
               </p-tag>
             </div>
 
@@ -113,15 +118,18 @@ import { MessageService, ConfirmationService } from 'primeng/api';
               <div class="flex align-items-center gap-4 text-sm text-500 mb-2">
                 <span>
                   <i class="pi pi-calendar mr-1"></i>
-                  Created: {{ blog.createdAt | date:'medium' }}
+                  Created: {{ blog.createdAt | date: 'medium' }}
                 </span>
                 <span>
                   <i class="pi pi-clock mr-1"></i>
-                  Updated: {{ blog.updatedAt | date:'medium' }}
+                  Updated: {{ blog.updatedAt | date: 'medium' }}
                 </span>
               </div>
 
-              <div class="publication-status" *ngIf="blog.status === BlogStatus.PUBLISHED">
+              <div
+                class="publication-status"
+                *ngIf="blog.status === BlogStatus.PUBLISHED"
+              >
                 <div class="flex align-items-center gap-2 text-sm">
                   <i class="pi pi-globe text-green-500"></i>
                   <span class="text-green-700 font-medium">
@@ -130,7 +138,10 @@ import { MessageService, ConfirmationService } from 'primeng/api';
                 </div>
               </div>
 
-              <div class="publication-status" *ngIf="blog.status === BlogStatus.DRAFT">
+              <div
+                class="publication-status"
+                *ngIf="blog.status === BlogStatus.DRAFT"
+              >
                 <div class="flex align-items-center gap-2 text-sm">
                   <i class="pi pi-file-edit text-orange-500"></i>
                   <span class="text-orange-700 font-medium">
@@ -139,7 +150,10 @@ import { MessageService, ConfirmationService } from 'primeng/api';
                 </div>
               </div>
 
-              <div class="publication-status" *ngIf="blog.status === BlogStatus.IN_REVIEW">
+              <div
+                class="publication-status"
+                *ngIf="blog.status === BlogStatus.IN_REVIEW"
+              >
                 <div class="flex align-items-center gap-2 text-sm">
                   <i class="pi pi-eye text-blue-500"></i>
                   <span class="text-blue-700 font-medium">
@@ -194,7 +208,8 @@ import { MessageService, ConfirmationService } from 'primeng/api';
           <p-button
             label="Back to Blogs"
             icon="pi pi-arrow-left"
-            (onClick)="goBack()">
+            (onClick)="goBack()"
+          >
           </p-button>
         </div>
       </p-card>
@@ -203,201 +218,203 @@ import { MessageService, ConfirmationService } from 'primeng/api';
     <p-toast></p-toast>
     <p-confirmDialog></p-confirmDialog>
   `,
-  styles: [`
-    .blog-detail-container {
-      padding: 1rem;
-      max-width: 1200px;
-      margin: 0 auto;
-      overflow-x: hidden; /* Prevent horizontal overflow */
-    }
-
-    .blog-card {
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      overflow: hidden; /* Contain all content */
-    }
-
-    .blog-header {
-      padding: 1.5rem;
-      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-      border-bottom: 1px solid #e2e8f0;
-    }
-
-    .blog-title {
-      font-size: 2rem;
-      font-weight: 700;
-      color: #1a202c;
-      line-height: 1.2;
-      word-wrap: break-word; /* Break long words */
-      overflow-wrap: break-word; /* Modern browsers */
-      word-break: break-word; /* Fallback for older browsers */
-    }
-
-    .blog-meta {
-      color: #4a5568;
-    }
-
-    .author {
-      font-weight: 500;
-      word-wrap: break-word;
-      overflow-wrap: break-word;
-    }
-
-    .publication-status {
-      margin-top: 0.75rem;
-      padding: 0.5rem;
-      border-radius: 0.375rem;
-      background: rgba(243, 244, 246, 0.5);
-      border-left: 3px solid #e5e7eb;
-    }
-
-    .publication-status .text-green-700 {
-      color: #047857;
-    }
-
-    .publication-status .text-orange-700 {
-      color: #c2410c;
-    }
-
-    .publication-status .text-blue-700 {
-      color: #1d4ed8;
-    }
-
-    .blog-content {
-      padding: 1.5rem;
-      overflow-x: auto; /* Allow horizontal scroll if needed */
-    }
-
-    .blog-excerpt {
-      background: #f7fafc;
-      padding: 1rem;
-      border-radius: 0.5rem;
-      border-left: 4px solid #4299e1;
-    }
-
-    .content-wrapper {
-      line-height: 1.8;
-      color: #2d3748;
-      word-wrap: break-word;
-      overflow-wrap: break-word;
-      max-width: 100%;
-    }
-
-    /* Quill viewer specific styles */
-    .content-wrapper :deep(.ql-editor) {
-      padding: 0;
-      font-size: 1rem;
-      line-height: 1.8;
-      color: #2d3748;
-      word-wrap: break-word;
-      overflow-wrap: break-word;
-    }
-
-    .content-wrapper :deep(.ql-editor.ql-blank::before) {
-      content: 'No content available';
-      color: #9ca3af;
-      font-style: italic;
-    }
-
-    /* Override quill's default styles for better integration */
-    .content-wrapper :deep(.ql-container) {
-      border: none;
-      font-family: inherit;
-    }
-
-    .content-wrapper :deep(.ql-editor p) {
-      margin-bottom: 1rem;
-    }
-
-    .content-wrapper :deep(.ql-editor h1),
-    .content-wrapper :deep(.ql-editor h2),
-    .content-wrapper :deep(.ql-editor h3),
-    .content-wrapper :deep(.ql-editor h4),
-    .content-wrapper :deep(.ql-editor h5),
-    .content-wrapper :deep(.ql-editor h6) {
-      margin-top: 1.5rem;
-      margin-bottom: 0.75rem;
-      font-weight: 600;
-    }
-
-    .content-wrapper :deep(.ql-editor ul),
-    .content-wrapper :deep(.ql-editor ol) {
-      margin-bottom: 1rem;
-      padding-left: 1.5rem;
-    }
-
-    .content-wrapper :deep(.ql-editor blockquote) {
-      border-left: 4px solid #e2e8f0;
-      padding-left: 1rem;
-      margin: 1rem 0;
-      font-style: italic;
-      color: #4a5568;
-    }
-
-    .content-wrapper :deep(.ql-editor img) {
-      max-width: 100%;
-      height: auto;
-      display: block;
-      margin: 1rem 0;
-    }
-
-    .content-wrapper :deep(.ql-editor pre) {
-      background: #2d3748;
-      color: #e2e8f0;
-      padding: 1rem;
-      border-radius: 0.5rem;
-      overflow-x: auto;
-      margin: 1rem 0;
-      max-width: 100%;
-      white-space: pre-wrap;
-    }
-
-    .content-wrapper :deep(.ql-editor code) {
-      background: #f7fafc;
-      padding: 0.125rem 0.25rem;
-      border-radius: 0.25rem;
-      font-family: 'Monaco', 'Courier New', monospace;
-      font-size: 0.875rem;
-    }
-
-    .blog-tags {
-      border-top: 1px solid #e2e8f0;
-      padding-top: 1rem;
-    }
-
-    :host ::ng-deep .p-card .p-card-body {
-      padding: 0;
-    }
-
-    :host ::ng-deep .p-divider {
-      margin: 1rem 0;
-    }
-
-    @media (max-width: 768px) {
+  styles: [
+    `
       .blog-detail-container {
-        padding: 0.5rem;
+        padding: 1rem;
+        max-width: 1200px;
+        margin: 0 auto;
+        overflow-x: hidden; /* Prevent horizontal overflow */
+      }
+
+      .blog-card {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        overflow: hidden; /* Contain all content */
+      }
+
+      .blog-header {
+        padding: 1.5rem;
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        border-bottom: 1px solid #e2e8f0;
       }
 
       .blog-title {
-        font-size: 1.5rem;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1a202c;
+        line-height: 1.2;
+        word-wrap: break-word; /* Break long words */
+        overflow-wrap: break-word; /* Modern browsers */
+        word-break: break-word; /* Fallback for older browsers */
+      }
+
+      .blog-meta {
+        color: #4a5568;
+      }
+
+      .author {
+        font-weight: 500;
         word-wrap: break-word;
         overflow-wrap: break-word;
       }
 
-      .blog-header,
-      .blog-content {
-        padding: 1rem;
-      }
-
-      .content-wrapper :deep(pre) {
-        font-size: 0.75rem;
+      .publication-status {
+        margin-top: 0.75rem;
         padding: 0.5rem;
+        border-radius: 0.375rem;
+        background: rgba(243, 244, 246, 0.5);
+        border-left: 3px solid #e5e7eb;
       }
 
-      .content-wrapper :deep(code) {
-        font-size: 0.75rem;
+      .publication-status .text-green-700 {
+        color: #047857;
       }
-    }
-  `]
+
+      .publication-status .text-orange-700 {
+        color: #c2410c;
+      }
+
+      .publication-status .text-blue-700 {
+        color: #1d4ed8;
+      }
+
+      .blog-content {
+        padding: 1.5rem;
+        overflow-x: auto; /* Allow horizontal scroll if needed */
+      }
+
+      .blog-excerpt {
+        background: #f7fafc;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        border-left: 4px solid #4299e1;
+      }
+
+      .content-wrapper {
+        line-height: 1.8;
+        color: #2d3748;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        max-width: 100%;
+      }
+
+      /* Quill viewer specific styles */
+      .content-wrapper :deep(.ql-editor) {
+        padding: 0;
+        font-size: 1rem;
+        line-height: 1.8;
+        color: #2d3748;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+      }
+
+      .content-wrapper :deep(.ql-editor.ql-blank::before) {
+        content: 'No content available';
+        color: #9ca3af;
+        font-style: italic;
+      }
+
+      /* Override quill's default styles for better integration */
+      .content-wrapper :deep(.ql-container) {
+        border: none;
+        font-family: inherit;
+      }
+
+      .content-wrapper :deep(.ql-editor p) {
+        margin-bottom: 1rem;
+      }
+
+      .content-wrapper :deep(.ql-editor h1),
+      .content-wrapper :deep(.ql-editor h2),
+      .content-wrapper :deep(.ql-editor h3),
+      .content-wrapper :deep(.ql-editor h4),
+      .content-wrapper :deep(.ql-editor h5),
+      .content-wrapper :deep(.ql-editor h6) {
+        margin-top: 1.5rem;
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+      }
+
+      .content-wrapper :deep(.ql-editor ul),
+      .content-wrapper :deep(.ql-editor ol) {
+        margin-bottom: 1rem;
+        padding-left: 1.5rem;
+      }
+
+      .content-wrapper :deep(.ql-editor blockquote) {
+        border-left: 4px solid #e2e8f0;
+        padding-left: 1rem;
+        margin: 1rem 0;
+        font-style: italic;
+        color: #4a5568;
+      }
+
+      .content-wrapper :deep(.ql-editor img) {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 1rem 0;
+      }
+
+      .content-wrapper :deep(.ql-editor pre) {
+        background: #2d3748;
+        color: #e2e8f0;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        overflow-x: auto;
+        margin: 1rem 0;
+        max-width: 100%;
+        white-space: pre-wrap;
+      }
+
+      .content-wrapper :deep(.ql-editor code) {
+        background: #f7fafc;
+        padding: 0.125rem 0.25rem;
+        border-radius: 0.25rem;
+        font-family: 'Monaco', 'Courier New', monospace;
+        font-size: 0.875rem;
+      }
+
+      .blog-tags {
+        border-top: 1px solid #e2e8f0;
+        padding-top: 1rem;
+      }
+
+      :host ::ng-deep .p-card .p-card-body {
+        padding: 0;
+      }
+
+      :host ::ng-deep .p-divider {
+        margin: 1rem 0;
+      }
+
+      @media (max-width: 768px) {
+        .blog-detail-container {
+          padding: 0.5rem;
+        }
+
+        .blog-title {
+          font-size: 1.5rem;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+        }
+
+        .blog-header,
+        .blog-content {
+          padding: 1rem;
+        }
+
+        .content-wrapper :deep(pre) {
+          font-size: 0.75rem;
+          padding: 0.5rem;
+        }
+
+        .content-wrapper :deep(code) {
+          font-size: 0.75rem;
+        }
+      }
+    `,
+  ],
 })
 export class BlogDetailComponent implements OnInit {
   blog: Blog | null = null;
@@ -418,11 +435,11 @@ export class BlogDetailComponent implements OnInit {
     private authService: AuthService,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {
-    this.authService.currentUser$.subscribe(user => {
+    this.authService.currentUser$.subscribe((user) => {
       this.currentUser = user;
       // Allow both Publishers and Admins to publish blogs
       this.canPublish = this.authService.canPublish();
@@ -448,11 +465,11 @@ export class BlogDetailComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'Failed to load blog details'
+          detail: 'Failed to load blog details',
         });
         this.loading = false;
         this.cdr.detectChanges(); // Force change detection on error
-      }
+      },
     });
   }
 
@@ -461,7 +478,9 @@ export class BlogDetailComponent implements OnInit {
 
     const isReview = this.blog.status === BlogStatus.IN_REVIEW;
     const actionText = isReview ? 'approve and publish' : 'publish';
-    const headerText = isReview ? 'Confirm Approval & Publication' : 'Confirm Publication';
+    const headerText = isReview
+      ? 'Confirm Approval & Publication'
+      : 'Confirm Publication';
 
     this.confirmationService.confirm({
       message: `Are you sure you want to ${actionText} "${this.blog.title}"?`,
@@ -480,7 +499,9 @@ export class BlogDetailComponent implements OnInit {
             this.messageService.add({
               severity: 'success',
               summary: 'Success',
-              detail: isReview ? 'Blog approved and published successfully' : 'Blog published successfully'
+              detail: isReview
+                ? 'Blog approved and published successfully'
+                : 'Blog published successfully',
             });
           },
           error: (error) => {
@@ -490,11 +511,11 @@ export class BlogDetailComponent implements OnInit {
             this.messageService.add({
               severity: 'error',
               summary: 'Error',
-              detail: 'Failed to publish blog'
+              detail: 'Failed to publish blog',
             });
-          }
+          },
         });
-      }
+      },
     });
   }
 
@@ -518,7 +539,7 @@ export class BlogDetailComponent implements OnInit {
             this.messageService.add({
               severity: 'success',
               summary: 'Success',
-              detail: 'Blog unpublished successfully'
+              detail: 'Blog unpublished successfully',
             });
           },
           error: (error) => {
@@ -528,11 +549,11 @@ export class BlogDetailComponent implements OnInit {
             this.messageService.add({
               severity: 'error',
               summary: 'Error',
-              detail: 'Failed to unpublish blog'
+              detail: 'Failed to unpublish blog',
             });
-          }
+          },
         });
-      }
+      },
     });
   }
 
@@ -556,7 +577,7 @@ export class BlogDetailComponent implements OnInit {
             this.messageService.add({
               severity: 'success',
               summary: 'Blog Rejected',
-              detail: 'Blog has been rejected and moved back to draft'
+              detail: 'Blog has been rejected and moved back to draft',
             });
           },
           error: (error) => {
@@ -566,11 +587,11 @@ export class BlogDetailComponent implements OnInit {
             this.messageService.add({
               severity: 'error',
               summary: 'Error',
-              detail: 'Failed to reject blog'
+              detail: 'Failed to reject blog',
             });
-          }
+          },
         });
-      }
+      },
     });
   }
 
@@ -583,7 +604,7 @@ export class BlogDetailComponent implements OnInit {
       this.messageService.add({
         severity: 'warn',
         summary: 'Warning',
-        detail: 'Blog must be published to view publicly'
+        detail: 'Blog must be published to view publicly',
       });
       return;
     }
@@ -607,7 +628,9 @@ export class BlogDetailComponent implements OnInit {
     }
   }
 
-  getStatusSeverity(status: BlogStatus): 'success' | 'info' | 'warning' | 'danger' {
+  getStatusSeverity(
+    status: BlogStatus,
+  ): 'success' | 'info' | 'warning' | 'danger' {
     switch (status) {
       case BlogStatus.PUBLISHED:
         return 'success';

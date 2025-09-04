@@ -11,7 +11,7 @@ export interface ApiResponse<T> {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ApiService {
   private readonly baseUrl: string;
@@ -23,11 +23,17 @@ export class ApiService {
   /**
    * GET request
    */
-  get<T>(endpoint: string, params?: HttpParams | { [key: string]: any }): Observable<T> {
+  get<T>(
+    endpoint: string,
+    params?: HttpParams | { [key: string]: any },
+  ): Observable<T> {
     const options = {
-      params: params instanceof HttpParams ? params : new HttpParams({ fromObject: params || {} }),
+      params:
+        params instanceof HttpParams
+          ? params
+          : new HttpParams({ fromObject: params || {} }),
       headers: this.getHeaders(),
-      withCredentials: true // Include cookies in requests
+      withCredentials: true, // Include cookies in requests
     };
 
     return this.http.get<T>(`${this.baseUrl}${endpoint}`, options);
@@ -39,7 +45,7 @@ export class ApiService {
   post<T>(endpoint: string, body?: any): Observable<T> {
     return this.http.post<T>(`${this.baseUrl}${endpoint}`, body, {
       headers: this.getHeaders(),
-      withCredentials: true // Include cookies in requests
+      withCredentials: true, // Include cookies in requests
     });
   }
 
@@ -49,7 +55,7 @@ export class ApiService {
   put<T>(endpoint: string, body?: any): Observable<T> {
     return this.http.put<T>(`${this.baseUrl}${endpoint}`, body, {
       headers: this.getHeaders(),
-      withCredentials: true // Include cookies in requests
+      withCredentials: true, // Include cookies in requests
     });
   }
 
@@ -59,7 +65,7 @@ export class ApiService {
   delete<T>(endpoint: string): Observable<T> {
     return this.http.delete<T>(`${this.baseUrl}${endpoint}`, {
       headers: this.getHeaders(),
-      withCredentials: true // Include cookies in requests
+      withCredentials: true, // Include cookies in requests
     });
   }
 
@@ -69,7 +75,7 @@ export class ApiService {
   patch<T>(endpoint: string, body?: any): Observable<T> {
     return this.http.patch<T>(`${this.baseUrl}${endpoint}`, body, {
       headers: this.getHeaders(),
-      withCredentials: true // Include cookies in requests
+      withCredentials: true, // Include cookies in requests
     });
   }
 
@@ -81,14 +87,14 @@ export class ApiService {
     formData.append('file', file);
 
     if (additionalData) {
-      Object.keys(additionalData).forEach(key => {
+      Object.keys(additionalData).forEach((key) => {
         formData.append(key, additionalData[key]);
       });
     }
 
     return this.http.patch<T>(`${this.baseUrl}${endpoint}`, formData, {
       headers: this.getFileUploadHeaders(),
-      withCredentials: true // Include cookies in requests
+      withCredentials: true, // Include cookies in requests
     });
   }
 
@@ -112,7 +118,7 @@ export class ApiService {
   private getHeaders(): HttpHeaders {
     let headers = new HttpHeaders({
       'Content-Type': 'application/json',
-      'Accept': 'application/json'
+      Accept: 'application/json',
     });
 
     // Add authorization token if available
@@ -129,7 +135,7 @@ export class ApiService {
    */
   private getFileUploadHeaders(): HttpHeaders {
     let headers = new HttpHeaders({
-      'Accept': 'application/json'
+      Accept: 'application/json',
     });
 
     // Add authorization token if available

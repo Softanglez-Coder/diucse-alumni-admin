@@ -23,14 +23,14 @@ export interface CreateBannerDto {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class BannerService {
   private endpoint = '/banners';
 
   constructor(
     private dataService: DataService,
-    private apiService: ApiService
+    private apiService: ApiService,
   ) {}
 
   /**

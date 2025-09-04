@@ -18,7 +18,7 @@ export interface LoginCredentials {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
@@ -26,28 +26,27 @@ export class AuthService {
 
   constructor(
     private apiService: ApiService,
-    private router: Router
+    private router: Router,
   ) {
     // Don't check auth status in constructor to avoid circular dependency
     // Auth status will be checked when needed by the guard
   }
 
   login(credentials: LoginCredentials): Observable<boolean> {
-    return this.apiService.post<any>('/auth/login', credentials)
-      .pipe(
-        map(response => {
-          console.log('Login response:', response);
-          console.log('Login successful - cookie set by backend');
+    return this.apiService.post<any>('/auth/login', credentials).pipe(
+      map((response) => {
+        console.log('Login response:', response);
+        console.log('Login successful - cookie set by backend');
 
-          // Login successful, but no user data in response
-          // We'll fetch user data from /auth/me after login
-          return true;
-        }),
-        catchError(error => {
-          console.error('Login failed:', error);
-          return of(false);
-        })
-      );
+        // Login successful, but no user data in response
+        // We'll fetch user data from /auth/me after login
+        return true;
+      }),
+      catchError((error) => {
+        console.error('Login failed:', error);
+        return of(false);
+      }),
+    );
   }
 
   logout(): void {
@@ -61,7 +60,7 @@ export class AuthService {
       },
       error: (error) => {
         console.warn('Logout endpoint failed:', error);
-      }
+      },
     });
 
     // Redirect to login without any return URL
@@ -84,33 +83,34 @@ export class AuthService {
     }
 
     // For cookie-based auth, just call /auth/me - the cookie will be sent automatically
-    console.log('Making request to /auth/me (cookie will be sent automatically)');
-    return this.apiService.get<{user: User}>('/auth/me')
-      .pipe(
-        map((response: any) => {
-          console.log('Auth/me response:', response);
-          if (response && (response.user || response.data || response)) {
-            // Handle different response structures
-            const user = response.user || response.data || response;
-            this.currentUserSubject.next(user);
-            console.log('User loaded from API:', user);
-            return true;
-          }
-          return false;
-        }),
-        catchError((error) => {
-          console.warn('Auth verification failed:', error);
+    console.log(
+      'Making request to /auth/me (cookie will be sent automatically)',
+    );
+    return this.apiService.get<{ user: User }>('/auth/me').pipe(
+      map((response: any) => {
+        console.log('Auth/me response:', response);
+        if (response && (response.user || response.data || response)) {
+          // Handle different response structures
+          const user = response.user || response.data || response;
+          this.currentUserSubject.next(user);
+          console.log('User loaded from API:', user);
+          return true;
+        }
+        return false;
+      }),
+      catchError((error) => {
+        console.warn('Auth verification failed:', error);
 
-          // For cookie-based auth, if /auth/me fails, user is not authenticated
-          console.log('Cookie-based auth failed, user not authenticated');
-          this.currentUserSubject.next(null);
+        // For cookie-based auth, if /auth/me fails, user is not authenticated
+        console.log('Cookie-based auth failed, user not authenticated');
+        this.currentUserSubject.next(null);
 
-          // Don't redirect here - let the guard handle redirections
-          // The guard will properly capture the intended URL
+        // Don't redirect here - let the guard handle redirections
+        // The guard will properly capture the intended URL
 
-          return of(false);
-        })
-      );
+        return of(false);
+      }),
+    );
   }
 
   getCurrentUser(): User | null {
@@ -122,12 +122,14 @@ export class AuthService {
     if (!user || !user.roles) return false;
 
     const userRoles = user.roles;
-    const rolesToCheck = Array.isArray(roleToCheck) ? roleToCheck : [roleToCheck];
+    const rolesToCheck = Array.isArray(roleToCheck)
+      ? roleToCheck
+      : [roleToCheck];
 
-    return rolesToCheck.some(role =>
-      userRoles.some((userRole: string) =>
-        userRole?.toLowerCase() === role?.toLowerCase()
-      )
+    return rolesToCheck.some((role) =>
+      userRoles.some(
+        (userRole: string) => userRole?.toLowerCase() === role?.toLowerCase(),
+      ),
     );
   }
 

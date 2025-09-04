@@ -5,16 +5,19 @@ This application is configured to work with different environments based on the 
 ## Environment Configuration
 
 ### Local Development
+
 - **Frontend URL**: `http://localhost:4300`
 - **API URL**: `http://localhost:3000`
 - **Build Command**: `npm start`
 
 ### Development/Staging
+
 - **Frontend URL**: `https://admin-dev.csediualumni.com`
 - **API URL**: `https://api-dev.csediualumni.com`
 - **Build Command**: `npm run build:dev`
 
 ### Production
+
 - **Frontend URL**: `https://admin.csediualumni.com`
 - **API URL**: `https://api.csediualumni.com`
 - **Build Command**: `npm run build:prod`
@@ -62,22 +65,26 @@ The application uses JWT tokens for authentication. Tokens are stored in both lo
 ## Services
 
 ### ApiService
+
 - Centralized HTTP client wrapper
 - Automatic token injection
 - Error handling
 - File upload support
 
 ### ConfigService
+
 - Environment configuration management
 - URL building utilities
 - Environment detection
 
 ### DataService
+
 - Generic CRUD operations
 - Pagination support
 - Search functionality
 
 ### MembershipService
+
 - Membership-specific operations
 - Extends DataService
 - Custom membership methods
@@ -85,16 +92,19 @@ The application uses JWT tokens for authentication. Tokens are stored in both lo
 ## Deployment
 
 ### Local Development
+
 ```bash
 npm start
 ```
 
 ### Development/Staging Deployment
+
 ```bash
 npm run build:dev
 ```
 
 ### Production Deployment
+
 ```bash
 npm run build:prod
 ```

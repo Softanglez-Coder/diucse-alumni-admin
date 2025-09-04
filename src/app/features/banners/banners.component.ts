@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { CrudListComponent, CrudConfig } from '../../shared/components/crud-list.component';
+import {
+  CrudListComponent,
+  CrudConfig,
+} from '../../shared/components/crud-list.component';
 import { Banner } from './banner.service';
 
 @Component({
@@ -12,7 +15,7 @@ import { Banner } from './banner.service';
     <div class="p-6">
       <app-crud-list [config]="crudConfig"></app-crud-list>
     </div>
-  `
+  `,
 })
 export class BannersComponent implements OnInit {
   crudConfig: CrudConfig = {
@@ -28,47 +31,47 @@ export class BannersComponent implements OnInit {
         header: 'Title',
         type: 'text',
         sortable: true,
-        filterable: true
+        filterable: true,
       },
       {
         field: 'description',
         header: 'Description',
         type: 'text',
-        sortable: true
+        sortable: true,
       },
       {
         field: 'image',
         header: 'Image',
         type: 'image',
-        width: '120px'
+        width: '120px',
       },
       {
         field: 'link',
         header: 'Link',
         type: 'text',
-        sortable: true
+        sortable: true,
       },
       {
         field: 'order',
         header: 'Order',
         type: 'text',
         width: '100px',
-        sortable: true
+        sortable: true,
       },
       {
         field: 'createdAt',
         header: 'Created',
         type: 'date',
         width: '150px',
-        sortable: true
+        sortable: true,
       },
       {
         field: 'actions',
         header: 'Actions',
         type: 'actions',
-        width: '150px'
-      }
-    ]
+        width: '150px',
+      },
+    ],
   };
 
   ngOnInit() {

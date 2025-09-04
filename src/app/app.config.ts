@@ -61,7 +61,7 @@ export const appConfig: ApplicationConfig = {
           })
           .catch(() => {
             console.log(
-              'Auth check failed during bootstrap - user not authenticated'
+              'Auth check failed during bootstrap - user not authenticated',
             );
             resolve();
           });
@@ -78,20 +78,20 @@ export const appConfig: ApplicationConfig = {
       },
     },
     providePrimeNG({
-            ripple: true,
-            theme: {
-                preset: Aura,
-                options: {
-                    darkModeSelector: '.dark',
-                    cssLayer: false
-                }
-            }
-        }),
+      ripple: true,
+      theme: {
+        preset: Aura,
+        options: {
+          darkModeSelector: '.dark',
+          cssLayer: false,
+        },
+      },
+    }),
     provideQuillConfig({
       modules: {
         syntax: false,
-        toolbar: false
-      }
-    })
-  ]
+        toolbar: false,
+      },
+    }),
+  ],
 };

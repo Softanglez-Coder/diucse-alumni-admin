@@ -40,7 +40,7 @@ export enum SettingsKey {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SettingsService extends DataService {
   private readonly endpoint = '/settings';

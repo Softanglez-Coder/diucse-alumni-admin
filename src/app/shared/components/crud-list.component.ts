@@ -51,21 +51,21 @@ export interface ColumnConfig {
     ConfirmDialogModule,
     ToastModule,
     ToolbarModule,
-    TooltipModule
+    TooltipModule,
   ],
   providers: [ConfirmationService, MessageService],
   template: `
     <div class="crud-container">
       <div class="crud-header">
-        <h1 class="crud-title">{{config.title}}</h1>
+        <h1 class="crud-title">{{ config.title }}</h1>
         <button
           *ngIf="!config.disableCreate"
           pButton
           label="Add New"
           icon="pi pi-plus"
           class="p-button-success"
-          [routerLink]="config.createRoute">
-        </button>
+          [routerLink]="config.createRoute"
+        ></button>
       </div>
 
       <p-card>
@@ -79,7 +79,8 @@ export interface ColumnConfig {
                 placeholder="Search..."
                 [(ngModel)]="searchValue"
                 (input)="onSearch()"
-                class="p-inputtext-sm">
+                class="p-inputtext-sm"
+              />
             </span>
           </div>
           <div class="p-toolbar-group-right">
@@ -88,15 +89,15 @@ export interface ColumnConfig {
               label="Export"
               icon="pi pi-download"
               class="p-button-outlined p-button-sm mr-2"
-              (click)="exportData()">
-            </button>
+              (click)="exportData()"
+            ></button>
             <button
               pButton
               label="Refresh"
               icon="pi pi-refresh"
               class="p-button-outlined p-button-sm"
-              (click)="loadData()">
-            </button>
+              (click)="loadData()"
+            ></button>
           </div>
         </p-toolbar>
 
@@ -108,13 +109,12 @@ export interface ColumnConfig {
           responsiveLayout="scroll"
           [first]="first"
           [totalRecords]="totalRecords"
-          (onPage)="onPageChange($event)">
-
+          (onPage)="onPageChange($event)"
+        >
           <ng-template pTemplate="header">
             <tr>
-              <th *ngFor="let col of config.columns"
-                  [style.width]="col.width">
-                {{col.header}}
+              <th *ngFor="let col of config.columns" [style.width]="col.width">
+                {{ col.header }}
               </th>
             </tr>
           </ng-template>
@@ -123,25 +123,38 @@ export interface ColumnConfig {
             <tr>
               <td *ngFor="let col of config.columns">
                 <ng-container [ngSwitch]="col.type">
-                  <span *ngSwitchCase="'text'">{{getNestedValue(item, col.field)}}</span>
-                  <span *ngSwitchCase="'date'">{{getNestedValue(item, col.field) | date:'short'}}</span>
+                  <span *ngSwitchCase="'text'">{{
+                    getNestedValue(item, col.field)
+                  }}</span>
+                  <span *ngSwitchCase="'date'">{{
+                    getNestedValue(item, col.field) | date: 'short'
+                  }}</span>
                   <div *ngSwitchCase="'image'" class="image-cell">
                     <img
                       *ngIf="getNestedValue(item, col.field)"
                       [src]="getNestedValue(item, col.field)"
                       [alt]="item.title || 'Image'"
                       class="table-image"
-                      (error)="onImageError($event)">
-                    <span *ngIf="!getNestedValue(item, col.field)" class="text-gray-400 text-sm">No image</span>
+                      (error)="onImageError($event)"
+                    />
+                    <span
+                      *ngIf="!getNestedValue(item, col.field)"
+                      class="text-gray-400 text-sm"
+                      >No image</span
+                    >
                   </div>
                   <p-tag
                     *ngSwitchCase="'status'"
                     [value]="formatStatusValue(getNestedValue(item, col.field))"
-                    [severity]="getStatusSeverity(getNestedValue(item, col.field))">
+                    [severity]="
+                      getStatusSeverity(getNestedValue(item, col.field))
+                    "
+                  >
                   </p-tag>
                   <p-tag
                     *ngSwitchCase="'badge'"
-                    [value]="formatBadgeValue(getNestedValue(item, col.field))">
+                    [value]="formatBadgeValue(getNestedValue(item, col.field))"
+                  >
                   </p-tag>
                   <div *ngSwitchCase="'actions'" class="action-buttons">
                     <button
@@ -149,26 +162,28 @@ export interface ColumnConfig {
                       icon="pi pi-eye"
                       class="p-button-rounded p-button-text p-button-sm"
                       [routerLink]="[config.viewRoute, item._id]"
-                      pTooltip="View">
-                    </button>
+                      pTooltip="View"
+                    ></button>
                     <button
                       *ngIf="!config.disableEdit"
                       pButton
                       icon="pi pi-pencil"
                       class="p-button-rounded p-button-text p-button-sm"
                       [routerLink]="[config.editRoute, item._id]"
-                      pTooltip="Edit">
-                    </button>
+                      pTooltip="Edit"
+                    ></button>
                     <button
                       *ngIf="!config.disableDelete"
                       pButton
                       icon="pi pi-trash"
                       class="p-button-rounded p-button-text p-button-sm p-button-danger"
                       (click)="confirmDelete(item)"
-                      pTooltip="Delete">
-                    </button>
+                      pTooltip="Delete"
+                    ></button>
                   </div>
-                  <span *ngSwitchDefault>{{getNestedValue(item, col.field)}}</span>
+                  <span *ngSwitchDefault>{{
+                    getNestedValue(item, col.field)
+                  }}</span>
                 </ng-container>
               </td>
             </tr>
@@ -179,15 +194,19 @@ export interface ColumnConfig {
               <td [attr.colspan]="config.columns.length" class="text-center">
                 <div class="empty-state">
                   <i class="pi pi-info-circle text-4xl text-gray-400 mb-4"></i>
-                  <h3 class="text-lg font-semibold text-gray-600 mb-2">No data found</h3>
-                  <p class="text-gray-500 mb-4">Get started by adding your first item</p>
+                  <h3 class="text-lg font-semibold text-gray-600 mb-2">
+                    No data found
+                  </h3>
+                  <p class="text-gray-500 mb-4">
+                    Get started by adding your first item
+                  </p>
                   <button
                     *ngIf="!config.disableCreate"
                     pButton
                     label="Add New"
                     icon="pi pi-plus"
-                    [routerLink]="config.createRoute">
-                  </button>
+                    [routerLink]="config.createRoute"
+                  ></button>
                 </div>
               </td>
             </tr>
@@ -199,89 +218,91 @@ export interface ColumnConfig {
     <p-confirmDialog></p-confirmDialog>
     <p-toast></p-toast>
   `,
-  styles: [`
-    .crud-container {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
+  styles: [
+    `
+      .crud-container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
 
-    .crud-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.5rem;
-    }
-
-    .crud-title {
-      font-size: 1.875rem;
-      font-weight: 700;
-      color: #1f2937;
-      margin: 0;
-    }
-
-    .action-buttons {
-      display: flex;
-      gap: 0.5rem;
-    }
-
-    .image-cell {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .table-image {
-      width: 60px;
-      height: 40px;
-      object-fit: cover;
-      border-radius: 4px;
-      border: 1px solid #e5e7eb;
-    }
-
-    .empty-state {
-      padding: 3rem;
-      text-align: center;
-    }
-
-    :host ::ng-deep .p-toolbar {
-      border: none;
-      background: transparent;
-      padding: 0 0 1rem 0;
-    }
-
-    :host ::ng-deep .p-card-content {
-      padding: 1.5rem;
-    }
-
-    :host ::ng-deep .p-table .p-datatable-thead > tr > th {
-      background: #f8fafc;
-      border-bottom: 1px solid #e5e7eb;
-      color: #374151;
-      font-weight: 600;
-      padding: 1rem;
-    }
-
-    :host ::ng-deep .p-table .p-datatable-tbody > tr > td {
-      padding: 1rem;
-      border-bottom: 1px solid #f3f4f6;
-    }
-
-    :host ::ng-deep .p-table .p-datatable-tbody > tr:hover {
-      background: #f9fafb;
-    }
-
-    @media (max-width: 768px) {
       .crud-header {
-        flex-direction: column;
-        gap: 1rem;
-        align-items: stretch;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
       }
 
       .crud-title {
+        font-size: 1.875rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin: 0;
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      .image-cell {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .table-image {
+        width: 60px;
+        height: 40px;
+        object-fit: cover;
+        border-radius: 4px;
+        border: 1px solid #e5e7eb;
+      }
+
+      .empty-state {
+        padding: 3rem;
         text-align: center;
       }
-    }
-  `]
+
+      :host ::ng-deep .p-toolbar {
+        border: none;
+        background: transparent;
+        padding: 0 0 1rem 0;
+      }
+
+      :host ::ng-deep .p-card-content {
+        padding: 1.5rem;
+      }
+
+      :host ::ng-deep .p-table .p-datatable-thead > tr > th {
+        background: #f8fafc;
+        border-bottom: 1px solid #e5e7eb;
+        color: #374151;
+        font-weight: 600;
+        padding: 1rem;
+      }
+
+      :host ::ng-deep .p-table .p-datatable-tbody > tr > td {
+        padding: 1rem;
+        border-bottom: 1px solid #f3f4f6;
+      }
+
+      :host ::ng-deep .p-table .p-datatable-tbody > tr:hover {
+        background: #f9fafb;
+      }
+
+      @media (max-width: 768px) {
+        .crud-header {
+          flex-direction: column;
+          gap: 1rem;
+          align-items: stretch;
+        }
+
+        .crud-title {
+          text-align: center;
+        }
+      }
+    `,
+  ],
 })
 export class CrudListComponent implements OnInit {
   @Input() config!: CrudConfig;
@@ -298,7 +319,7 @@ export class CrudListComponent implements OnInit {
     private confirmationService: ConfirmationService,
     private messageService: MessageService,
     private apiService: ApiService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {
@@ -318,7 +339,10 @@ export class CrudListComponent implements OnInit {
           // Check if it's wrapped in a data property
           if ('data' in response && Array.isArray((response as any).data)) {
             dataArray = (response as any).data;
-          } else if ('items' in response && Array.isArray((response as any).items)) {
+          } else if (
+            'items' in response &&
+            Array.isArray((response as any).items)
+          ) {
             dataArray = (response as any).items;
           } else {
             console.warn('Unexpected response format:', response);
@@ -340,9 +364,11 @@ export class CrudListComponent implements OnInit {
 
         let errorMessage = 'Failed to load data from server';
         if (error.status === 0) {
-          errorMessage = 'Unable to connect to server. Please check if the server is running.';
+          errorMessage =
+            'Unable to connect to server. Please check if the server is running.';
         } else if (error.status === 404) {
-          errorMessage = 'API endpoint not found. Please check the endpoint URL.';
+          errorMessage =
+            'API endpoint not found. Please check the endpoint URL.';
         } else if (error.status === 500) {
           errorMessage = 'Server error. Please try again later.';
         }
@@ -350,7 +376,7 @@ export class CrudListComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: errorMessage
+          detail: errorMessage,
         });
 
         setTimeout(() => {
@@ -360,7 +386,7 @@ export class CrudListComponent implements OnInit {
           this.loading = false;
           this.cdr.detectChanges(); // Manually trigger change detection
         }, 0);
-      }
+      },
     });
   }
 
@@ -375,11 +401,14 @@ export class CrudListComponent implements OnInit {
       return;
     }
 
-    const filtered = this.data.filter(item =>
-      this.config.searchFields.some(field => {
+    const filtered = this.data.filter((item) =>
+      this.config.searchFields.some((field) => {
         const value = this.getNestedValue(item, field);
-        return value?.toString().toLowerCase().includes(this.searchValue.toLowerCase());
-      })
+        return value
+          ?.toString()
+          .toLowerCase()
+          .includes(this.searchValue.toLowerCase());
+      }),
     );
 
     setTimeout(() => {
@@ -418,39 +447,43 @@ export class CrudListComponent implements OnInit {
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.deleteItem(item);
-      }
+      },
     });
   }
 
   deleteItem(item: any) {
     this.loading = true;
 
-    this.apiService.delete<any>(`${this.config.apiEndpoint}/${item._id}`).subscribe({
-      next: (response) => {
-        setTimeout(() => {
-          this.data = this.data.filter(d => d._id !== item._id);
-          this.filteredData = this.filteredData.filter(d => d._id !== item._id);
-          this.totalRecords = this.filteredData.length;
-          this.loading = false;
-          this.cdr.detectChanges(); // Manually trigger change detection
-        }, 0);
+    this.apiService
+      .delete<any>(`${this.config.apiEndpoint}/${item._id}`)
+      .subscribe({
+        next: (response) => {
+          setTimeout(() => {
+            this.data = this.data.filter((d) => d._id !== item._id);
+            this.filteredData = this.filteredData.filter(
+              (d) => d._id !== item._id,
+            );
+            this.totalRecords = this.filteredData.length;
+            this.loading = false;
+            this.cdr.detectChanges(); // Manually trigger change detection
+          }, 0);
 
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: 'Item deleted successfully'
-        });
-      },
-      error: (error) => {
-        console.error('Error deleting item:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to delete item from server'
-        });
-        this.loading = false;
-      }
-    });
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'Item deleted successfully',
+          });
+        },
+        error: (error) => {
+          console.error('Error deleting item:', error);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Failed to delete item from server',
+          });
+          this.loading = false;
+        },
+      });
   }
 
   exportData() {
@@ -462,7 +495,7 @@ export class CrudListComponent implements OnInit {
       error: (error) => {
         console.log('Server export not available, using client-side export');
         this.exportToCSV(this.data);
-      }
+      },
     });
   }
 
@@ -471,21 +504,21 @@ export class CrudListComponent implements OnInit {
       this.messageService.add({
         severity: 'warn',
         summary: 'Export',
-        detail: 'No data to export'
+        detail: 'No data to export',
       });
       return;
     }
 
     const headers = this.config.columns
-      .filter(col => col.type !== 'actions')
-      .map(col => col.header);
+      .filter((col) => col.type !== 'actions')
+      .map((col) => col.header);
 
     const csvContent = [
       headers.join(','),
-      ...data.map(item =>
+      ...data.map((item) =>
         this.config.columns
-          .filter(col => col.type !== 'actions')
-          .map(col => {
+          .filter((col) => col.type !== 'actions')
+          .map((col) => {
             const value = this.getNestedValue(item, col.field);
             let formattedValue = value;
 
@@ -497,10 +530,12 @@ export class CrudListComponent implements OnInit {
               formattedValue = '';
             }
 
-            return typeof formattedValue === 'string' ? `"${formattedValue}"` : formattedValue;
+            return typeof formattedValue === 'string'
+              ? `"${formattedValue}"`
+              : formattedValue;
           })
-          .join(',')
-      )
+          .join(','),
+      ),
     ].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -514,11 +549,13 @@ export class CrudListComponent implements OnInit {
     this.messageService.add({
       severity: 'success',
       summary: 'Success',
-      detail: 'Data exported successfully'
+      detail: 'Data exported successfully',
     });
   }
 
-  getStatusSeverity(status: string | boolean): 'success' | 'warning' | 'danger' | 'info' {
+  getStatusSeverity(
+    status: string | boolean,
+  ): 'success' | 'warning' | 'danger' | 'info' {
     // Handle boolean values
     if (typeof status === 'boolean') {
       return status ? 'success' : 'danger';
@@ -562,5 +599,4 @@ export class CrudListComponent implements OnInit {
     // For client-side pagination, we don't need to reload data
     // For server-side pagination, you would call loadData() with pagination parameters
   }
-
 }

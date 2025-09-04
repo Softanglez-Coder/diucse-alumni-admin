@@ -5,7 +5,7 @@ import { ApiService } from '../../core/services/api.service';
 export enum BlogStatus {
   DRAFT = 'draft',
   IN_REVIEW = 'in_review',
-  PUBLISHED = 'published'
+  PUBLISHED = 'published',
 }
 
 export interface Blog {
@@ -23,7 +23,7 @@ export interface Blog {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class BlogService {
   private readonly endpoint = '/blogs';

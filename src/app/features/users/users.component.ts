@@ -1,13 +1,14 @@
 import { Component } from '@angular/core';
-import { CrudListComponent, CrudConfig } from '../../shared/components/crud-list.component';
+import {
+  CrudListComponent,
+  CrudConfig,
+} from '../../shared/components/crud-list.component';
 
 @Component({
   selector: 'app-users',
   standalone: true,
   imports: [CrudListComponent],
-  template: `
-    <app-crud-list [config]="crudConfig"></app-crud-list>
-  `
+  template: ` <app-crud-list [config]="crudConfig"></app-crud-list> `,
 })
 export class UsersComponent {
   crudConfig: CrudConfig = {
@@ -20,15 +21,32 @@ export class UsersComponent {
     disableDelete: true,
     disableEdit: true,
     columns: [
-      { field: 'name', header: 'Name', type: 'text', sortable: true, filterable: true },
-      { field: 'email', header: 'Email', type: 'text', sortable: true, filterable: true },
+      {
+        field: 'name',
+        header: 'Name',
+        type: 'text',
+        sortable: true,
+        filterable: true,
+      },
+      {
+        field: 'email',
+        header: 'Email',
+        type: 'text',
+        sortable: true,
+        filterable: true,
+      },
       { field: 'batch.name', header: 'Batch', type: 'badge', sortable: true },
       { field: 'phone', header: 'Phone', type: 'text', sortable: true },
       { field: 'roles', header: 'Roles', type: 'badge', sortable: true },
-      { field: 'emailVerified', header: 'Email Verified', type: 'status', sortable: true },
+      {
+        field: 'emailVerified',
+        header: 'Email Verified',
+        type: 'status',
+        sortable: true,
+      },
       { field: 'active', header: 'Status', type: 'status', sortable: true },
       { field: 'createdAt', header: 'Created', type: 'date', sortable: true },
-      { field: 'actions', header: 'Actions', type: 'actions', width: '120px' }
-    ]
+      { field: 'actions', header: 'Actions', type: 'actions', width: '120px' },
+    ],
   };
 }

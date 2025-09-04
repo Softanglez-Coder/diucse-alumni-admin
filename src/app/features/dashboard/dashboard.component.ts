@@ -21,13 +21,15 @@ import { AvatarModule } from 'primeng/avatar';
     TableModule,
     TagModule,
     ProgressBarModule,
-    AvatarModule
+    AvatarModule,
   ],
   template: `
     <div class="dashboard-container">
       <div class="dashboard-header">
         <h1 class="dashboard-title">Dashboard</h1>
-        <p class="dashboard-subtitle">Welcome back! Here's what's happening with your alumni network.</p>
+        <p class="dashboard-subtitle">
+          Welcome back! Here's what's happening with your alumni network.
+        </p>
       </div>
 
       <!-- Stats Cards -->
@@ -37,11 +39,19 @@ import { AvatarModule } from 'primeng/avatar';
             <i [class]="stat.icon"></i>
           </div>
           <div class="stat-content">
-            <h3 class="stat-value">{{stat.value}}</h3>
-            <p class="stat-label">{{stat.label}}</p>
-            <div class="stat-change" [class.positive]="stat.change > 0" [class.negative]="stat.change < 0">
-              <i class="pi" [class.pi-arrow-up]="stat.change > 0" [class.pi-arrow-down]="stat.change < 0"></i>
-              {{Math.abs(stat.change)}}% from last month
+            <h3 class="stat-value">{{ stat.value }}</h3>
+            <p class="stat-label">{{ stat.label }}</p>
+            <div
+              class="stat-change"
+              [class.positive]="stat.change > 0"
+              [class.negative]="stat.change < 0"
+            >
+              <i
+                class="pi"
+                [class.pi-arrow-up]="stat.change > 0"
+                [class.pi-arrow-down]="stat.change < 0"
+              ></i>
+              {{ Math.abs(stat.change) }}% from last month
             </div>
           </div>
         </div>
@@ -51,12 +61,20 @@ import { AvatarModule } from 'primeng/avatar';
       <div class="charts-section">
         <div class="chart-card">
           <p-card header="User Registration Trend">
-            <p-chart type="line" [data]="lineChartData" [options]="lineChartOptions"></p-chart>
+            <p-chart
+              type="line"
+              [data]="lineChartData"
+              [options]="lineChartOptions"
+            ></p-chart>
           </p-card>
         </div>
         <div class="chart-card">
           <p-card header="Event Participation">
-            <p-chart type="doughnut" [data]="doughnutChartData" [options]="doughnutChartOptions"></p-chart>
+            <p-chart
+              type="doughnut"
+              [data]="doughnutChartData"
+              [options]="doughnutChartOptions"
+            ></p-chart>
           </p-card>
         </div>
       </div>
@@ -65,20 +83,22 @@ import { AvatarModule } from 'primeng/avatar';
       <div class="bottom-section">
         <div class="activities-card">
           <p-card header="Recent Activities">
-            <div class="activity-item" *ngFor="let activity of recentActivities">
-              <p-avatar 
-                [image]="activity.avatar || undefined" 
-                [label]="activity.initials" 
-                shape="circle" 
-                size="normal">
+            <div
+              class="activity-item"
+              *ngFor="let activity of recentActivities"
+            >
+              <p-avatar
+                [image]="activity.avatar || undefined"
+                [label]="activity.initials"
+                shape="circle"
+                size="normal"
+              >
               </p-avatar>
               <div class="activity-content">
-                <p class="activity-text">{{activity.text}}</p>
-                <small class="activity-time">{{activity.time}}</small>
+                <p class="activity-text">{{ activity.text }}</p>
+                <small class="activity-time">{{ activity.time }}</small>
               </div>
-              <p-tag 
-                [value]="activity.type" 
-                [severity]="activity.severity">
+              <p-tag [value]="activity.type" [severity]="activity.severity">
               </p-tag>
             </div>
           </p-card>
@@ -87,14 +107,14 @@ import { AvatarModule } from 'primeng/avatar';
         <div class="quick-actions-card">
           <p-card header="Quick Actions">
             <div class="quick-actions-grid">
-              <button 
+              <button
                 *ngFor="let action of quickActions"
                 pButton
                 [label]="action.label"
                 [icon]="action.icon"
                 class="p-button-outlined"
-                [routerLink]="action.route">
-              </button>
+                [routerLink]="action.route"
+              ></button>
             </div>
           </p-card>
         </div>
@@ -118,25 +138,29 @@ import { AvatarModule } from 'primeng/avatar';
                 <tr>
                   <td>
                     <div class="flex items-center">
-                      <p-avatar 
-                        [image]="user.avatar" 
-                        [label]="user.initials" 
-                        shape="circle" 
-                        size="normal" 
-                        class="mr-2">
+                      <p-avatar
+                        [image]="user.avatar"
+                        [label]="user.initials"
+                        shape="circle"
+                        size="normal"
+                        class="mr-2"
+                      >
                       </p-avatar>
-                      {{user.name}}
+                      {{ user.name }}
                     </div>
                   </td>
-                  <td>{{user.email}}</td>
-                  <td>{{user.batch}}</td>
+                  <td>{{ user.email }}</td>
+                  <td>{{ user.batch }}</td>
                   <td>
-                    <p-tag 
-                      [value]="user.status" 
-                      [severity]="user.status === 'Active' ? 'success' : 'warning'">
+                    <p-tag
+                      [value]="user.status"
+                      [severity]="
+                        user.status === 'Active' ? 'success' : 'warning'
+                      "
+                    >
                     </p-tag>
                   </td>
-                  <td>{{user.joined}}</td>
+                  <td>{{ user.joined }}</td>
                 </tr>
               </ng-template>
             </p-table>
@@ -156,21 +180,25 @@ import { AvatarModule } from 'primeng/avatar';
               </ng-template>
               <ng-template pTemplate="body" let-event>
                 <tr>
-                  <td>{{event.name}}</td>
-                  <td>{{event.date}}</td>
+                  <td>{{ event.name }}</td>
+                  <td>{{ event.date }}</td>
                   <td>
                     <div class="flex items-center">
-                      <span class="mr-2">{{event.registrations}}/{{event.capacity}}</span>
-                      <p-progressBar 
-                        [value]="(event.registrations / event.capacity) * 100" 
-                        [style]="{'width': '100px'}">
+                      <span class="mr-2"
+                        >{{ event.registrations }}/{{ event.capacity }}</span
+                      >
+                      <p-progressBar
+                        [value]="(event.registrations / event.capacity) * 100"
+                        [style]="{ width: '100px' }"
+                      >
                       </p-progressBar>
                     </div>
                   </td>
                   <td>
-                    <p-tag 
-                      [value]="event.status" 
-                      [severity]="getEventSeverity(event.status)">
+                    <p-tag
+                      [value]="event.status"
+                      [severity]="getEventSeverity(event.status)"
+                    >
                     </p-tag>
                   </td>
                 </tr>
@@ -181,196 +209,199 @@ import { AvatarModule } from 'primeng/avatar';
       </div>
     </div>
   `,
-  styles: [`
-    .dashboard-container {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .dashboard-header {
-      margin-bottom: 2rem;
-    }
-
-    .dashboard-title {
-      font-size: 2rem;
-      font-weight: 700;
-      color: #1f2937;
-      margin-bottom: 0.5rem;
-    }
-
-    .dashboard-subtitle {
-      color: #6b7280;
-      font-size: 1rem;
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2rem;
-    }
-
-    .stat-card {
-      background: white;
-      border-radius: 12px;
-      padding: 1.5rem;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .stat-icon {
-      width: 60px;
-      height: 60px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 1.5rem;
-    }
-
-    .stat-content {
-      flex: 1;
-    }
-
-    .stat-value {
-      font-size: 2rem;
-      font-weight: 700;
-      color: #1f2937;
-      margin: 0;
-    }
-
-    .stat-label {
-      color: #6b7280;
-      margin: 0.25rem 0;
-    }
-
-    .stat-change {
-      font-size: 0.875rem;
-      display: flex;
-      align-items: center;
-      gap: 0.25rem;
-    }
-
-    .stat-change.positive {
-      color: #059669;
-    }
-
-    .stat-change.negative {
-      color: #dc2626;
-    }
-
-    .charts-section {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 1.5rem;
-      margin-bottom: 2rem;
-    }
-
-    .chart-card {
-      background: white;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
-
-    .bottom-section {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 1.5rem;
-      margin-bottom: 2rem;
-    }
-
-    .activities-card, .quick-actions-card {
-      background: white;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
-
-    .activity-item {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding: 1rem 0;
-      border-bottom: 1px solid #f3f4f6;
-    }
-
-    .activity-item:last-child {
-      border-bottom: none;
-    }
-
-    .activity-content {
-      flex: 1;
-    }
-
-    .activity-text {
-      margin: 0;
-      color: #374151;
-    }
-
-    .activity-time {
-      color: #6b7280;
-    }
-
-    .quick-actions-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-    }
-
-    .tables-section {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
-    }
-
-    .table-card {
-      background: white;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
-
-    @media (max-width: 1024px) {
-      .charts-section,
-      .bottom-section,
-      .tables-section {
-        grid-template-columns: 1fr;
+  styles: [
+    `
+      .dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
       }
-    }
 
-    @media (max-width: 640px) {
+      .dashboard-header {
+        margin-bottom: 2rem;
+      }
+
+      .dashboard-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 0.5rem;
+      }
+
+      .dashboard-subtitle {
+        color: #6b7280;
+        font-size: 1rem;
+      }
+
       .stats-grid {
-        grid-template-columns: 1fr;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
       }
-      
+
+      .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+      }
+
+      .stat-content {
+        flex: 1;
+      }
+
+      .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin: 0;
+      }
+
+      .stat-label {
+        color: #6b7280;
+        margin: 0.25rem 0;
+      }
+
+      .stat-change {
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+      }
+
+      .stat-change.positive {
+        color: #059669;
+      }
+
+      .stat-change.negative {
+        color: #dc2626;
+      }
+
+      .charts-section {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .chart-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      .bottom-section {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .activities-card,
+      .quick-actions-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      .activity-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 0;
+        border-bottom: 1px solid #f3f4f6;
+      }
+
+      .activity-item:last-child {
+        border-bottom: none;
+      }
+
+      .activity-content {
+        flex: 1;
+      }
+
+      .activity-text {
+        margin: 0;
+        color: #374151;
+      }
+
+      .activity-time {
+        color: #6b7280;
+      }
+
       .quick-actions-grid {
-        grid-template-columns: 1fr;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
       }
-    }
 
-    :host ::ng-deep .p-card-header {
-      background: #f8fafc;
-      border-bottom: 1px solid #e5e7eb;
-      padding: 1rem 1.5rem;
-      font-weight: 600;
-      color: #374151;
-    }
+      .tables-section {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+      }
 
-    :host ::ng-deep .p-card-content {
-      padding: 1.5rem;
-    }
+      .table-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
 
-    :host ::ng-deep .p-table .p-datatable-thead > tr > th {
-      background: #f8fafc;
-      border-bottom: 1px solid #e5e7eb;
-      color: #374151;
-      font-weight: 600;
-    }
-  `]
+      @media (max-width: 1024px) {
+        .charts-section,
+        .bottom-section,
+        .tables-section {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .stats-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .quick-actions-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      :host ::ng-deep .p-card-header {
+        background: #f8fafc;
+        border-bottom: 1px solid #e5e7eb;
+        padding: 1rem 1.5rem;
+        font-weight: 600;
+        color: #374151;
+      }
+
+      :host ::ng-deep .p-card-content {
+        padding: 1.5rem;
+      }
+
+      :host ::ng-deep .p-table .p-datatable-thead > tr > th {
+        background: #f8fafc;
+        border-bottom: 1px solid #e5e7eb;
+        color: #374151;
+        font-weight: 600;
+      }
+    `,
+  ],
 })
 export class DashboardComponent implements OnInit {
   Math = Math;
@@ -381,29 +412,29 @@ export class DashboardComponent implements OnInit {
       value: '2,456',
       change: 12.5,
       icon: 'pi pi-users',
-      color: '#3b82f6'
+      color: '#3b82f6',
     },
     {
       label: 'Active Events',
       value: '24',
       change: 8.2,
       icon: 'pi pi-calendar',
-      color: '#10b981'
+      color: '#10b981',
     },
     {
       label: 'This Month Registrations',
       value: '186',
       change: -3.1,
       icon: 'pi pi-user-plus',
-      color: '#f59e0b'
+      color: '#f59e0b',
     },
     {
       label: 'Total Revenue',
       value: '$12,450',
       change: 15.3,
       icon: 'pi pi-dollar',
-      color: '#8b5cf6'
-    }
+      color: '#8b5cf6',
+    },
   ];
 
   lineChartData = {
@@ -414,9 +445,9 @@ export class DashboardComponent implements OnInit {
         data: [65, 59, 80, 81, 56, 89],
         borderColor: '#3b82f6',
         backgroundColor: 'rgba(59, 130, 246, 0.1)',
-        tension: 0.4
-      }
-    ]
+        tension: 0.4,
+      },
+    ],
   };
 
   lineChartOptions = {
@@ -424,14 +455,14 @@ export class DashboardComponent implements OnInit {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        display: false
-      }
+        display: false,
+      },
     },
     scales: {
       y: {
-        beginAtZero: true
-      }
-    }
+        beginAtZero: true,
+      },
+    },
   };
 
   doughnutChartData = {
@@ -440,9 +471,9 @@ export class DashboardComponent implements OnInit {
       {
         data: [65, 25, 10],
         backgroundColor: ['#3b82f6', '#10b981', '#f59e0b'],
-        borderWidth: 0
-      }
-    ]
+        borderWidth: 0,
+      },
+    ],
   };
 
   doughnutChartOptions = {
@@ -450,9 +481,9 @@ export class DashboardComponent implements OnInit {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'bottom'
-      }
-    }
+        position: 'bottom',
+      },
+    },
   };
 
   recentActivities = [
@@ -462,7 +493,7 @@ export class DashboardComponent implements OnInit {
       type: 'Registration',
       severity: 'success',
       avatar: null,
-      initials: 'JD'
+      initials: 'JD',
     },
     {
       text: 'New blog post published by Admin',
@@ -470,7 +501,7 @@ export class DashboardComponent implements OnInit {
       type: 'Content',
       severity: 'info',
       avatar: null,
-      initials: 'A'
+      initials: 'A',
     },
     {
       text: 'Payment received for membership',
@@ -478,7 +509,7 @@ export class DashboardComponent implements OnInit {
       type: 'Payment',
       severity: 'success',
       avatar: null,
-      initials: 'SM'
+      initials: 'SM',
     },
     {
       text: 'Event capacity reached for Tech Talk',
@@ -486,31 +517,31 @@ export class DashboardComponent implements OnInit {
       type: 'Event',
       severity: 'warning',
       avatar: null,
-      initials: 'TT'
-    }
+      initials: 'TT',
+    },
   ];
 
   quickActions = [
     {
       label: 'Add User',
       icon: 'pi pi-user-plus',
-      route: '/apps/users/new'
+      route: '/apps/users/new',
     },
     {
       label: 'Create Event',
       icon: 'pi pi-calendar-plus',
-      route: '/apps/events/new'
+      route: '/apps/events/new',
     },
     {
       label: 'New Blog',
       icon: 'pi pi-pencil',
-      route: '/apps/blogs/new'
+      route: '/apps/blogs/new',
     },
     {
       label: 'Send Notice',
       icon: 'pi pi-send',
-      route: '/apps/notices/new'
-    }
+      route: '/apps/notices/new',
+    },
   ];
 
   recentUsers = [
@@ -521,7 +552,7 @@ export class DashboardComponent implements OnInit {
       status: 'Active',
       joined: '2024-01-15',
       avatar: null,
-      initials: 'AJ'
+      initials: 'AJ',
     },
     {
       name: 'Bob Smith',
@@ -530,7 +561,7 @@ export class DashboardComponent implements OnInit {
       status: 'Pending',
       joined: '2024-01-14',
       avatar: null,
-      initials: 'BS'
+      initials: 'BS',
     },
     {
       name: 'Carol Davis',
@@ -539,8 +570,8 @@ export class DashboardComponent implements OnInit {
       status: 'Active',
       joined: '2024-01-13',
       avatar: null,
-      initials: 'CD'
-    }
+      initials: 'CD',
+    },
   ];
 
   recentEvents = [
@@ -549,22 +580,22 @@ export class DashboardComponent implements OnInit {
       date: '2024-03-15',
       registrations: 85,
       capacity: 100,
-      status: 'Active'
+      status: 'Active',
     },
     {
       name: 'Tech Career Fair',
       date: '2024-03-20',
       registrations: 120,
       capacity: 150,
-      status: 'Active'
+      status: 'Active',
     },
     {
       name: 'Annual Gala',
       date: '2024-04-01',
       registrations: 45,
       capacity: 200,
-      status: 'Planning'
-    }
+      status: 'Planning',
+    },
   ];
 
   constructor() {}

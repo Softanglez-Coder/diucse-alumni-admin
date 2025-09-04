@@ -15,17 +15,17 @@ The settings management system provides a complete interface for managing all ty
 ✅ **Full CRUD Operations** - Create, Read, Update, Delete with confirmation dialogs  
 ✅ **Form Validation** - Client-side validation with user-friendly error messages  
 ✅ **Responsive Design** - Works on desktop and mobile devices  
-✅ **Real-time Updates** - Instant refresh after operations  
+✅ **Real-time Updates** - Instant refresh after operations
 
 ## Setting Structure
 
 ```typescript
 interface Setting {
   _id: string;
-  group: string;        // e.g., "membership", "general", "system"
-  key: string;          // e.g., "membership_fee", "site_name"
-  description: string;  // Human-readable description
-  value: any;          // The actual setting value (number, string, boolean)
+  group: string; // e.g., "membership", "general", "system"
+  key: string; // e.g., "membership_fee", "site_name"
+  description: string; // Human-readable description
+  value: any; // The actual setting value (number, string, boolean)
   createdAt: string;
   updatedAt: string;
   __v: number;
@@ -35,26 +35,31 @@ interface Setting {
 ## Setting Groups & Keys
 
 ### Membership Settings
+
 - `membership_fee` - Membership fee amount
 - `membership_duration` - Membership duration in months
 - `max_members_per_batch` - Maximum members allowed per batch
 
 ### General Settings
+
 - `site_name` - Application name
 - `site_description` - Application description
 - `contact_email` - Primary contact email
 
 ### System Settings
+
 - `max_file_size` - Maximum file upload size
 - `session_timeout` - User session timeout duration
 - `enable_maintenance` - Maintenance mode toggle
 
 ### Security Settings
+
 - `password_min_length` - Minimum password length
 - `enable_two_factor` - Two-factor authentication toggle
 - `max_login_attempts` - Maximum failed login attempts
 
 ### Notification Settings
+
 - `email_notifications` - Email notifications toggle
 - `push_notifications` - Push notifications toggle
 - `notification_frequency` - Notification frequency setting
@@ -76,6 +81,7 @@ GET    /settings/keys/:key     - Get setting by key
 ### Example API Usage
 
 **Create a membership fee setting:**
+
 ```json
 POST /settings
 {
@@ -87,6 +93,7 @@ POST /settings
 ```
 
 **Response:**
+
 ```json
 {
   "_id": "6897595884eb9cc2f62739eb",
@@ -103,6 +110,7 @@ POST /settings
 ## User Interface Features
 
 ### 1. Settings Table
+
 - **Sortable columns** - Click headers to sort by group, key, or creation date
 - **Global search** - Search across all fields simultaneously
 - **Pagination** - Handle large numbers of settings efficiently
@@ -110,17 +118,20 @@ POST /settings
 - **Formatted values** - Numbers, booleans, and text displayed appropriately
 
 ### 2. Add/Edit Dialog
+
 - **Dynamic form fields** - Form adapts based on value type selection
 - **Value type selection** - Choose between number, text, or boolean
 - **Form validation** - Required field validation with error messages
 - **Read-only key** - Prevent key changes during editing to maintain consistency
 
 ### 3. Value Type Handling
+
 - **Numbers** - PrimeNG InputNumber component with formatting
 - **Text** - Standard text input with validation
 - **Booleans** - Dropdown with True/False options
 
 ### 4. Visual Enhancements
+
 - **Group tags** - Color-coded badges for easy group identification
 - **Value formatting** - Numbers formatted with locale, booleans as True/False
 - **Loading states** - Visual feedback during operations
@@ -140,10 +151,12 @@ Groups are visually distinguished with color-coded tags:
 ## Usage Instructions
 
 ### Accessing Settings
+
 1. Navigate to `/apps/settings` in your application
 2. You'll see the comprehensive settings management interface
 
 ### Adding a New Setting
+
 1. Click the "Add Setting" button
 2. Fill in the form:
    - **Group**: Category for the setting (e.g., "membership")
@@ -154,16 +167,19 @@ Groups are visually distinguished with color-coded tags:
 3. Click "Save" to create the setting
 
 ### Editing Settings
+
 1. Click the pencil icon next to any setting
 2. Modify the desired fields (key is read-only)
 3. Click "Update" to save changes
 
 ### Deleting Settings
+
 1. Click the trash icon next to any setting
 2. Confirm the deletion in the dialog
 3. The setting will be permanently removed
 
 ### Searching Settings
+
 1. Use the search box above the table
 2. Search by group, key, or description
 3. Results filter automatically as you type
@@ -173,23 +189,21 @@ Groups are visually distinguished with color-coded tags:
 ### Using Settings in Components
 
 ```typescript
-import { Component, OnInit } from '@angular/core';
-import { SettingsService } from '../settings/settings.service';
+import { Component, OnInit } from "@angular/core";
+import { SettingsService } from "../settings/settings.service";
 
 @Component({
-  selector: 'app-my-component',
+  selector: "app-my-component",
   template: `
     <div>
       <h2>Welcome to {{ siteName }}</h2>
       <p>Membership Fee: {{ membershipFee | currency }}</p>
-      <p *ngIf="maintenanceMode" class="alert">
-        System is under maintenance
-      </p>
+      <p *ngIf="maintenanceMode" class="alert">System is under maintenance</p>
     </div>
-  `
+  `,
 })
 export class MyComponent implements OnInit {
-  siteName = '';
+  siteName = "";
   membershipFee = 0;
   maintenanceMode = false;
 
@@ -202,12 +216,12 @@ export class MyComponent implements OnInit {
 
   private loadSettings() {
     // Get all settings and filter as needed
-    this.settingsService.getAllSettings().subscribe(settings => {
-      const settingsMap = new Map(settings.map(s => [s.key, s.value]));
-      
-      this.siteName = settingsMap.get('site_name') || 'Alumni Portal';
-      this.membershipFee = settingsMap.get('membership_fee') || 0;
-      this.maintenanceMode = settingsMap.get('enable_maintenance') || false;
+    this.settingsService.getAllSettings().subscribe((settings) => {
+      const settingsMap = new Map(settings.map((s) => [s.key, s.value]));
+
+      this.siteName = settingsMap.get("site_name") || "Alumni Portal";
+      this.membershipFee = settingsMap.get("membership_fee") || 0;
+      this.maintenanceMode = settingsMap.get("enable_maintenance") || false;
     });
   }
 }
@@ -217,10 +231,9 @@ export class MyComponent implements OnInit {
 
 ```typescript
 // Get all membership settings
-this.settingsService.getSettingsByGroup(SettingsGroup.Membership)
-  .subscribe(membershipSettings => {
-    // Process membership-specific settings
-  });
+this.settingsService.getSettingsByGroup(SettingsGroup.Membership).subscribe((membershipSettings) => {
+  // Process membership-specific settings
+});
 ```
 
 ## Security Considerations
@@ -240,6 +253,7 @@ this.settingsService.getSettingsByGroup(SettingsGroup.Membership)
 ## Future Enhancements
 
 ### Planned Features
+
 1. **Bulk operations** - Import/export settings
 2. **Setting history** - Track changes over time
 3. **Validation rules** - Custom validation per setting type
@@ -248,21 +262,22 @@ this.settingsService.getSettingsByGroup(SettingsGroup.Membership)
 6. **Setting templates** - Pre-defined setting collections
 
 ### Extension Points
+
 ```typescript
 // Add new setting groups
 export enum SettingsGroup {
   // Existing groups...
-  Billing = 'billing',
-  Analytics = 'analytics',
-  Integration = 'integration'
+  Billing = "billing",
+  Analytics = "analytics",
+  Integration = "integration",
 }
 
 // Add new setting keys
 export enum SettingsKey {
   // Existing keys...
-  PaymentGateway = 'payment_gateway',
-  AnalyticsId = 'analytics_id',
-  ApiKey = 'api_key'
+  PaymentGateway = "payment_gateway",
+  AnalyticsId = "analytics_id",
+  ApiKey = "api_key",
 }
 ```
 

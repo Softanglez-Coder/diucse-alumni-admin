@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { API_BASE_URL } from '../index';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class EnvironmentService {
   private readonly apiBaseUrl: string;
@@ -20,7 +20,7 @@ export class EnvironmentService {
       production: isProduction,
       apiUrl: this.apiBaseUrl,
       frontendUrl: this.getFrontendUrl(),
-      environment: isProduction ? 'production' : 'development'
+      environment: isProduction ? 'production' : 'development',
     };
   }
 

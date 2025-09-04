@@ -29,7 +29,7 @@ import { MessageService, ConfirmationService } from 'primeng/api';
     ToastModule,
     CardModule,
     ToolbarModule,
-    TooltipModule
+    TooltipModule,
   ],
   providers: [MessageService, ConfirmationService],
   template: `
@@ -69,8 +69,8 @@ import { MessageService, ConfirmationService } from 'primeng/api';
           currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
           [globalFilterFields]="['title', 'author.name', 'status']"
           responsiveLayout="scroll"
-          styleClass="p-datatable-striped">
-
+          styleClass="p-datatable-striped"
+        >
           <ng-template pTemplate="header">
             <tr>
               <th pSortableColumn="title">
@@ -95,7 +95,8 @@ import { MessageService, ConfirmationService } from 'primeng/api';
                 <div class="flex flex-column">
                   <span class="font-semibold">{{ blog.title }}</span>
                   <span class="text-sm text-500" *ngIf="blog.excerpt">
-                    {{ blog.excerpt | slice:0:80 }}{{ blog.excerpt.length > 80 ? '...' : '' }}
+                    {{ blog.excerpt | slice: 0 : 80
+                    }}{{ blog.excerpt.length > 80 ? '...' : '' }}
                   </span>
                 </div>
               </td>
@@ -108,11 +109,12 @@ import { MessageService, ConfirmationService } from 'primeng/api';
               <td>
                 <p-tag
                   [value]="getStatusDisplayText(blog.status)"
-                  [severity]="getStatusSeverity(blog.status)">
+                  [severity]="getStatusSeverity(blog.status)"
+                >
                 </p-tag>
               </td>
               <td>
-                {{ blog.createdAt | date:'short' }}
+                {{ blog.createdAt | date: 'short' }}
               </td>
               <td>
                 <div class="flex align-items-center gap-2">
@@ -122,7 +124,8 @@ import { MessageService, ConfirmationService } from 'primeng/api';
                     size="small"
                     [text]="true"
                     (onClick)="viewBlog(blog)"
-                    pTooltip="View Details">
+                    pTooltip="View Details"
+                  >
                   </p-button>
 
                   <p-button
@@ -133,7 +136,8 @@ import { MessageService, ConfirmationService } from 'primeng/api';
                     [text]="true"
                     (onClick)="publishBlog(blog)"
                     pTooltip="Publish Blog"
-                    [loading]="publishingIds.has(blog._id)">
+                    [loading]="publishingIds.has(blog._id)"
+                  >
                   </p-button>
 
                   <p-button
@@ -144,7 +148,8 @@ import { MessageService, ConfirmationService } from 'primeng/api';
                     [text]="true"
                     (onClick)="unpublishBlog(blog)"
                     pTooltip="Unpublish Blog"
-                    [loading]="unpublishingIds.has(blog._id)">
+                    [loading]="unpublishingIds.has(blog._id)"
+                  >
                   </p-button>
                 </div>
               </td>
@@ -168,62 +173,64 @@ import { MessageService, ConfirmationService } from 'primeng/api';
     <p-toast></p-toast>
     <p-confirmDialog></p-confirmDialog>
   `,
-  styles: [`
-    .blogs-container {
-      padding: 1rem;
-    }
+  styles: [
+    `
+      .blogs-container {
+        padding: 1rem;
+      }
 
-    :host ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
-      padding: 1rem 0.75rem;
-    }
+      :host ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+        padding: 1rem 0.75rem;
+      }
 
-    :host ::ng-deep .p-card .p-card-body {
-      padding: 0;
-    }
+      :host ::ng-deep .p-card .p-card-body {
+        padding: 0;
+      }
 
-    :host ::ng-deep .p-card .p-card-header {
-      padding: 1rem;
-      border-bottom: 1px solid #e5e7eb;
-    }
+      :host ::ng-deep .p-card .p-card-header {
+        padding: 1rem;
+        border-bottom: 1px solid #e5e7eb;
+      }
 
-    :host ::ng-deep .p-datatable {
-      border-radius: 0;
-    }
+      :host ::ng-deep .p-datatable {
+        border-radius: 0;
+      }
 
-    :host ::ng-deep .p-toolbar {
-      background: transparent;
-      border: none;
-      padding: 0;
-    }
+      :host ::ng-deep .p-toolbar {
+        background: transparent;
+        border: none;
+        padding: 0;
+      }
 
-    .status-badge {
-      padding: 0.25rem 0.5rem;
-      border-radius: 0.375rem;
-      font-size: 0.75rem;
-      font-weight: 500;
-      text-transform: uppercase;
-    }
+      .status-badge {
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.375rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-transform: uppercase;
+      }
 
-    .status-draft {
-      background: #f3f4f6;
-      color: #6b7280;
-    }
+      .status-draft {
+        background: #f3f4f6;
+        color: #6b7280;
+      }
 
-    .status-review {
-      background: #fef3c7;
-      color: #d97706;
-    }
+      .status-review {
+        background: #fef3c7;
+        color: #d97706;
+      }
 
-    .status-published {
-      background: #d1fae5;
-      color: #059669;
-    }
+      .status-published {
+        background: #d1fae5;
+        color: #059669;
+      }
 
-    .status-unpublished {
-      background: #fee2e2;
-      color: #dc2626;
-    }
-  `]
+      .status-unpublished {
+        background: #fee2e2;
+        color: #dc2626;
+      }
+    `,
+  ],
 })
 export class BlogsComponent implements OnInit {
   blogs: Blog[] = [];
@@ -243,11 +250,11 @@ export class BlogsComponent implements OnInit {
     private router: Router,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {
-    this.authService.currentUser$.subscribe(user => {
+    this.authService.currentUser$.subscribe((user) => {
       this.currentUser = user;
       // Allow both Publishers and Admins to publish blogs
       this.canPublish = this.authService.canPublish();
@@ -271,11 +278,11 @@ export class BlogsComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'Failed to load blogs'
+          detail: 'Failed to load blogs',
         });
         this.loading = false;
         this.cdr.detectChanges(); // Force change detection on error
-      }
+      },
     });
   }
 
@@ -296,7 +303,7 @@ export class BlogsComponent implements OnInit {
 
         this.blogService.publishBlog(blog._id).subscribe({
           next: (updatedBlog) => {
-            const index = this.blogs.findIndex(b => b._id === blog._id);
+            const index = this.blogs.findIndex((b) => b._id === blog._id);
             if (index !== -1) {
               this.blogs[index] = updatedBlog;
             }
@@ -305,7 +312,7 @@ export class BlogsComponent implements OnInit {
             this.messageService.add({
               severity: 'success',
               summary: 'Success',
-              detail: 'Blog published successfully'
+              detail: 'Blog published successfully',
             });
           },
           error: (error) => {
@@ -315,11 +322,11 @@ export class BlogsComponent implements OnInit {
             this.messageService.add({
               severity: 'error',
               summary: 'Error',
-              detail: 'Failed to publish blog'
+              detail: 'Failed to publish blog',
             });
-          }
+          },
         });
-      }
+      },
     });
   }
 
@@ -336,7 +343,7 @@ export class BlogsComponent implements OnInit {
 
         this.blogService.unpublishBlog(blog._id).subscribe({
           next: (updatedBlog) => {
-            const index = this.blogs.findIndex(b => b._id === blog._id);
+            const index = this.blogs.findIndex((b) => b._id === blog._id);
             if (index !== -1) {
               this.blogs[index] = updatedBlog;
             }
@@ -345,7 +352,7 @@ export class BlogsComponent implements OnInit {
             this.messageService.add({
               severity: 'success',
               summary: 'Success',
-              detail: 'Blog unpublished successfully'
+              detail: 'Blog unpublished successfully',
             });
           },
           error: (error) => {
@@ -355,11 +362,11 @@ export class BlogsComponent implements OnInit {
             this.messageService.add({
               severity: 'error',
               summary: 'Error',
-              detail: 'Failed to unpublish blog'
+              detail: 'Failed to unpublish blog',
             });
-          }
+          },
         });
-      }
+      },
     });
   }
 
@@ -381,7 +388,9 @@ export class BlogsComponent implements OnInit {
     }
   }
 
-  getStatusSeverity(status: BlogStatus): 'success' | 'info' | 'warning' | 'danger' {
+  getStatusSeverity(
+    status: BlogStatus,
+  ): 'success' | 'info' | 'warning' | 'danger' {
     switch (status) {
       case BlogStatus.PUBLISHED:
         return 'success';

@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { CrudListComponent, CrudConfig } from '../../shared/components/crud-list.component';
+import {
+  CrudListComponent,
+  CrudConfig,
+} from '../../shared/components/crud-list.component';
 
 @Component({
   selector: 'app-batches',
@@ -11,7 +14,7 @@ import { CrudListComponent, CrudConfig } from '../../shared/components/crud-list
     <div class="p-6">
       <app-crud-list [config]="crudConfig"></app-crud-list>
     </div>
-  `
+  `,
 })
 export class BatchesComponent implements OnInit {
   crudConfig: CrudConfig = {
@@ -27,15 +30,15 @@ export class BatchesComponent implements OnInit {
         header: 'Name',
         type: 'text',
         sortable: true,
-        filterable: true
+        filterable: true,
       },
       {
         field: 'actions',
         header: 'Actions',
         type: 'actions',
-        width: '150px'
-      }
-    ]
+        width: '150px',
+      },
+    ],
   };
 
   ngOnInit() {

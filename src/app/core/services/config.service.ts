@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { API_BASE_URL } from '../index';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ConfigService {
   private readonly apiBaseUrl: string;
@@ -59,7 +59,7 @@ export class ConfigService {
       apiUrl: this.apiUrl,
       frontendUrl: this.frontendUrl,
       production: this.isProduction,
-      development: this.isDevelopment
+      development: this.isDevelopment,
     };
   }
 }
