@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -242,7 +242,8 @@ export class BlogsComponent implements OnInit {
     private authService: AuthService,
     private router: Router,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -256,10 +257,13 @@ export class BlogsComponent implements OnInit {
 
   loadBlogs() {
     this.loading = true;
+    this.cdr.detectChanges(); // Force change detection for loading state
+
     this.blogService.getAllBlogs().subscribe({
       next: (blogs) => {
         this.blogs = blogs;
         this.loading = false;
+        this.cdr.detectChanges(); // Force change detection after data load
       },
       error: (error) => {
         console.error('Error loading blogs:', error);
@@ -269,6 +273,7 @@ export class BlogsComponent implements OnInit {
           detail: 'Failed to load blogs'
         });
         this.loading = false;
+        this.cdr.detectChanges(); // Force change detection on error
       }
     });
   }
@@ -286,6 +291,8 @@ export class BlogsComponent implements OnInit {
       rejectLabel: 'Cancel',
       accept: () => {
         this.publishingIds.add(blog._id);
+        this.cdr.detectChanges(); // Update UI immediately
+
         this.blogService.publishBlog(blog._id).subscribe({
           next: (updatedBlog) => {
             const index = this.blogs.findIndex(b => b._id === blog._id);
@@ -293,6 +300,7 @@ export class BlogsComponent implements OnInit {
               this.blogs[index] = updatedBlog;
             }
             this.publishingIds.delete(blog._id);
+            this.cdr.detectChanges(); // Force change detection
             this.messageService.add({
               severity: 'success',
               summary: 'Success',
@@ -302,6 +310,7 @@ export class BlogsComponent implements OnInit {
           error: (error) => {
             console.error('Error publishing blog:', error);
             this.publishingIds.delete(blog._id);
+            this.cdr.detectChanges(); // Force change detection on error
             this.messageService.add({
               severity: 'error',
               summary: 'Error',
@@ -322,6 +331,8 @@ export class BlogsComponent implements OnInit {
       rejectLabel: 'Cancel',
       accept: () => {
         this.unpublishingIds.add(blog._id);
+        this.cdr.detectChanges(); // Update UI immediately
+
         this.blogService.unpublishBlog(blog._id).subscribe({
           next: (updatedBlog) => {
             const index = this.blogs.findIndex(b => b._id === blog._id);
@@ -329,6 +340,7 @@ export class BlogsComponent implements OnInit {
               this.blogs[index] = updatedBlog;
             }
             this.unpublishingIds.delete(blog._id);
+            this.cdr.detectChanges(); // Force change detection
             this.messageService.add({
               severity: 'success',
               summary: 'Success',
@@ -338,6 +350,7 @@ export class BlogsComponent implements OnInit {
           error: (error) => {
             console.error('Error unpublishing blog:', error);
             this.unpublishingIds.delete(blog._id);
+            this.cdr.detectChanges(); // Force change detection on error
             this.messageService.add({
               severity: 'error',
               summary: 'Error',
