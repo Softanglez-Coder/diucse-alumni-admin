@@ -12,6 +12,7 @@ import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { API_BASE_URL } from './core';
 import { AuthService } from './core/services/auth.service';
 import { firstValueFrom } from 'rxjs';
+import { provideQuillConfig } from 'ngx-quill';
 
 import { routes } from './app.routes';
 import { providePrimeNG } from 'primeng/config';
@@ -85,6 +86,12 @@ export const appConfig: ApplicationConfig = {
                     cssLayer: false
                 }
             }
-        })
+        }),
+    provideQuillConfig({
+      modules: {
+        syntax: false,
+        toolbar: false
+      }
+    })
   ]
 };
