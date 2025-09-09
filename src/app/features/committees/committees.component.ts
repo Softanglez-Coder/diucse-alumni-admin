@@ -28,8 +28,8 @@ export class CommitteesComponent implements OnInit {
     ],
     searchFields: ['name'],
     createRoute: '/apps/committees/new',
-    editRoute: '/apps/committees/:id/edit',
-    viewRoute: '/apps/committees/:id'
+    editRoute: '/apps/committees',
+    viewRoute: '/apps/committees'
   };
 
   customActions = [
@@ -63,7 +63,7 @@ export class CommitteesComponent implements OnInit {
   ngOnInit(): void {}
 
   manageMembers(committee: any): void {
-    this.router.navigate(['/apps/committees', committee._id, 'members']);
+    this.router.navigate(['/apps/committees', committee._id]);
   }
 
   togglePublish(committee: any): void {

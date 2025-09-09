@@ -34,6 +34,8 @@ export interface CommitteeDesignation {
   description?: string;
   priority?: number;
   isActive: boolean;
+  committee?: string | Committee; // Committee ID or populated committee object
+  roles?: string[]; // Array of role strings
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -42,12 +44,16 @@ export interface CreateCommitteeDesignationDto {
   name: string;
   description?: string;
   priority?: number;
+  committeeId: string; // Committee ID is required when creating
+  roles: string[]; // Array of role strings is required
 }
 
 export interface UpdateCommitteeDesignationDto {
   name?: string;
   description?: string;
   priority?: number;
+  committeeId?: string; // Committee ID can be updated
+  roles?: string[]; // Array of role strings can be updated
   isActive?: boolean;
 }
 

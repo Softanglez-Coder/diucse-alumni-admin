@@ -339,10 +339,13 @@ export class CommitteeDetailComponent implements OnInit {
   ngOnInit(): void {
     this.committeeId = this.route.snapshot.paramMap.get('id');
     if (this.committeeId) {
-      this.loadCommittee();
-      this.loadMembers();
-      this.loadDesignations();
-      this.loadUsers();
+      // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
+      setTimeout(() => {
+        this.loadCommittee();
+        this.loadMembers();
+        this.loadDesignations();
+        this.loadUsers();
+      });
     }
   }
 
@@ -351,9 +354,8 @@ export class CommitteeDetailComponent implements OnInit {
     
     this.committeeService.getCommittee(this.committeeId).subscribe({
       next: (response) => {
-        if (response.success) {
-          this.committee = response.data;
-        }
+        // Handle both wrapped and direct responses
+        this.committee = response?.data || response;
       },
       error: (error) => {
         this.messageService.add({
@@ -372,9 +374,8 @@ export class CommitteeDetailComponent implements OnInit {
     this.committeeService.getCommitteeMembers(this.committeeId, true).subscribe({
       next: (response) => {
         this.isLoadingMembers = false;
-        if (response.success) {
-          this.members = response.data;
-        }
+        // Handle both wrapped and direct responses
+        this.members = response?.data || response || [];
       },
       error: (error) => {
         this.isLoadingMembers = false;
@@ -390,9 +391,11 @@ export class CommitteeDetailComponent implements OnInit {
   loadDesignations(): void {
     this.committeeService.getDesignations().subscribe({
       next: (response) => {
-        if (response.success) {
-          this.designations = response.data.filter(d => d.isActive);
-        }
+        // Handle both wrapped and direct responses
+        const designations = response?.data || response || [];
+        this.designations = Array.isArray(designations) 
+          ? designations.filter(d => d.isActive) 
+          : [];
       },
       error: (error) => {
         console.error('Error loading designations:', error);
@@ -403,12 +406,9 @@ export class CommitteeDetailComponent implements OnInit {
   loadUsers(): void {
     this.dataService.getAll<ApiResponse<any[]>>('users').subscribe({
       next: (response: any) => {
-        if (response.success) {
-          this.users = response.data;
-        } else if (Array.isArray(response)) {
-          // Handle case where response is directly an array
-          this.users = response;
-        }
+        // Handle both wrapped and direct responses
+        const users = response?.data || response || [];
+        this.users = Array.isArray(users) ? users : [];
       },
       error: (error) => {
         console.error('Error loading users:', error);
@@ -438,7 +438,8 @@ export class CommitteeDetailComponent implements OnInit {
       this.committeeService.assignMember(formData).subscribe({
         next: (response) => {
           this.isAddingMember = false;
-          if (response.success) {
+          // Handle both wrapped and direct responses
+          if (response?.success !== false) {
             this.messageService.add({
               severity: 'success',
               summary: 'Success',
@@ -446,6 +447,12 @@ export class CommitteeDetailComponent implements OnInit {
             });
             this.hideAddMemberDialog();
             this.loadMembers();
+          } else {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: response?.message || 'Failed to add member'
+            });
           }
         },
         error: (error) => {
@@ -471,13 +478,20 @@ export class CommitteeDetailComponent implements OnInit {
             committeeId: this.committeeId 
           }).subscribe({
             next: (response) => {
-              if (response.success) {
+              // Handle both wrapped and direct responses
+              if (response?.success !== false) {
                 this.messageService.add({
                   severity: 'success',
                   summary: 'Success',
                   detail: 'Member removed successfully'
                 });
                 this.loadMembers();
+              } else {
+                this.messageService.add({
+                  severity: 'error',
+                  summary: 'Error',
+                  detail: response?.message || 'Failed to remove member'
+                });
               }
             },
             error: (error) => {

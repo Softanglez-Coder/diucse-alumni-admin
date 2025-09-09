@@ -24,8 +24,8 @@ export class CommitteeDesignationsComponent implements OnInit {
     ],
     searchFields: ['name', 'description'],
     createRoute: '/apps/committee-designations/new',
-    editRoute: '/apps/committee-designations/:id/edit',
-    viewRoute: '/apps/committee-designations/:id'
+    editRoute: '/apps/committee-designations',
+    viewRoute: '/apps/committee-designations'
   };
 
   constructor() {}

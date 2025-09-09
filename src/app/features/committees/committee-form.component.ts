@@ -223,8 +223,10 @@ export class CommitteeFormComponent implements OnInit {
     this.committeeService.getCommittee(id).subscribe({
       next: (response) => {
         this.isLoading = false;
-        if (response.success) {
-          const committee = response.data;
+        // Handle both wrapped and direct responses
+        const committee = response?.data || response;
+        
+        if (committee) {
           this.committeeForm.patchValue({
             name: committee.name,
             startDate: new Date(committee.startDate),
@@ -257,7 +259,10 @@ export class CommitteeFormComponent implements OnInit {
       operation.subscribe({
         next: (response) => {
           this.isLoading = false;
-          if (response.success) {
+          // Handle both wrapped and direct responses
+          const isSuccess = response?.success !== false; // Consider success if not explicitly false
+          
+          if (isSuccess) {
             this.messageService.add({
               severity: 'success',
               summary: 'Success',
@@ -266,6 +271,12 @@ export class CommitteeFormComponent implements OnInit {
             setTimeout(() => {
               this.goBack();
             }, 1500);
+          } else {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: response?.message || `Failed to ${this.isEditMode ? 'update' : 'create'} committee`
+            });
           }
         },
         error: (error) => {
