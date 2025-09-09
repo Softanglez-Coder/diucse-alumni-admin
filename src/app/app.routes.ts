@@ -225,7 +225,7 @@ export const routes: Routes = [
         ],
       },
       {
-        path: 'committee-designations',
+        path: 'committees/:committeeId/designations',
         children: [
           {
             path: '',

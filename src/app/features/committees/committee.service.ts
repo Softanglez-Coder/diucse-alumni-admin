@@ -32,7 +32,8 @@ export interface CommitteeDesignation {
   _id?: string;
   name: string;
   description?: string;
-  priority?: number;
+  displayOrder?: number;
+  priority?: number; // Keep for backward compatibility
   isActive: boolean;
   committee?: string | Committee; // Committee ID or populated committee object
   roles?: string[]; // Array of role strings
@@ -43,7 +44,8 @@ export interface CommitteeDesignation {
 export interface CreateCommitteeDesignationDto {
   name: string;
   description?: string;
-  priority?: number;
+  displayOrder?: number;
+  priority?: number; // Keep for backward compatibility
   committeeId: string; // Committee ID is required when creating
   roles: string[]; // Array of role strings is required
 }
@@ -51,7 +53,8 @@ export interface CreateCommitteeDesignationDto {
 export interface UpdateCommitteeDesignationDto {
   name?: string;
   description?: string;
-  priority?: number;
+  displayOrder?: number;
+  priority?: number; // Keep for backward compatibility
   committeeId?: string; // Committee ID can be updated
   roles?: string[]; // Array of role strings can be updated
   isActive?: boolean;

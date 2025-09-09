@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -69,46 +69,160 @@ import { ApiResponse } from '../../core/services/api.service';
             class="p-button-outlined"
             (click)="editCommittee()"
           ></button>
-          <button
-            pButton
-            label="Manage Designations"
-            icon="pi pi-cog"
-            class="p-button-outlined"
-            (click)="manageDesignations()"
-          ></button>
         </div>
       </div>
 
-      <!-- Committee Members -->
+      <!-- Committee Designations -->
       <p-card>
         <p-toolbar>
           <div class="p-toolbar-group-left">
-            <h3>Committee Members</h3>
+            <h3>Committee Designations</h3>
           </div>
           <div class="p-toolbar-group-right">
             <button
               pButton
-              label="Add Member"
+              label="Add Designation"
               icon="pi pi-plus"
               class="p-button-success"
-              (click)="showAddMemberDialogMethod()"
-              [disabled]="users.length === 0 || designations.length === 0"
-              [pTooltip]="getAddMemberTooltip()"
+              (click)="addDesignation()"
             ></button>
           </div>
         </p-toolbar>
 
         <p-table 
-          [value]="members" 
-          [loading]="isLoadingMembers"
+          [value]="designations" 
+          [loading]="isLoadingDesignations"
           responsiveLayout="scroll"
           [paginator]="true"
           [rows]="10"
         >
           <ng-template pTemplate="header">
             <tr>
-              <th>Member Name</th>
-              <th>Designation</th>
+              <th>Designation Name</th>
+              <th>Description</th>
+              <th>Priority</th>
+              <th>Roles</th>
+              <th>Status</th>
+              <th>Current Members</th>
+              <th>Actions</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-designation>
+            <tr>
+              <td>{{ designation.name }}</td>
+              <td>{{ designation.description || '-' }}</td>
+              <td>{{ designation.priority || 0 }}</td>
+              <td>
+                <div class="roles-container">
+                  <span 
+                    *ngFor="let role of designation.roles" 
+                    class="role-tag"
+                  >
+                    {{ role }}
+                  </span>
+                </div>
+              </td>
+              <td>
+                <p-tag 
+                  [value]="designation.isActive ? 'Active' : 'Inactive'" 
+                  [severity]="designation.isActive ? 'success' : 'danger'"
+                ></p-tag>
+              </td>
+              <td>
+                <div class="members-in-designation">
+                  {{ getMemberCountForDesignation(designation._id) }}
+                  <button
+                    pButton
+                    icon="pi pi-users"
+                    class="p-button-rounded p-button-text p-button-sm"
+                    pTooltip="View Members"
+                    (click)="showDesignationMembers(designation)"
+                    *ngIf="getMemberCountForDesignation(designation._id) > 0"
+                  ></button>
+                </div>
+              </td>
+              <td>
+                <div class="designation-actions">
+                  <button
+                    pButton
+                    icon="pi pi-users"
+                    class="p-button-rounded p-button-info p-button-text"
+                    pTooltip="View/Manage Users"
+                    (click)="showDesignationMembers(designation)"
+                  ></button>
+                  <button
+                    pButton
+                    icon="pi pi-pencil"
+                    class="p-button-rounded p-button-text"
+                    pTooltip="Edit Designation"
+                    (click)="editDesignation(designation)"
+                  ></button>
+                  <button
+                    pButton
+                    icon="pi pi-trash"
+                    class="p-button-rounded p-button-danger p-button-text"
+                    pTooltip="Delete Designation"
+                    (click)="deleteDesignation(designation)"
+                    [disabled]="getMemberCountForDesignation(designation._id) > 0"
+                  ></button>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="7" class="text-center">
+                No designations created for this committee
+                <br>
+                <button
+                  pButton
+                  label="Create First Designation"
+                  icon="pi pi-plus"
+                  class="p-button-link mt-2"
+                  (click)="addDesignation()"
+                ></button>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-card>
+    </div>
+
+    <!-- Designation Members Dialog -->
+    <p-dialog 
+      header="Manage Designation Members" 
+      [(visible)]="showDesignationMembersDialogFlag" 
+      [modal]="true" 
+      [style]="{width: '800px'}"
+      [dismissableMask]="true"
+    >
+      <div class="designation-members-content" *ngIf="selectedDesignation">
+        <div class="designation-header">
+          <div>
+            <h4>{{ selectedDesignation.name }}</h4>
+            <p class="designation-description" *ngIf="selectedDesignation.description">
+              {{ selectedDesignation.description }}
+            </p>
+          </div>
+          <button
+            pButton
+            label="Add User"
+            icon="pi pi-plus"
+            class="p-button-success"
+            (click)="showAddUserToDesignationDialog()"
+            [disabled]="users.length === 0"
+          ></button>
+        </div>
+        
+        <p-table 
+          [value]="getMembersInDesignation(selectedDesignation._id)" 
+          responsiveLayout="scroll"
+          [paginator]="true"
+          [rows]="5"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th>User Name</th>
               <th>Status</th>
               <th>Assigned Date</th>
               <th>Actions</th>
@@ -117,7 +231,6 @@ import { ApiResponse } from '../../core/services/api.service';
           <ng-template pTemplate="body" let-member>
             <tr>
               <td>{{ getMemberDisplayName(member) }}</td>
-              <td>{{ member.designation?.name || 'Unknown Designation' }}</td>
               <td>
                 <p-tag 
                   [value]="member.isActive ? 'Active' : 'Inactive'" 
@@ -130,8 +243,8 @@ import { ApiResponse } from '../../core/services/api.service';
                   pButton
                   icon="pi pi-times"
                   class="p-button-rounded p-button-danger p-button-text"
-                  pTooltip="Remove Member"
-                  (click)="removeMember(member)"
+                  pTooltip="Remove User"
+                  (click)="removeUserFromDesignation(member)"
                   [disabled]="!member.isActive"
                 ></button>
               </td>
@@ -139,22 +252,28 @@ import { ApiResponse } from '../../core/services/api.service';
           </ng-template>
           <ng-template pTemplate="emptymessage">
             <tr>
-              <td colspan="5" class="text-center">No members assigned to this committee</td>
+              <td colspan="4" class="text-center">
+                No users assigned to this designation
+              </td>
             </tr>
           </ng-template>
         </p-table>
-      </p-card>
-    </div>
+      </div>
+    </p-dialog>
 
-    <!-- Add Member Dialog -->
+    <!-- Add User to Designation Dialog -->
     <p-dialog 
-      header="Add Committee Member" 
-      [(visible)]="showAddMemberDialogFlag" 
+      header="Add User to Designation" 
+      [(visible)]="showAddUserToDesignationDialogFlag" 
       [modal]="true" 
       [style]="{width: '500px'}"
       [dismissableMask]="true"
     >
-      <form [formGroup]="memberForm" (ngSubmit)="addMember()">
+      <form [formGroup]="memberForm" (ngSubmit)="addUserToDesignation()" *ngIf="selectedDesignation">
+        <div class="form-field">
+          <label>Designation: <strong>{{ selectedDesignation.name }}</strong></label>
+        </div>
+        
         <div class="form-field">
           <label for="userId">Select User *</label>
           <select
@@ -167,50 +286,11 @@ import { ApiResponse } from '../../core/services/api.service';
               {{ user.name || user.firstName + ' ' + user.lastName || user.email }}
             </option>
           </select>
-          <div class="mt-2" *ngIf="users.length === 0">
-            <small class="text-orange-500">
-              <i class="pi pi-info-circle mr-1"></i>
-              No users available. Please ensure users are created in the system first.
-            </small>
-          </div>
           <small 
             class="p-error" 
             *ngIf="memberForm.get('userId')?.invalid && memberForm.get('userId')?.touched"
           >
             Please select a user
-          </small>
-        </div>
-
-        <div class="form-field">
-          <label for="designationId">Select Designation *</label>
-          <select
-            id="designationId"
-            formControlName="designationId"
-            class="w-full p-inputtext"
-          >
-            <option value="">Select a designation</option>
-            <option *ngFor="let designation of designations" [value]="designation._id">
-              {{ designation.name }}
-            </option>
-          </select>
-          <div class="mt-2" *ngIf="designations.length === 0">
-            <small class="text-orange-500">
-              <i class="pi pi-info-circle mr-1"></i>
-              No designations available. 
-              <button 
-                type="button" 
-                class="p-button-link p-0 text-primary-500 underline ml-1" 
-                (click)="manageDesignations()"
-              >
-                Create designations first
-              </button>
-            </small>
-          </div>
-          <small 
-            class="p-error" 
-            *ngIf="memberForm.get('designationId')?.invalid && memberForm.get('designationId')?.touched"
-          >
-            Please select a designation
           </small>
         </div>
 
@@ -232,13 +312,13 @@ import { ApiResponse } from '../../core/services/api.service';
             pButton
             label="Cancel"
             class="p-button-outlined"
-            (click)="hideAddMemberDialog()"
+            (click)="hideAddUserToDesignationDialog()"
           ></button>
           <button
             type="submit"
             pButton
-            label="Add Member"
-            [loading]="isAddingMember"
+            label="Add User"
+            [loading]="isAddingUser"
             [disabled]="memberForm.invalid"
           ></button>
         </div>
@@ -305,17 +385,94 @@ import { ApiResponse } from '../../core/services/api.service';
         flex-direction: column;
       }
     }
+
+    .roles-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+    }
+
+    .role-tag {
+      background: var(--primary-color);
+      color: white;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      white-space: nowrap;
+    }
+
+    .members-in-designation {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .designation-actions {
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .designation-actions .p-button {
+      width: 2rem;
+      height: 2rem;
+    }
+
+    .designation-members-content h4 {
+      margin: 0 0 0.5rem 0;
+      color: var(--primary-color);
+    }
+
+    .designation-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+      gap: 1rem;
+    }
+
+    .designation-description {
+      color: var(--text-color-secondary);
+      margin: 0;
+    }
+
+    .form-field {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-field label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text-color);
+    }
+
+    .dialog-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--surface-border);
+    }
   `]
 })
-export class CommitteeDetailComponent implements OnInit {
+export class CommitteeDetailComponent implements OnInit, AfterViewInit {
   committee: Committee | null = null;
   members: CommitteeMember[] = [];
   designations: CommitteeDesignation[] = [];
   users: any[] = [];
   
+  // Cached computed properties to avoid ExpressionChangedAfterItHasBeenCheckedError
+  activeDesignations: CommitteeDesignation[] = [];
+  addMemberTooltip: string = '';
+  membersByDesignation: { [key: string]: CommitteeMember[] } = {};
+  
   isLoadingMembers = false;
-  isAddingMember = false;
-  showAddMemberDialogFlag = false;
+  isLoadingDesignations = false;
+  showDesignationMembersDialogFlag = false;
+  showAddUserToDesignationDialogFlag = false;
+  isAddingUser = false;
+  selectedDesignation: CommitteeDesignation | null = null;
   
   memberForm: FormGroup;
   committeeId: string | null = null;
@@ -327,6 +484,7 @@ export class CommitteeDetailComponent implements OnInit {
   private dataService = inject(DataService);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
+  private cdr = inject(ChangeDetectorRef);
 
   constructor() {
     this.memberForm = this.fb.group({
@@ -345,8 +503,15 @@ export class CommitteeDetailComponent implements OnInit {
         this.loadMembers();
         this.loadDesignations();
         this.loadUsers();
+        this.cdr.detectChanges(); // Ensure view updates
       });
     }
+  }
+
+  ngAfterViewInit(): void {
+    // Ensure cached properties are initialized
+    this.updateCachedProperties();
+    this.updateMembersByDesignation();
   }
 
   loadCommittee(): void {
@@ -376,6 +541,9 @@ export class CommitteeDetailComponent implements OnInit {
         this.isLoadingMembers = false;
         // Handle both wrapped and direct responses
         this.members = response?.data || response || [];
+        // Update cached properties
+        this.updateMembersByDesignation();
+        this.cdr.detectChanges(); // Ensure view updates
       },
       error: (error) => {
         this.isLoadingMembers = false;
@@ -384,21 +552,31 @@ export class CommitteeDetailComponent implements OnInit {
           summary: 'Error',
           detail: 'Failed to load committee members'
         });
+        this.updateMembersByDesignation();
+        this.cdr.detectChanges(); // Ensure view updates
       }
     });
   }
 
   loadDesignations(): void {
-    this.committeeService.getDesignations().subscribe({
+    if (!this.committeeId) return;
+    
+    this.isLoadingDesignations = true;
+    this.committeeService.getDesignationsByCommittee(this.committeeId).subscribe({
       next: (response) => {
+        this.isLoadingDesignations = false;
         // Handle both wrapped and direct responses
         const designations = response?.data || response || [];
-        this.designations = Array.isArray(designations) 
-          ? designations.filter(d => d.isActive) 
-          : [];
+        this.designations = Array.isArray(designations) ? designations : [];
+        // Update cached properties
+        this.updateCachedProperties();
+        this.cdr.detectChanges(); // Ensure view updates
       },
       error: (error) => {
+        this.isLoadingDesignations = false;
         console.error('Error loading designations:', error);
+        this.updateCachedProperties();
+        this.cdr.detectChanges(); // Ensure view updates
       }
     });
   }
@@ -409,67 +587,166 @@ export class CommitteeDetailComponent implements OnInit {
         // Handle both wrapped and direct responses
         const users = response?.data || response || [];
         this.users = Array.isArray(users) ? users : [];
+        // Update cached properties
+        this.updateCachedProperties();
       },
       error: (error) => {
         console.error('Error loading users:', error);
         // Set a fallback empty array
         this.users = [];
+        this.updateCachedProperties();
       }
     });
   }
 
-  showAddMemberDialogMethod(): void {
-    this.showAddMemberDialogFlag = true;
+  private updateCachedProperties(): void {
+    // Update cached active designations
+    this.activeDesignations = this.designations.filter(d => d.isActive);
+    
+    // Update cached tooltip
+    if (this.users.length === 0 && this.activeDesignations.length === 0) {
+      this.addMemberTooltip = 'No users or designations available';
+    } else if (this.users.length === 0) {
+      this.addMemberTooltip = 'No users available';
+    } else if (this.activeDesignations.length === 0) {
+      this.addMemberTooltip = 'No designations available';
+    } else {
+      this.addMemberTooltip = 'Add a new member to this committee';
+    }
+  }
+
+  private updateMembersByDesignation(): void {
+    // Cache members by designation to avoid repeated filtering
+    this.membersByDesignation = {};
+    this.members.forEach(member => {
+      if (member.designationId && member.isActive) {
+        if (!this.membersByDesignation[member.designationId]) {
+          this.membersByDesignation[member.designationId] = [];
+        }
+        this.membersByDesignation[member.designationId].push(member);
+      }
+    });
+  }
+
+  editCommittee(): void {
+    if (this.committeeId) {
+      this.router.navigate(['/apps/committees', this.committeeId, 'edit']);
+    }
+  }
+
+  manageDesignations(): void {
+    if (this.committeeId) {
+      this.router.navigate(['/apps/committees', this.committeeId, 'designations']);
+    }
+  }
+
+  addDesignation(): void {
+    if (this.committeeId) {
+      this.router.navigate(['/apps/committees', this.committeeId, 'designations', 'new']);
+    }
+  }
+
+  editDesignation(designation: CommitteeDesignation): void {
+    if (this.committeeId && designation._id) {
+      this.router.navigate(['/apps/committees', this.committeeId, 'designations', designation._id, 'edit']);
+    }
+  }
+
+  deleteDesignation(designation: CommitteeDesignation): void {
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to delete this designation? This action cannot be undone.',
+      header: 'Confirm Deletion',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        if (designation._id) {
+          this.committeeService.deleteDesignation(designation._id).subscribe({
+            next: (response) => {
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Success',
+                detail: 'Designation deleted successfully'
+              });
+              this.loadDesignations();
+            },
+            error: (error) => {
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Failed to delete designation'
+              });
+            }
+          });
+        }
+      }
+    });
+  }
+
+  showDesignationMembers(designation: CommitteeDesignation): void {
+    this.selectedDesignation = designation;
+    this.showDesignationMembersDialogFlag = true;
+  }
+
+  showAddUserToDesignationDialog(): void {
+    this.showAddUserToDesignationDialogFlag = true;
+    this.memberForm.patchValue({
+      designationId: this.selectedDesignation?._id,
+      userId: '',
+      notes: ''
+    });
+  }
+
+  hideAddUserToDesignationDialog(): void {
+    this.showAddUserToDesignationDialogFlag = false;
     this.memberForm.reset();
   }
 
-  hideAddMemberDialog(): void {
-    this.showAddMemberDialogFlag = false;
-  }
-
-  addMember(): void {
-    if (this.memberForm.valid && this.committeeId) {
-      this.isAddingMember = true;
+  addUserToDesignation(): void {
+    if (this.memberForm.valid && this.selectedDesignation?._id && this.committeeId) {
+      this.isAddingUser = true;
       const formData = {
-        ...this.memberForm.value,
-        committeeId: this.committeeId
+        userId: this.memberForm.value.userId,
+        designationId: this.selectedDesignation._id,
+        committeeId: this.committeeId,
+        notes: this.memberForm.value.notes
       };
 
       this.committeeService.assignMember(formData).subscribe({
         next: (response) => {
-          this.isAddingMember = false;
-          // Handle both wrapped and direct responses
+          this.isAddingUser = false;
           if (response?.success !== false) {
             this.messageService.add({
               severity: 'success',
               summary: 'Success',
-              detail: 'Member added successfully'
+              detail: 'User added to designation successfully'
             });
-            this.hideAddMemberDialog();
-            this.loadMembers();
+            this.hideAddUserToDesignationDialog();
+            // Refresh the members data by reloading from server
+            if (this.committeeId) {
+              this.loadMembers();
+            }
           } else {
             this.messageService.add({
               severity: 'error',
               summary: 'Error',
-              detail: response?.message || 'Failed to add member'
+              detail: response?.message || 'Failed to add user to designation'
             });
           }
         },
         error: (error) => {
-          this.isAddingMember = false;
+          this.isAddingUser = false;
           this.messageService.add({
             severity: 'error',
             summary: 'Error',
-            detail: 'Failed to add member'
+            detail: 'Failed to add user to designation'
           });
         }
       });
     }
   }
 
-  removeMember(member: CommitteeMember): void {
+  removeUserFromDesignation(member: CommitteeMember): void {
     this.confirmationService.confirm({
-      message: 'Are you sure you want to remove this member from the committee?',
+      message: 'Are you sure you want to remove this user from the designation?',
       header: 'Confirm Removal',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
@@ -483,14 +760,14 @@ export class CommitteeDetailComponent implements OnInit {
                 this.messageService.add({
                   severity: 'success',
                   summary: 'Success',
-                  detail: 'Member removed successfully'
+                  detail: 'User removed successfully'
                 });
                 this.loadMembers();
               } else {
                 this.messageService.add({
                   severity: 'error',
                   summary: 'Error',
-                  detail: response?.message || 'Failed to remove member'
+                  detail: response?.message || 'Failed to remove user'
                 });
               }
             },
@@ -498,7 +775,7 @@ export class CommitteeDetailComponent implements OnInit {
               this.messageService.add({
                 severity: 'error',
                 summary: 'Error',
-                detail: 'Failed to remove member'
+                detail: 'Failed to remove user'
               });
             }
           });
@@ -507,29 +784,22 @@ export class CommitteeDetailComponent implements OnInit {
     });
   }
 
-  editCommittee(): void {
-    if (this.committeeId) {
-      this.router.navigate(['/apps/committees', this.committeeId, 'edit']);
-    }
+  getMembersInDesignation(designationId: string | undefined): CommitteeMember[] {
+    if (!designationId) return [];
+    return this.membersByDesignation[designationId] || [];
   }
 
-  manageDesignations(): void {
-    this.router.navigate(['/apps/committee-designations']);
+  getMemberCountForDesignation(designationId: string | undefined): number {
+    if (!designationId) return 0;
+    return this.membersByDesignation[designationId]?.length || 0;
+  }
+
+  getActiveDesignations(): CommitteeDesignation[] {
+    return this.activeDesignations;
   }
 
   goBack(): void {
     this.router.navigate(['/apps/committees']);
-  }
-
-  getAddMemberTooltip(): string {
-    if (this.users.length === 0 && this.designations.length === 0) {
-      return 'No users or designations available';
-    } else if (this.users.length === 0) {
-      return 'No users available';
-    } else if (this.designations.length === 0) {
-      return 'No designations available';
-    }
-    return 'Add a new member to this committee';
   }
 
   getMemberDisplayName(member: CommitteeMember): string {

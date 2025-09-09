@@ -115,13 +115,13 @@ import { CommitteeService, CommitteeDesignation, Committee } from './committee.s
             </div>
 
             <div class="form-field">
-              <label for="priority">Priority</label>
+              <label for="displayOrder">Display Order</label>
               <input
-                id="priority"
+                id="displayOrder"
                 type="number"
                 pInputText
-                formControlName="priority"
-                placeholder="Enter priority (lower number = higher priority)"
+                formControlName="displayOrder"
+                placeholder="Enter display order (lower number = higher priority)"
                 min="0"
                 max="999"
                 class="w-full"
@@ -261,16 +261,23 @@ export class DesignationFormComponent implements OnInit {
       description: [''],
       committeeId: ['', Validators.required],
       roles: [[], [Validators.required, this.atLeastOneRoleValidator]],
-      priority: [0],
+      displayOrder: [0],
       isActive: [true]
     });
   }
 
   ngOnInit(): void {
     this.designationId = this.route.snapshot.paramMap.get('id');
+    const committeeId = this.route.snapshot.paramMap.get('committeeId');
     this.isEditMode = !!this.designationId;
 
     this.loadCommittees();
+
+    // If we have a committee ID from the route, pre-select it and disable the field
+    if (committeeId) {
+      this.designationForm.patchValue({ committeeId });
+      this.designationForm.get('committeeId')?.disable();
+    }
 
     if (this.isEditMode && this.designationId) {
       this.loadDesignation(this.designationId);
@@ -291,7 +298,7 @@ export class DesignationFormComponent implements OnInit {
             description: designation.description,
             committeeId: typeof designation.committee === 'string' ? designation.committee : designation.committee?._id,
             roles: designation.roles || [],
-            priority: designation.priority,
+            displayOrder: designation.displayOrder,
             isActive: designation.isActive
           });
         }
@@ -329,7 +336,16 @@ export class DesignationFormComponent implements OnInit {
   onSubmit(): void {
     if (this.designationForm.valid) {
       this.isLoading = true;
-      const formData = this.designationForm.value;
+      
+      // Get the committee ID from form (enabled) or route (disabled)
+      const committeeId = this.designationForm.get('committeeId')?.enabled 
+        ? this.designationForm.value.committeeId 
+        : this.route.snapshot.paramMap.get('committeeId');
+      
+      const formData = {
+        ...this.designationForm.value,
+        committeeId // Ensure committee ID is included
+      };
 
       const operation = this.isEditMode && this.designationId
         ? this.committeeService.updateDesignation(this.designationId, formData)
@@ -374,7 +390,12 @@ export class DesignationFormComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/apps/committee-designations']);
+    const committeeId = this.route.snapshot.paramMap.get('committeeId');
+    if (committeeId) {
+      this.router.navigate(['/apps/committees', committeeId, 'designations']);
+    } else {
+      this.router.navigate(['/apps/committees']);
+    }
   }
 
   atLeastOneRoleValidator(control: any) {
