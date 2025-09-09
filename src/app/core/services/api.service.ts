@@ -36,14 +36,16 @@ export class ApiService {
       withCredentials: true, // Include cookies in requests
     };
 
-    return this.http.get<T>(`${this.baseUrl}${endpoint}`, options);
+    const url = this.buildUrl(endpoint);
+    return this.http.get<T>(url, options);
   }
 
   /**
    * POST request
    */
   post<T>(endpoint: string, body?: any): Observable<T> {
-    return this.http.post<T>(`${this.baseUrl}${endpoint}`, body, {
+    const url = this.buildUrl(endpoint);
+    return this.http.post<T>(url, body, {
       headers: this.getHeaders(),
       withCredentials: true, // Include cookies in requests
     });
@@ -53,7 +55,8 @@ export class ApiService {
    * PUT request
    */
   put<T>(endpoint: string, body?: any): Observable<T> {
-    return this.http.put<T>(`${this.baseUrl}${endpoint}`, body, {
+    const url = this.buildUrl(endpoint);
+    return this.http.put<T>(url, body, {
       headers: this.getHeaders(),
       withCredentials: true, // Include cookies in requests
     });
@@ -63,7 +66,8 @@ export class ApiService {
    * DELETE request
    */
   delete<T>(endpoint: string): Observable<T> {
-    return this.http.delete<T>(`${this.baseUrl}${endpoint}`, {
+    const url = this.buildUrl(endpoint);
+    return this.http.delete<T>(url, {
       headers: this.getHeaders(),
       withCredentials: true, // Include cookies in requests
     });
@@ -73,7 +77,8 @@ export class ApiService {
    * PATCH request
    */
   patch<T>(endpoint: string, body?: any): Observable<T> {
-    return this.http.patch<T>(`${this.baseUrl}${endpoint}`, body, {
+    const url = this.buildUrl(endpoint);
+    return this.http.patch<T>(url, body, {
       headers: this.getHeaders(),
       withCredentials: true, // Include cookies in requests
     });
@@ -92,7 +97,8 @@ export class ApiService {
       });
     }
 
-    return this.http.patch<T>(`${this.baseUrl}${endpoint}`, formData, {
+    const url = this.buildUrl(endpoint);
+    return this.http.patch<T>(url, formData, {
       headers: this.getFileUploadHeaders(),
       withCredentials: true, // Include cookies in requests
     });
@@ -102,7 +108,7 @@ export class ApiService {
    * Get full URL for an endpoint
    */
   getFullUrl(endpoint: string): string {
-    return `${this.baseUrl}${endpoint}`;
+    return this.buildUrl(endpoint);
   }
 
   /**
@@ -110,6 +116,15 @@ export class ApiService {
    */
   getBaseUrl(): string {
     return this.baseUrl;
+  }
+
+  /**
+   * Build URL with proper slash handling
+   */
+  private buildUrl(endpoint: string): string {
+    const cleanBaseUrl = this.baseUrl.replace(/\/+$/, ''); // Remove trailing slashes
+    const cleanEndpoint = endpoint.replace(/^\/+/, ''); // Remove leading slashes
+    return `${cleanBaseUrl}/${cleanEndpoint}`;
   }
 
   /**

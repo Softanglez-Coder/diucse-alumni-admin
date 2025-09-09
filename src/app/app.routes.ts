@@ -191,6 +191,74 @@ export const routes: Routes = [
         ],
       },
       {
+        path: 'committees',
+        children: [
+          {
+            path: '',
+            pathMatch: 'full',
+            loadComponent: () =>
+              import('./features/committees/committees.component').then(
+                (c) => c.CommitteesComponent,
+              ),
+          },
+          {
+            path: 'new',
+            loadComponent: () =>
+              import('./features/committees/committee-form.component').then(
+                (c) => c.CommitteeFormComponent,
+              ),
+          },
+          {
+            path: ':id/edit',
+            loadComponent: () =>
+              import('./features/committees/committee-form.component').then(
+                (c) => c.CommitteeFormComponent,
+              ),
+          },
+          {
+            path: ':id',
+            loadComponent: () =>
+              import('./features/committees/committee-detail.component').then(
+                (c) => c.CommitteeDetailComponent,
+              ),
+          },
+        ],
+      },
+      {
+        path: 'committee-designations',
+        children: [
+          {
+            path: '',
+            pathMatch: 'full',
+            loadComponent: () =>
+              import('./features/committees/committee-designations.component').then(
+                (c) => c.CommitteeDesignationsComponent,
+              ),
+          },
+          {
+            path: 'new',
+            loadComponent: () =>
+              import('./features/committees/designation-form.component').then(
+                (c) => c.DesignationFormComponent,
+              ),
+          },
+          {
+            path: ':id/edit',
+            loadComponent: () =>
+              import('./features/committees/designation-form.component').then(
+                (c) => c.DesignationFormComponent,
+              ),
+          },
+          {
+            path: ':id',
+            loadComponent: () =>
+              import('./features/committees/designation-form.component').then(
+                (c) => c.DesignationFormComponent,
+              ),
+          },
+        ],
+      },
+      {
         path: 'settings',
         children: [
           {
