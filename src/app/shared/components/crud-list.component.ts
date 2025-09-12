@@ -169,7 +169,7 @@ export interface ColumnConfig {
                       pButton
                       icon="pi pi-pencil"
                       class="p-button-rounded p-button-text p-button-sm"
-                      [routerLink]="[config.editRoute, item._id]"
+                      [routerLink]="[config.editRoute, item._id, 'edit']"
                       pTooltip="Edit"
                     ></button>
                     <button
