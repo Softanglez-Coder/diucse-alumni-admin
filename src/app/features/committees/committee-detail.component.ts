@@ -340,7 +340,7 @@ import { ApiResponse } from '../../core/services/api.service';
 
     .committee-info h1 {
       margin: 0 0 0.5rem 0;
-      color: var(--primary-color);
+      color: var(--color-primary, teal);
     }
 
     .committee-meta {
@@ -393,7 +393,7 @@ import { ApiResponse } from '../../core/services/api.service';
     }
 
     .role-tag {
-      background: var(--primary-color);
+      background: var(--color-primary, teal);
       color: white;
       padding: 0.25rem 0.5rem;
       border-radius: 4px;
@@ -419,7 +419,7 @@ import { ApiResponse } from '../../core/services/api.service';
 
     .designation-members-content h4 {
       margin: 0 0 0.5rem 0;
-      color: var(--primary-color);
+      color: var(--color-primary, teal);
     }
 
     .designation-header {
@@ -619,11 +619,20 @@ export class CommitteeDetailComponent implements OnInit, AfterViewInit {
     // Cache members by designation to avoid repeated filtering
     this.membersByDesignation = {};
     this.members.forEach(member => {
-      if (member.designationId && member.isActive) {
-        if (!this.membersByDesignation[member.designationId]) {
-          this.membersByDesignation[member.designationId] = [];
+      // Handle both populated and non-populated designationId
+      let designationId: string | undefined;
+      
+      if (typeof member.designationId === 'string') {
+        designationId = member.designationId;
+      } else if (member.designationId && typeof member.designationId === 'object' && (member.designationId as any)._id) {
+        designationId = (member.designationId as any)._id;
+      }
+      
+      if (designationId && member.isActive) {
+        if (!this.membersByDesignation[designationId]) {
+          this.membersByDesignation[designationId] = [];
         }
-        this.membersByDesignation[member.designationId].push(member);
+        this.membersByDesignation[designationId].push(member);
       }
     });
   }
@@ -803,6 +812,21 @@ export class CommitteeDetailComponent implements OnInit, AfterViewInit {
   }
 
   getMemberDisplayName(member: CommitteeMember): string {
+    // Handle populated userId field first
+    if (typeof member.userId === 'object' && member.userId) {
+      const user = member.userId as any;
+      if (user.name) {
+        return user.name;
+      }
+      if (user.firstName && user.lastName) {
+        return `${user.firstName} ${user.lastName}`;
+      }
+      if (user.email) {
+        return user.email;
+      }
+    }
+    
+    // Fallback to user property
     if (member.user?.name) {
       return member.user.name;
     }

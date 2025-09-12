@@ -63,8 +63,8 @@ export interface UpdateCommitteeDesignationDto {
 export interface CommitteeMember {
   _id?: string;
   committeeId: string;
-  designationId: string;
-  userId: string;
+  designationId: string | CommitteeDesignation; // Can be either ID string or populated object
+  userId: string | any; // Can be either ID string or populated user object
   assignedDate: Date;
   unassignedDate?: Date;
   isActive: boolean;
