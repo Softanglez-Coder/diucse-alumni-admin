@@ -392,7 +392,7 @@ export class DesignationFormComponent implements OnInit {
   goBack(): void {
     const committeeId = this.route.snapshot.paramMap.get('committeeId');
     if (committeeId) {
-      this.router.navigate(['/apps/committees', committeeId, 'designations']);
+      this.router.navigate(['/apps/committees', committeeId]);
     } else {
       this.router.navigate(['/apps/committees']);
     }
