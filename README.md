@@ -106,14 +106,16 @@ See [AUTH0_SETUP.md](./AUTH0_SETUP.md) for detailed Auth0 configuration instruct
 
 Before running the application, you must configure Auth0:
 
-1. Create an Auth0 account and application
-2. Update environment files with your Auth0 credentials:
-   - `src/environments/environment.ts` (development)
-   - `src/environments/environment.production.ts` (production)
-3. Configure roles in Auth0 dashboard
-4. Set up Auth0 Actions to include roles in tokens
+1. Follow the [Quick Start Guide](./QUICKSTART_AUTH0.md) for step-by-step Auth0 setup
+2. Or see [AUTH0_SETUP.md](./AUTH0_SETUP.md) for detailed configuration instructions
 
-See [AUTH0_SETUP.md](./AUTH0_SETUP.md) for complete setup instructions.
+**Quick checklist:**
+- ✅ Create Auth0 application
+- ✅ Configure callback and logout URLs
+- ✅ Create roles (Admin, Publisher, Editor, Member, Guest)
+- ✅ Set up Auth0 Action to add roles to tokens
+- ✅ Update environment files with Auth0 credentials
+- ✅ Create test users with different roles
 
 ## Build
 
