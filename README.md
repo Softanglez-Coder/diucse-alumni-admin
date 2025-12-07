@@ -41,6 +41,7 @@ A modern, responsive Angular 20 admin dashboard for managing DIU CSE Alumni Asso
 
 - **Angular 20**: Latest Angular framework
 - **TypeScript**: Type-safe development
+- **Auth0**: Authentication and authorization
 - **PrimeNG**: Component library for UI elements
 - **Tailwind CSS**: Utility-first CSS framework
 - **RxJS**: Reactive programming with observables
@@ -84,18 +85,35 @@ src/
 
 ## Authentication
 
-The application uses cookie-based authentication:
+The application uses **Auth0** for authentication with role-based access control:
 
-- **Login**: `/auth/login`
+- **Login**: `/auth/login` - Redirects to Auth0 Universal Login
+- **Callback**: `/auth/callback` - Handles Auth0 redirect after login
 - **Protected Routes**: All `/apps/*` routes require authentication
-- **Auto-redirect**: Unauthenticated users are redirected to login
+- **Role-Based Access**: Only users with roles other than "member" or "guest" can access the admin panel
+- **Auto-redirect**: Unauthenticated users are redirected to Auth0 login
 
-## Default Credentials
+### Role-Based Access Control
 
-For testing purposes:
+Users must have at least one role that is NOT "member" or "guest" to access the admin panel:
 
-- **Username**: `admin@example.com`
-- **Password**: `admin123`
+- ✅ **Allowed**: Admin, Publisher, Editor, or any custom admin role
+- ❌ **Blocked**: Users with only Member and/or Guest roles
+
+See [AUTH0_SETUP.md](./AUTH0_SETUP.md) for detailed Auth0 configuration instructions.
+
+## Configuration
+
+Before running the application, you must configure Auth0:
+
+1. Create an Auth0 account and application
+2. Update environment files with your Auth0 credentials:
+   - `src/environments/environment.ts` (development)
+   - `src/environments/environment.production.ts` (production)
+3. Configure roles in Auth0 dashboard
+4. Set up Auth0 Actions to include roles in tokens
+
+See [AUTH0_SETUP.md](./AUTH0_SETUP.md) for complete setup instructions.
 
 ## Build
 
@@ -109,13 +127,15 @@ ng build
 
 ✅ **Completed Features**:
 
-- Authentication system with route guards
+- Auth0 authentication with Universal Login
+- Role-based access control (admin roles only)
 - Responsive layout with navigation
 - User management (list, create, edit)
 - Dashboard with statistics
 - All CRUD modules created and functional
 - Form validation and error handling
 - Modern UI with PrimeNG and Tailwind
+- JWT token management via interceptors
 
 🔄 **In Progress**:
 

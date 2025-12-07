@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '@auth0/auth0-angular';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-callback',
@@ -36,7 +37,9 @@ import { AuthService } from '@auth0/auth0-angular';
     `,
   ],
 })
-export class CallbackComponent implements OnInit {
+export class CallbackComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
+
   constructor(
     private auth: AuthService,
     private router: Router,
@@ -45,13 +48,21 @@ export class CallbackComponent implements OnInit {
   ngOnInit() {
     // Auth0 SDK will handle the callback automatically
     // Once authenticated, we redirect to the dashboard or returnUrl
-    this.auth.isAuthenticated$.subscribe((isAuthenticated) => {
-      if (isAuthenticated) {
-        // Get the returnUrl from localStorage if it exists
-        const returnUrl = localStorage.getItem('auth_return_url') || '/apps/dashboard';
-        localStorage.removeItem('auth_return_url');
-        this.router.navigate([returnUrl]);
-      }
-    });
+    this.auth.isAuthenticated$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((isAuthenticated) => {
+        if (isAuthenticated) {
+          // Get the returnUrl from localStorage if it exists
+          const returnUrl =
+            localStorage.getItem('auth_return_url') || '/apps/dashboard';
+          localStorage.removeItem('auth_return_url');
+          this.router.navigate([returnUrl]);
+        }
+      });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

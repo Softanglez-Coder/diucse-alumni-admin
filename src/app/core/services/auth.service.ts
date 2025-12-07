@@ -1,7 +1,7 @@
-import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+import { Injectable, inject, OnDestroy } from '@angular/core';
+import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
 import { Router } from '@angular/router';
-import { catchError, map, switchMap } from 'rxjs/operators';
+import { catchError, map, switchMap, takeUntil } from 'rxjs/operators';
 import { AuthService as Auth0Service } from '@auth0/auth0-angular';
 
 export interface User {
@@ -20,10 +20,11 @@ export interface LoginCredentials {
 @Injectable({
   providedIn: 'root',
 })
-export class AuthService {
+export class AuthService implements OnDestroy {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
   private auth0 = inject(Auth0Service);
+  private destroy$ = new Subject<void>();
 
   constructor(private router: Router) {
     // Initialize user from Auth0
@@ -33,6 +34,7 @@ export class AuthService {
   private initializeUser(): void {
     this.auth0.user$
       .pipe(
+        takeUntil(this.destroy$),
         map((auth0User) => {
           if (!auth0User) return null;
 
@@ -59,6 +61,11 @@ export class AuthService {
       .subscribe((user) => {
         this.currentUserSubject.next(user);
       });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   login(returnUrl?: string): void {
