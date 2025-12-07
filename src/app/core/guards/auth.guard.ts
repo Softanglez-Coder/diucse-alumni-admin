@@ -6,7 +6,7 @@ import {
   RouterStateSnapshot,
 } from '@angular/router';
 import { Observable, of } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { map, catchError, tap } from 'rxjs/operators';
 import { AuthService } from '../services/auth.service';
 
 @Injectable({
@@ -26,63 +26,40 @@ export class AuthGuard implements CanActivate {
     console.log('🔐 AuthGuard: Route data:', route.data);
 
     return this.authService.checkAuthenticationStatus().pipe(
-      map((isAuthenticated) => {
-        console.log('🔐 AuthGuard: Authentication status:', isAuthenticated);
-
-        if (isAuthenticated) {
-          console.log('🔐 AuthGuard: User is authenticated, allowing access');
+      tap((hasAccess) => {
+        console.log('🔐 AuthGuard: Has admin access:', hasAccess);
+      }),
+      map((hasAccess) => {
+        if (hasAccess) {
+          console.log('🔐 AuthGuard: User has admin access, allowing access');
           return true;
         }
 
-        // Store the intended URL for redirecting after login
-        console.log(
-          '🔐 AuthGuard: User not authenticated, redirecting to login with returnUrl:',
-          state.url,
-        );
-        const navigationPromise = this.router.navigate(['/auth/login'], {
-          queryParams: { returnUrl: state.url },
-          replaceUrl: true,
-        });
-
-        navigationPromise
-          .then((success) => {
+        // Check if user is authenticated but doesn't have proper role
+        this.authService.isAuthenticated().subscribe((isAuth) => {
+          if (isAuth) {
             console.log(
-              '🔐 AuthGuard: Navigation to login successful:',
-              success,
+              '🔐 AuthGuard: User authenticated but lacks admin role (only member/guest)',
             );
-          })
-          .catch((error) => {
-            console.error('🔐 AuthGuard: Navigation to login failed:', error);
-          });
+            // Redirect to access denied page
+            this.router.navigate(['/auth/access-denied'], {
+              queryParams: { returnUrl: state.url },
+              replaceUrl: true,
+            });
+          } else {
+            console.log(
+              '🔐 AuthGuard: User not authenticated, redirecting to login',
+            );
+            // Store the intended URL for redirecting after login
+            this.authService.login(state.url);
+          }
+        });
 
         return false;
       }),
       catchError((error) => {
         console.error('🔐 AuthGuard: Error occurred:', error);
-        // Store the intended URL for redirecting after login
-        console.log(
-          '🔐 AuthGuard: Error occurred, redirecting to login with returnUrl:',
-          state.url,
-        );
-        const navigationPromise = this.router.navigate(['/auth/login'], {
-          queryParams: { returnUrl: state.url },
-          replaceUrl: true,
-        });
-
-        navigationPromise
-          .then((success) => {
-            console.log(
-              '🔐 AuthGuard: Navigation to login successful (error case):',
-              success,
-            );
-          })
-          .catch((navError) => {
-            console.error(
-              '🔐 AuthGuard: Navigation to login failed (error case):',
-              navError,
-            );
-          });
-
+        this.authService.login(state.url);
         return of(false);
       }),
     );

@@ -21,6 +21,7 @@
     "@angular/material": "20.2.3",
     "@angular/platform-browser": "^20.0.0",
     "@angular/router": "^20.0.0",
+    "@auth0/auth0-angular": "^2.2.3",
     "@primeuix/themes": "^1.2.1",
     "@tailwindcss/postcss": "^4.1.11",
     "chart.js": "^4.5.0",

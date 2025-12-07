@@ -1,8 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { Router } from '@angular/router';
-import { catchError, map } from 'rxjs/operators';
-import { ApiService } from './api.service';
+import { catchError, map, switchMap } from 'rxjs/operators';
+import { AuthService as Auth0Service } from '@auth0/auth0-angular';
 
 export interface User {
   id: string;
@@ -23,92 +23,80 @@ export interface LoginCredentials {
 export class AuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
+  private auth0 = inject(Auth0Service);
 
-  constructor(
-    private apiService: ApiService,
-    private router: Router,
-  ) {
-    // Don't check auth status in constructor to avoid circular dependency
-    // Auth status will be checked when needed by the guard
+  constructor(private router: Router) {
+    // Initialize user from Auth0
+    this.initializeUser();
   }
 
-  login(credentials: LoginCredentials): Observable<boolean> {
-    return this.apiService.post<any>('/auth/login', credentials).pipe(
-      map((response) => {
-        console.log('Login response:', response);
-        console.log('Login successful - cookie set by backend');
+  private initializeUser(): void {
+    this.auth0.user$
+      .pipe(
+        map((auth0User) => {
+          if (!auth0User) return null;
 
-        // Login successful, but no user data in response
-        // We'll fetch user data from /auth/me after login
-        return true;
-      }),
-      catchError((error) => {
-        console.error('Login failed:', error);
-        return of(false);
-      }),
-    );
+          // Extract roles from Auth0 user metadata
+          // Roles can be in various places depending on Auth0 configuration
+          const roles =
+            auth0User['https://alumni.com/roles'] || // Custom claim
+            auth0User['roles'] || // Direct property
+            auth0User['app_metadata']?.roles || // App metadata
+            auth0User['user_metadata']?.roles || // User metadata
+            [];
+
+          const user: User = {
+            id: auth0User.sub || '',
+            email: auth0User.email || '',
+            name: auth0User.name || auth0User.email || '',
+            roles: Array.isArray(roles) ? roles : [],
+            avatar: auth0User.picture,
+          };
+
+          return user;
+        }),
+      )
+      .subscribe((user) => {
+        this.currentUserSubject.next(user);
+      });
+  }
+
+  login(returnUrl?: string): void {
+    // Store returnUrl in localStorage to retrieve after callback
+    if (returnUrl) {
+      localStorage.setItem('auth_return_url', returnUrl);
+    }
+
+    // Redirect to Auth0 login
+    this.auth0.loginWithRedirect();
   }
 
   logout(): void {
     // Clear client-side user data
     this.currentUserSubject.next(null);
+    localStorage.removeItem('auth_return_url');
 
-    // Call logout endpoint to clear server-side cookie
-    this.apiService.post('/auth/logout', {}).subscribe({
-      next: () => {
-        console.log('Logout successful - server cookie cleared');
-      },
-      error: (error) => {
-        console.warn('Logout endpoint failed:', error);
+    // Redirect to Auth0 logout which will also redirect back to the app
+    this.auth0.logout({
+      logoutParams: {
+        returnTo: window.location.origin + '/auth/login',
       },
     });
-
-    // Redirect to login without any return URL
-    this.router.navigate(['/auth/login']);
   }
 
-  isAuthenticated(): boolean {
-    // For cookie-based auth, we only check if user is loaded
-    // The actual authentication is handled by the cookie sent with requests
-    return this.currentUserSubject.value !== null;
+  isAuthenticated(): Observable<boolean> {
+    return this.auth0.isAuthenticated$;
   }
 
   checkAuthenticationStatus(): Observable<boolean> {
-    console.log('Checking cookie-based authentication status');
-
-    // If user is already loaded, return true immediately
-    if (this.currentUserSubject.value) {
-      console.log('User already loaded:', this.currentUserSubject.value);
-      return of(true);
-    }
-
-    // For cookie-based auth, just call /auth/me - the cookie will be sent automatically
-    console.log(
-      'Making request to /auth/me (cookie will be sent automatically)',
-    );
-    return this.apiService.get<{ user: User }>('/auth/me').pipe(
-      map((response: any) => {
-        console.log('Auth/me response:', response);
-        if (response && (response.user || response.data || response)) {
-          // Handle different response structures
-          const user = response.user || response.data || response;
-          this.currentUserSubject.next(user);
-          console.log('User loaded from API:', user);
-          return true;
+    return this.auth0.isAuthenticated$.pipe(
+      switchMap((isAuth) => {
+        if (!isAuth) {
+          return of(false);
         }
-        return false;
-      }),
-      catchError((error) => {
-        console.warn('Auth verification failed:', error);
 
-        // For cookie-based auth, if /auth/me fails, user is not authenticated
-        console.log('Cookie-based auth failed, user not authenticated');
-        this.currentUserSubject.next(null);
-
-        // Don't redirect here - let the guard handle redirections
-        // The guard will properly capture the intended URL
-
-        return of(false);
+        // Check if user has proper roles (not just member or guest)
+        return this.hasAdminAccess$();
       }),
     );
   }
@@ -148,4 +136,44 @@ export class AuthService {
   canPublish(): boolean {
     return this.hasAnyRole(['Publisher', 'Admin']);
   }
+
+  /**
+   * Check if user has admin access (roles other than member and guest)
+   */
+  hasAdminAccess(): boolean {
+    const user = this.getCurrentUser();
+    if (!user || !user.roles || user.roles.length === 0) {
+      return false;
+    }
+
+    // User must have at least one role that is NOT 'member' or 'guest'
+    const hasNonMemberGuestRole = user.roles.some(
+      (role) =>
+        role.toLowerCase() !== 'member' && role.toLowerCase() !== 'guest',
+    );
+
+    return hasNonMemberGuestRole;
+  }
+
+  /**
+   * Observable version of hasAdminAccess
+   */
+  hasAdminAccess$(): Observable<boolean> {
+    return this.currentUser$.pipe(
+      map((user) => {
+        if (!user || !user.roles || user.roles.length === 0) {
+          return false;
+        }
+
+        // User must have at least one role that is NOT 'member' or 'guest'
+        const hasNonMemberGuestRole = user.roles.some(
+          (role) =>
+            role.toLowerCase() !== 'member' && role.toLowerCase() !== 'guest',
+        );
+
+        return hasNonMemberGuestRole;
+      }),
+    );
+  }
 }
+

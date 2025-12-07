@@ -1,16 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { PasswordModule } from 'primeng/password';
-import { CheckboxModule } from 'primeng/checkbox';
 import { CardModule } from 'primeng/card';
 import { MessageModule } from 'primeng/message';
 import { RippleModule } from 'primeng/ripple';
@@ -21,11 +12,7 @@ import { AuthService } from '../../core/services/auth.service';
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
     ButtonModule,
-    InputTextModule,
-    PasswordModule,
-    CheckboxModule,
     CardModule,
     MessageModule,
     RippleModule,
@@ -47,84 +34,23 @@ import { AuthService } from '../../core/services/auth.service';
           </div>
         </div>
 
-        <form
-          [formGroup]="loginForm"
-          (ngSubmit)="onSubmit()"
-          class="login-form"
-        >
-          <div class="form-group">
-            <label for="email" class="form-label">Email</label>
-            <input
-              id="email"
-              type="email"
-              pInputText
-              formControlName="email"
-              placeholder="Enter your email"
-              class="w-full"
-              [class.p-invalid]="isFieldInvalid('email')"
-            />
-            <small *ngIf="isFieldInvalid('email')" class="p-error">
-              Email is required and must be valid
-            </small>
-          </div>
-
-          <div class="form-group">
-            <label for="password" class="form-label">Password</label>
-            <p-password
-              id="password"
-              formControlName="password"
-              placeholder="Enter your password"
-              [toggleMask]="true"
-              [feedback]="false"
-              inputStyleClass="w-full"
-              styleClass="w-full"
-              [class.p-invalid]="isFieldInvalid('password')"
-            >
-            </p-password>
-            <small *ngIf="isFieldInvalid('password')" class="p-error">
-              Password is required
-            </small>
-          </div>
-
-          <div class="form-group">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center">
-                <p-checkbox
-                  formControlName="rememberMe"
-                  inputId="rememberMe"
-                  [binary]="true"
-                >
-                </p-checkbox>
-                <label for="rememberMe" class="ml-2 text-sm text-gray-600">
-                  Remember me
-                </label>
-              </div>
-              <a href="#" class="text-sm text-primary hover:underline">
-                Forgot password?
-              </a>
-            </div>
-          </div>
-
-          <div class="form-group" *ngIf="errorMessage">
-            <p-message
-              severity="error"
-              [text]="errorMessage"
-              styleClass="w-full"
-            >
-            </p-message>
-          </div>
-
+        <div class="login-form">
           <button
-            type="submit"
+            type="button"
             pButton
-            label="Sign In"
+            label="Sign In with Auth0"
             icon="pi pi-sign-in"
             class="w-full"
-            [loading]="isLoading"
-            [disabled]="loginForm.invalid || isLoading"
+            (click)="onLogin()"
             pRipple
           ></button>
-        </form>
+
+          <div class="mt-4 text-center">
+            <p class="text-sm text-gray-600">
+              Only users with admin roles can access this panel
+            </p>
+          </div>
+        </div>
 
         <div class="login-footer">
           <p class="text-center text-sm text-gray-600">
@@ -178,28 +104,9 @@ import { AuthService } from '../../core/services/auth.service';
         margin-bottom: 2rem;
       }
 
-      .form-group {
-        margin-bottom: 1.5rem;
-      }
-
-      .form-label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 500;
-        color: #374151;
-      }
-
       .login-footer {
         border-top: 1px solid #e5e7eb;
         padding-top: 1.5rem;
-      }
-
-      :host ::ng-deep .p-password {
-        width: 100%;
-      }
-
-      :host ::ng-deep .p-password .p-inputtext {
-        width: 100%;
       }
 
       :host ::ng-deep .p-button {
@@ -220,82 +127,37 @@ import { AuthService } from '../../core/services/auth.service';
   ],
 })
 export class LoginComponent implements OnInit {
-  loginForm: FormGroup;
-  isLoading = false;
-  errorMessage = '';
   returnUrl = '/apps/dashboard';
 
   constructor(
-    private fb: FormBuilder,
     private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute,
-  ) {
-    this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      rememberMe: [false],
-    });
-  }
+  ) {}
 
   ngOnInit() {
     // Get return URL from query params or default to dashboard
     this.returnUrl =
       this.route.snapshot.queryParams['returnUrl'] || '/apps/dashboard';
     console.log('LoginComponent: returnUrl from query params:', this.returnUrl);
-    console.log(
-      'LoginComponent: All query params:',
-      this.route.snapshot.queryParams,
-    );
 
-    // Redirect if already authenticated
-    if (this.authService.isAuthenticated()) {
-      this.router.navigate([this.returnUrl]);
-    }
-  }
-
-  onSubmit() {
-    if (this.loginForm.valid) {
-      this.isLoading = true;
-      this.errorMessage = '';
-
-      const { email, password } = this.loginForm.value;
-
-      this.authService.login({ email, password }).subscribe({
-        next: (success) => {
-          if (success) {
-            // Login successful, now fetch user data
-            this.authService.checkAuthenticationStatus().subscribe({
-              next: (isAuthenticated) => {
-                this.isLoading = false;
-                if (isAuthenticated) {
-                  this.router.navigate([this.returnUrl]);
-                } else {
-                  this.errorMessage = 'Failed to load user data';
-                }
-              },
-              error: (error) => {
-                this.isLoading = false;
-                this.errorMessage = 'Failed to load user data';
-                console.error('User data fetch error:', error);
-              },
-            });
+    // Check if already authenticated
+    this.authService.isAuthenticated().subscribe((isAuth) => {
+      if (isAuth) {
+        // Check if user has admin access
+        this.authService.hasAdminAccess$().subscribe((hasAccess) => {
+          if (hasAccess) {
+            this.router.navigate([this.returnUrl]);
           } else {
-            this.isLoading = false;
-            this.errorMessage = 'Invalid email or password';
+            // User is authenticated but doesn't have admin role
+            this.router.navigate(['/auth/access-denied']);
           }
-        },
-        error: (error) => {
-          this.isLoading = false;
-          this.errorMessage = 'An error occurred. Please try again.';
-          console.error('Login error:', error);
-        },
-      });
-    }
+        });
+      }
+    });
   }
 
-  isFieldInvalid(fieldName: string): boolean {
-    const field = this.loginForm.get(fieldName);
-    return !!(field && field.invalid && (field.dirty || field.touched));
+  onLogin() {
+    this.authService.login(this.returnUrl);
   }
 }

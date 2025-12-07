@@ -13,6 +13,20 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'callback',
+        loadComponent: () =>
+          import('./features/auth/callback.component').then(
+            (c) => c.CallbackComponent,
+          ),
+      },
+      {
+        path: 'access-denied',
+        loadComponent: () =>
+          import('./features/auth/access-denied.component').then(
+            (c) => c.AccessDeniedComponent,
+          ),
+      },
+      {
         path: '',
         redirectTo: 'login',
         pathMatch: 'full',
