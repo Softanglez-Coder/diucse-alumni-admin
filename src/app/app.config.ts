@@ -7,16 +7,22 @@ import {
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import {
+  provideHttpClient,
+  withInterceptors,
+  HTTP_INTERCEPTORS,
+} from '@angular/common/http';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { API_BASE_URL } from './core';
 import { AuthService } from './core/services/auth.service';
 import { firstValueFrom } from 'rxjs';
 import { provideQuillConfig } from 'ngx-quill';
+import { provideAuth0 } from '@auth0/auth0-angular';
 
 import { routes } from './app.routes';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
+import { environment } from '../environments/environment';
 
 function getBaseUrl(): string {
   const isProduction = window.location.hostname.includes('csediualumni.com');
@@ -43,29 +49,12 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideAnimationsAsync(),
     provideHttpClient(withInterceptors([authInterceptor])),
-    // Combined initializer: Load config first, then check auth
-    provideAppInitializer(() => {
-      const authService = inject(AuthService);
-
-      return new Promise<void>((resolve) => {
-        // Phase 1: Load API configuration
-        const api_base_url = getBaseUrl();
-
-        // Phase 2: Now check authentication with correct API URL
-        console.log('Starting auth check with API URL:', api_base_url);
-
-        firstValueFrom(authService.checkAuthenticationStatus())
-          .then(() => {
-            console.log('Auth check completed successfully');
-            resolve();
-          })
-          .catch(() => {
-            console.log(
-              'Auth check failed during bootstrap - user not authenticated',
-            );
-            resolve();
-          });
-      });
+    // Provide Auth0 configuration
+    provideAuth0({
+      domain: environment.auth0.domain,
+      clientId: environment.auth0.clientId,
+      authorizationParams: environment.auth0.authorizationParams,
+      httpInterceptor: environment.auth0.httpInterceptor,
     }),
     // Provide API_BASE_URL token
     {
