@@ -141,7 +141,7 @@ export class AuthService implements OnDestroy {
     console.log('🔐 checkAuthenticationStatus called');
     
     return this.auth0.isAuthenticated$.pipe(
-      take(1), // Take only the first emission
+      take(1),
       switchMap((isAuth) => {
         console.log('🔐 Auth0 isAuthenticated:', isAuth);
         
@@ -150,18 +150,16 @@ export class AuthService implements OnDestroy {
           return of(false);
         }
 
-        // Wait for currentUser$ to emit a non-null value or wait for initialization
-        console.log('🔐 Waiting for user data to load...');
-        return this.currentUser$.pipe(
-          filter((user) => {
-            // Wait until we have either a user with data or confirmed no user
-            const hasData = user !== null;
-            console.log('🔐 Checking if user data ready:', hasData, user);
-            return this.userInitialized$.value; // Wait for initialization flag
+        // Wait for user initialization flag
+        console.log('🔐 Waiting for user initialization flag...');
+        return this.userInitialized$.pipe(
+          filter((initialized) => {
+            console.log('🔐 User initialized flag:', initialized);
+            return initialized === true;
           }),
-          take(1), // Take the first valid emission
+          take(1),
           switchMap(() => {
-            console.log('🔐 User data loaded, checking admin access');
+            console.log('🔐 User initialization complete, checking admin access');
             return this.hasAdminAccess$().pipe(take(1));
           }),
         );
