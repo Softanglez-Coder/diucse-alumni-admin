@@ -114,6 +114,10 @@ import { ApiService } from '../../core/services/api.service';
           <!-- Personal Information -->
           <p-card header="Personal Information" class="detail-card">
             <div class="details-grid">
+              <div class="detail-item" *ngIf="userData.membershipId">
+                <label class="detail-label">Membership ID</label>
+                <span class="membership-id-badge">{{ userData.membershipId }}</span>
+              </div>
               <div class="detail-item">
                 <label class="detail-label">Full Name</label>
                 <span class="detail-value">{{
@@ -336,6 +340,19 @@ import { ApiService } from '../../core/services/api.service';
         color: #1f2937;
         font-weight: 500;
         word-break: break-all;
+      }
+
+      .membership-id-badge {
+        display: inline-block;
+        font-family: 'Courier New', monospace;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        font-size: 1rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       }
 
       .user-id {

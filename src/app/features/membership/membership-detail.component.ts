@@ -39,6 +39,7 @@ interface MembershipDetails {
     photo?: string;
     currentPosition?: string;
     company?: string;
+    membershipId?: string;
     createdAt: string;
     updatedAt: string;
     __v: number;
@@ -169,6 +170,10 @@ interface StatusOption {
           <p-divider></p-divider>
 
           <div class="info-grid">
+            <div class="info-item" *ngIf="membership.user.membershipId">
+              <label>Membership ID:</label>
+              <span class="membership-id-badge">{{ membership.user.membershipId }}</span>
+            </div>
             <div class="info-item">
               <label>Phone:</label>
               <span>{{ membership.user.phone || 'Not provided' }}</span>
@@ -642,6 +647,19 @@ interface StatusOption {
 
       .info-item span {
         color: #1f2937;
+      }
+
+      .membership-id-badge {
+        display: inline-block;
+        font-family: 'Courier New', monospace;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        font-size: 1rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       }
 
       .transaction-id {

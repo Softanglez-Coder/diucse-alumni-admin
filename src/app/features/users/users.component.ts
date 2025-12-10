@@ -17,7 +17,7 @@ export class UsersComponent {
     createRoute: '/apps/users/new',
     editRoute: '/apps/users',
     viewRoute: '/apps/users',
-    searchFields: ['name', 'email', 'batch.name', 'phone', 'roles'],
+    searchFields: ['name', 'email', 'batch.name', 'phone', 'roles', 'membershipId'],
     disableDelete: true,
     disableEdit: true,
     columns: [
@@ -25,6 +25,13 @@ export class UsersComponent {
         field: 'name',
         header: 'Name',
         type: 'text',
+        sortable: true,
+        filterable: true,
+      },
+      {
+        field: 'membershipId',
+        header: 'Membership ID',
+        type: 'badge',
         sortable: true,
         filterable: true,
       },
