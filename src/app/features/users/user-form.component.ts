@@ -100,7 +100,7 @@ import { ApiService } from '../../core/services/api.service';
                       ? 'Email Verified'
                       : 'Email Not Verified'
                   "
-                  [severity]="userData.emailVerified ? 'success' : 'warning'"
+                  [severity]="userData.emailVerified ? 'success' : 'warn'"
                   class="ml-2"
                 >
                 </p-tag>
@@ -184,7 +184,7 @@ import { ApiService } from '../../core/services/api.service';
                 <label class="detail-label">Email Verified</label>
                 <p-tag
                   [value]="userData.emailVerified ? 'Yes' : 'No'"
-                  [severity]="userData.emailVerified ? 'success' : 'warning'"
+                  [severity]="userData.emailVerified ? 'success' : 'warn'"
                 >
                 </p-tag>
               </div>

@@ -555,7 +555,7 @@ export class CrudListComponent implements OnInit {
 
   getStatusSeverity(
     status: string | boolean,
-  ): 'success' | 'warning' | 'danger' | 'info' {
+  ): 'success' | 'warn' | 'danger' | 'info' {
     // Handle boolean values
     if (typeof status === 'boolean') {
       return status ? 'success' : 'danger';
@@ -570,7 +570,7 @@ export class CrudListComponent implements OnInit {
         return 'success';
       case 'pending':
       case 'draft':
-        return 'warning';
+        return 'warn';
       case 'inactive':
       case 'rejected':
       case 'cancelled':

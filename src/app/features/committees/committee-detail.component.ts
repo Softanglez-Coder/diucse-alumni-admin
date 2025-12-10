@@ -56,7 +56,7 @@ import { ApiResponse } from '../../core/services/api.service';
             <span>{{ committee.startDate | date:'mediumDate' }} - {{ committee.endDate | date:'mediumDate' }}</span>
             <p-tag 
               [value]="committee.isPublished ? 'Published' : 'Draft'" 
-              [severity]="committee.isPublished ? 'success' : 'warning'"
+              [severity]="committee.isPublished ? 'success' : 'warn'"
             ></p-tag>
           </div>
         </div>

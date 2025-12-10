@@ -630,14 +630,14 @@ export class BlogDetailComponent implements OnInit {
 
   getStatusSeverity(
     status: BlogStatus,
-  ): 'success' | 'info' | 'warning' | 'danger' {
+  ): 'success' | 'info' | 'warn' | 'danger' {
     switch (status) {
       case BlogStatus.PUBLISHED:
         return 'success';
       case BlogStatus.IN_REVIEW:
         return 'info';
       case BlogStatus.DRAFT:
-        return 'warning';
+        return 'warn';
       default:
         return 'info';
     }

@@ -155,7 +155,7 @@ import { AvatarModule } from 'primeng/avatar';
                     <p-tag
                       [value]="user.status"
                       [severity]="
-                        user.status === 'Active' ? 'success' : 'warning'
+                        user.status === 'Active' ? 'success' : 'warn'
                       "
                     >
                     </p-tag>
@@ -486,7 +486,14 @@ export class DashboardComponent implements OnInit {
     },
   };
 
-  recentActivities = [
+  recentActivities: {
+    text: string;
+    time: string;
+    type: string;
+    severity: 'success' | 'info' | 'warn' | 'danger';
+    avatar: string | null;
+    initials: string;
+  }[] = [
     {
       text: 'John Doe registered for Alumni Meetup 2024',
       time: '2 hours ago',
@@ -515,7 +522,7 @@ export class DashboardComponent implements OnInit {
       text: 'Event capacity reached for Tech Talk',
       time: '1 day ago',
       type: 'Event',
-      severity: 'warning',
+      severity: 'warn',
       avatar: null,
       initials: 'TT',
     },
@@ -602,12 +609,12 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit() {}
 
-  getEventSeverity(status: string): 'success' | 'warning' | 'info' | 'danger' {
+  getEventSeverity(status: string): 'success' | 'warn' | 'info' | 'danger' {
     switch (status) {
       case 'Active':
         return 'success';
       case 'Planning':
-        return 'warning';
+        return 'warn';
       case 'Completed':
         return 'info';
       default:

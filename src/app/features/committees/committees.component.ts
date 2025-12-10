@@ -51,7 +51,7 @@ export class CommitteesComponent implements OnInit {
       icon: 'pi pi-times',
       action: (item: any) => this.togglePublish(item),
       condition: (item: any) => item.isPublished,
-      severity: 'warning'
+      severity: 'warn'
     }
   ];
 

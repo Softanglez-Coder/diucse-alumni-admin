@@ -72,7 +72,7 @@ interface MembershipDetails {
 interface StatusOption {
   label: string;
   value: MembershipStatus;
-  severity: 'success' | 'warning' | 'danger' | 'info';
+  severity: 'success' | 'warn' | 'danger' | 'info';
 }
 
 @Component({
@@ -153,7 +153,7 @@ interface StatusOption {
                     membership.user.emailVerified ? 'Verified' : 'Not Verified'
                   "
                   [severity]="
-                    membership.user.emailVerified ? 'success' : 'warning'
+                    membership.user.emailVerified ? 'success' : 'warn'
                   "
                 >
                 </p-tag>
@@ -919,17 +919,17 @@ export class MembershipDetailComponent implements OnInit {
     {
       label: 'Requested',
       value: MembershipStatus.Requested,
-      severity: 'warning',
+      severity: 'warn',
     },
     {
       label: 'In Progress',
       value: MembershipStatus.InProgress,
-      severity: 'warning',
+      severity: 'warn',
     },
     {
       label: 'Payment Required',
       value: MembershipStatus.PaymentRequired,
-      severity: 'warning',
+      severity: 'warn',
     },
     {
       label: 'Approved',
@@ -1036,7 +1036,7 @@ export class MembershipDetailComponent implements OnInit {
 
   getStatusSeverity(
     status: MembershipStatus | string,
-  ): 'success' | 'warning' | 'danger' | 'info' {
+  ): 'success' | 'warn' | 'danger' | 'info' {
     const statusOption = this.statusOptions.find(
       (option) => option.value === status,
     );
@@ -1045,7 +1045,7 @@ export class MembershipDetailComponent implements OnInit {
 
   getPaymentStatusSeverity(
     status: string,
-  ): 'success' | 'warning' | 'danger' | 'info' {
+  ): 'success' | 'warn' | 'danger' | 'info' {
     switch (status?.toLowerCase()) {
       case 'completed':
       case 'paid':
@@ -1053,7 +1053,7 @@ export class MembershipDetailComponent implements OnInit {
         return 'success';
       case 'pending':
       case 'processing':
-        return 'warning';
+        return 'warn';
       case 'failed':
       case 'cancelled':
       case 'rejected':
@@ -1065,7 +1065,7 @@ export class MembershipDetailComponent implements OnInit {
 
   getInvoiceStatusSeverity(
     status: string,
-  ): 'success' | 'warning' | 'danger' | 'info' {
+  ): 'success' | 'warn' | 'danger' | 'info' {
     switch (status?.toLowerCase()) {
       case 'paid':
       case 'completed':
@@ -1074,7 +1074,7 @@ export class MembershipDetailComponent implements OnInit {
       case 'unpaid':
       case 'pending':
       case 'processing':
-        return 'warning';
+        return 'warn';
       case 'failed':
       case 'cancelled':
       case 'rejected':
