@@ -3,8 +3,8 @@ export const environment = {
   apiUrl: 'http://localhost:3000',
   frontendUrl: 'http://localhost:4300',
   auth0: {
-    domain: 'YOUR_AUTH0_DOMAIN',
-    clientId: 'YOUR_AUTH0_CLIENT_ID',
+    domain: 'csediualumni.us.auth0.com',
+    clientId: '8cJDXN0svn090g4pqmS99Fqq7sOjYR6o',
     authorizationParams: {
       redirect_uri: 'http://localhost:4300/auth/callback',
       audience: 'YOUR_AUTH0_AUDIENCE',

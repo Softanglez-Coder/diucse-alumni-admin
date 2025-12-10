@@ -3,11 +3,11 @@ export const environment = {
   apiUrl: 'https://api.csediualumni.com',
   frontendUrl: 'https://admin.csediualumni.com',
   auth0: {
-    domain: 'YOUR_AUTH0_DOMAIN',
-    clientId: 'YOUR_AUTH0_CLIENT_ID',
+    domain: 'csediualumni.us.auth0.com',
+    clientId: '8cJDXN0svn090g4pqmS99Fqq7sOjYR6o',
     authorizationParams: {
       redirect_uri: 'https://admin.csediualumni.com/auth/callback',
-      audience: 'YOUR_AUTH0_AUDIENCE',
+      audience: 'https://api.csediualumni.com',
     },
     httpInterceptor: {
       allowedList: [
@@ -15,7 +15,7 @@ export const environment = {
           uri: 'https://api.csediualumni.com/*',
           tokenOptions: {
             authorizationParams: {
-              audience: 'YOUR_AUTH0_AUDIENCE',
+              audience: 'https://api.csediualumni.com',
             },
           },
         },
