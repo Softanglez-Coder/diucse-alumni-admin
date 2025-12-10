@@ -55,6 +55,10 @@ export const appConfig: ApplicationConfig = {
       clientId: environment.auth0.clientId,
       authorizationParams: environment.auth0.authorizationParams,
       httpInterceptor: environment.auth0.httpInterceptor,
+      // Critical: Configure callback handling
+      cacheLocation: 'localstorage',
+      useRefreshTokens: true,
+      skipRedirectCallback: false,
     }),
     // Provide API_BASE_URL token
     {

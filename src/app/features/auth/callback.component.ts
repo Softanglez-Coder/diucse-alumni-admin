@@ -46,19 +46,27 @@ export class CallbackComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    // Auth0 SDK will handle the callback automatically
-    // Once authenticated, we redirect to the dashboard or returnUrl
-    this.auth.isAuthenticated$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((isAuthenticated) => {
-        if (isAuthenticated) {
-          // Get the returnUrl from localStorage if it exists
-          const returnUrl =
-            localStorage.getItem('auth_return_url') || '/apps/dashboard';
-          localStorage.removeItem('auth_return_url');
-          this.router.navigate([returnUrl]);
-        }
-      });
+    console.log('🔄 CallbackComponent: Initializing');
+    
+    // Auth0 SDK handles the callback automatically through its internal mechanism
+    // We need to wait for authentication to complete, then redirect
+    
+    // Use a timeout to allow Auth0 SDK to process the callback
+    setTimeout(() => {
+      this.auth.isAuthenticated$
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((isAuthenticated) => {
+          console.log('🔄 CallbackComponent: Auth status:', isAuthenticated);
+          if (isAuthenticated) {
+            // Get the returnUrl from localStorage if it exists
+            const returnUrl =
+              localStorage.getItem('auth_return_url') || '/apps/dashboard';
+            localStorage.removeItem('auth_return_url');
+            console.log('🔄 CallbackComponent: Redirecting to:', returnUrl);
+            this.router.navigate([returnUrl], { replaceUrl: true });
+          }
+        });
+    }, 100);
   }
 
   ngOnDestroy() {

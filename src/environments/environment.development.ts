@@ -7,7 +7,7 @@ export const environment = {
     clientId: '8cJDXN0svn090g4pqmS99Fqq7sOjYR6o',
     authorizationParams: {
       redirect_uri: 'https://admin-dev.csediualumni.com/auth/callback',
-      audience: 'YOUR_AUTH0_AUDIENCE',
+      audience: 'https://api.csediualumni.com',
     },
     httpInterceptor: {
       allowedList: [
@@ -15,7 +15,7 @@ export const environment = {
           uri: 'https://api-dev.csediualumni.com/*',
           tokenOptions: {
             authorizationParams: {
-              audience: 'YOUR_AUTH0_AUDIENCE',
+              audience: 'https://api.csediualumni.com',
             },
           },
         },
