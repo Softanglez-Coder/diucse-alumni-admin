@@ -1,18 +1,18 @@
 export const environment = {
-  production: false,
-  apiUrl: 'http://localhost:3000',
-  frontendUrl: 'http://localhost:4300',
+  production: true,
+  apiUrl: 'https://api.csediualumni.com',
+  frontendUrl: 'https://admin.csediualumni.com',
   auth0: {
     domain: 'csediualumni.us.auth0.com',
     clientId: '8cJDXN0svn090g4pqmS99Fqq7sOjYR6o',
     authorizationParams: {
-      redirect_uri: 'http://localhost:4300/auth/callback',
+      redirect_uri: 'https://admin.csediualumni.com/auth/callback',
       audience: 'https://api.csedialumni.com',
     },
     httpInterceptor: {
       allowedList: [
         {
-          uri: 'http://localhost:3000/*',
+          uri: 'https://api.csediualumni.com/*',
           tokenOptions: {
             authorizationParams: {
               audience: 'https://api.csedialumni.com',
