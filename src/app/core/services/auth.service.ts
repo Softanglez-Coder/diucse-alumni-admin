@@ -1,8 +1,10 @@
 import { Injectable, inject, OnDestroy } from '@angular/core';
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
 import { Router } from '@angular/router';
-import { catchError, map, switchMap, takeUntil } from 'rxjs/operators';
+import { catchError, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { AuthService as Auth0Service } from '@auth0/auth0-angular';
+import { HttpClient } from '@angular/common/http';
+import { API_BASE_URL } from '../index';
 
 export interface User {
   id: string;
@@ -24,10 +26,12 @@ export class AuthService implements OnDestroy {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
   private auth0 = inject(Auth0Service);
+  private http = inject(HttpClient);
+  private apiBaseUrl = inject(API_BASE_URL);
   private destroy$ = new Subject<void>();
 
   constructor(private router: Router) {
-    // Initialize user from Auth0
+    // Initialize user from Auth0 and backend API
     this.initializeUser();
   }
 
@@ -35,32 +39,66 @@ export class AuthService implements OnDestroy {
     this.auth0.user$
       .pipe(
         takeUntil(this.destroy$),
-        map((auth0User) => {
-          if (!auth0User) return null;
+        switchMap((auth0User) => {
+          if (!auth0User) {
+            console.log('🔐 No Auth0 user, setting user to null');
+            return of(null);
+          }
 
-          // Extract roles from Auth0 user metadata
-          // Roles can be in various places depending on Auth0 configuration
-          const roles =
-            auth0User['https://alumni.com/roles'] || // Custom claim
-            auth0User['roles'] || // Direct property
-            auth0User['app_metadata']?.roles || // App metadata
-            auth0User['user_metadata']?.roles || // User metadata
-            [];
+          console.log('🔐 Auth0 User authenticated:', auth0User.email);
 
-          const user: User = {
-            id: auth0User.sub || '',
-            email: auth0User.email || '',
-            name: auth0User.name || auth0User.email || '',
-            roles: Array.isArray(roles) ? roles : [],
-            avatar: auth0User.picture,
-          };
+          // Fetch user data from backend API to get roles from database
+          return this.fetchUserFromBackend().pipe(
+            map((backendUser) => {
+              if (!backendUser) {
+                console.warn('🔐 No user data from backend API');
+                return null;
+              }
 
-          return user;
+              console.log('🔐 Backend user data:', backendUser);
+
+              const user: User = {
+                id: backendUser.id || backendUser._id || auth0User.sub || '',
+                email: backendUser.email || auth0User.email || '',
+                name: backendUser.name || auth0User.name || auth0User.email || '',
+                roles: backendUser.roles || [],
+                avatar: auth0User.picture || backendUser.photo,
+              };
+
+              console.log('🔐 Final user object with roles from DB:', user);
+
+              return user;
+            }),
+            catchError((error) => {
+              console.error('🔐 Error fetching user from backend:', error);
+              // Fallback to Auth0 user data (though it won't have roles)
+              const fallbackUser: User = {
+                id: auth0User.sub || '',
+                email: auth0User.email || '',
+                name: auth0User.name || auth0User.email || '',
+                roles: [],
+                avatar: auth0User.picture,
+              };
+              console.warn('🔐 Using fallback user (no roles):', fallbackUser);
+              return of(fallbackUser);
+            }),
+          );
         }),
       )
       .subscribe((user) => {
         this.currentUserSubject.next(user);
       });
+  }
+
+  /**
+   * Fetch user data from backend API (includes roles from database)
+   */
+  private fetchUserFromBackend(): Observable<any> {
+    return this.http.get<any>(`${this.apiBaseUrl}/auth/me`).pipe(
+      tap((response) => {
+        console.log('🔐 Backend API response:', response);
+      }),
+    );
   }
 
   ngOnDestroy() {
@@ -150,15 +188,22 @@ export class AuthService implements OnDestroy {
    */
   hasAdminAccess(): boolean {
     const user = this.getCurrentUser();
+    console.log('🔐 hasAdminAccess - Current user:', user);
+    
     if (!user || !user.roles || user.roles.length === 0) {
+      console.log('🔐 hasAdminAccess - No user or roles, returning false');
       return false;
     }
+
+    console.log('🔐 hasAdminAccess - User roles:', user.roles);
 
     // User must have at least one role that is NOT 'member' or 'guest'
     const hasNonMemberGuestRole = user.roles.some(
       (role) =>
         role.toLowerCase() !== 'member' && role.toLowerCase() !== 'guest',
     );
+
+    console.log('🔐 hasAdminAccess - Has non-member/guest role:', hasNonMemberGuestRole);
 
     return hasNonMemberGuestRole;
   }
@@ -169,15 +214,22 @@ export class AuthService implements OnDestroy {
   hasAdminAccess$(): Observable<boolean> {
     return this.currentUser$.pipe(
       map((user) => {
+        console.log('🔐 hasAdminAccess$ - Current user:', user);
+        
         if (!user || !user.roles || user.roles.length === 0) {
+          console.log('🔐 hasAdminAccess$ - No user or roles, returning false');
           return false;
         }
+
+        console.log('🔐 hasAdminAccess$ - User roles:', user.roles);
 
         // User must have at least one role that is NOT 'member' or 'guest'
         const hasNonMemberGuestRole = user.roles.some(
           (role) =>
             role.toLowerCase() !== 'member' && role.toLowerCase() !== 'guest',
         );
+
+        console.log('🔐 hasAdminAccess$ - Has non-member/guest role:', hasNonMemberGuestRole);
 
         return hasNonMemberGuestRole;
       }),
