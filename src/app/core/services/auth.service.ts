@@ -1,7 +1,7 @@
 import { Injectable, inject, OnDestroy } from '@angular/core';
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
 import { Router } from '@angular/router';
-import { catchError, map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { catchError, map, switchMap, takeUntil, tap, filter, take } from 'rxjs/operators';
 import { AuthService as Auth0Service } from '@auth0/auth0-angular';
 import { HttpClient } from '@angular/common/http';
 import { API_BASE_URL } from '../index';
@@ -29,6 +29,7 @@ export class AuthService implements OnDestroy {
   private http = inject(HttpClient);
   private apiBaseUrl = inject(API_BASE_URL);
   private destroy$ = new Subject<void>();
+  private userInitialized$ = new BehaviorSubject<boolean>(false);
 
   constructor(private router: Router) {
     // Initialize user from Auth0 and backend API
@@ -86,7 +87,9 @@ export class AuthService implements OnDestroy {
         }),
       )
       .subscribe((user) => {
+        console.log('🔐 Setting current user:', user);
         this.currentUserSubject.next(user);
+        this.userInitialized$.next(true);
       });
   }
 
@@ -135,14 +138,33 @@ export class AuthService implements OnDestroy {
   }
 
   checkAuthenticationStatus(): Observable<boolean> {
+    console.log('🔐 checkAuthenticationStatus called');
+    
     return this.auth0.isAuthenticated$.pipe(
+      take(1), // Take only the first emission
       switchMap((isAuth) => {
+        console.log('🔐 Auth0 isAuthenticated:', isAuth);
+        
         if (!isAuth) {
+          console.log('🔐 User not authenticated by Auth0');
           return of(false);
         }
 
-        // Check if user has proper roles (not just member or guest)
-        return this.hasAdminAccess$();
+        // Wait for currentUser$ to emit a non-null value or wait for initialization
+        console.log('🔐 Waiting for user data to load...');
+        return this.currentUser$.pipe(
+          filter((user) => {
+            // Wait until we have either a user with data or confirmed no user
+            const hasData = user !== null;
+            console.log('🔐 Checking if user data ready:', hasData, user);
+            return this.userInitialized$.value; // Wait for initialization flag
+          }),
+          take(1), // Take the first valid emission
+          switchMap(() => {
+            console.log('🔐 User data loaded, checking admin access');
+            return this.hasAdminAccess$().pipe(take(1));
+          }),
+        );
       }),
     );
   }
