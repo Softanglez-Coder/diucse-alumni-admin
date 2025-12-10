@@ -84,9 +84,10 @@ export class AuthService implements OnDestroy {
     localStorage.removeItem('auth_return_url');
 
     // Redirect to Auth0 logout which will also redirect back to the app
+    // Note: The returnTo URL must be configured in Auth0 Dashboard under "Allowed Logout URLs"
     this.auth0.logout({
       logoutParams: {
-        returnTo: window.location.origin + '/auth/login',
+        returnTo: window.location.origin,
       },
     });
   }
