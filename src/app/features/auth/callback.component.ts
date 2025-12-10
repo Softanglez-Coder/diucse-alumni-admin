@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '@auth0/auth0-angular';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, filter, take, timeout, catchError, of } from 'rxjs';
 
 @Component({
   selector: 'app-callback',
@@ -46,27 +46,43 @@ export class CallbackComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    console.log('🔄 CallbackComponent: Initializing');
+    console.log('🔄 CallbackComponent: Starting callback processing');
+    console.log('🔄 CallbackComponent: Current URL:', window.location.href);
     
-    // Auth0 SDK handles the callback automatically through its internal mechanism
-    // We need to wait for authentication to complete, then redirect
-    
-    // Use a timeout to allow Auth0 SDK to process the callback
-    setTimeout(() => {
-      this.auth.isAuthenticated$
-        .pipe(takeUntil(this.destroy$))
-        .subscribe((isAuthenticated) => {
-          console.log('🔄 CallbackComponent: Auth status:', isAuthenticated);
-          if (isAuthenticated) {
-            // Get the returnUrl from localStorage if it exists
-            const returnUrl =
-              localStorage.getItem('auth_return_url') || '/apps/dashboard';
-            localStorage.removeItem('auth_return_url');
-            console.log('🔄 CallbackComponent: Redirecting to:', returnUrl);
-            this.router.navigate([returnUrl], { replaceUrl: true });
-          }
-        });
-    }, 100);
+    // Wait for Auth0 to finish loading before checking authentication
+    this.auth.isLoading$
+      .pipe(
+        filter(loading => !loading), // Wait until loading is complete
+        take(1),
+        takeUntil(this.destroy$),
+        timeout(10000), // 10 second timeout
+        catchError(error => {
+          console.error('🔄 CallbackComponent: Timeout or error:', error);
+          this.router.navigate(['/auth/login'], { replaceUrl: true });
+          return of(false);
+        })
+      )
+      .subscribe(() => {
+        // Check authentication after loading is complete
+        this.auth.isAuthenticated$
+          .pipe(take(1))
+          .subscribe((isAuthenticated) => {
+            console.log('🔄 CallbackComponent: Auth status:', isAuthenticated);
+            if (isAuthenticated) {
+              // Get the returnUrl from localStorage if it exists
+              const returnUrl =
+                localStorage.getItem('auth_return_url') || '/apps/dashboard';
+              localStorage.removeItem('auth_return_url');
+              console.log('🔄 CallbackComponent: Redirecting to:', returnUrl);
+              setTimeout(() => {
+                this.router.navigate([returnUrl], { replaceUrl: true });
+              }, 500);
+            } else {
+              console.error('🔄 CallbackComponent: Not authenticated after callback');
+              this.router.navigate(['/auth/login'], { replaceUrl: true });
+            }
+          });
+      });
   }
 
   ngOnDestroy() {

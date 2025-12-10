@@ -6,7 +6,7 @@ import {
   RouterStateSnapshot,
 } from '@angular/router';
 import { Observable, of } from 'rxjs';
-import { map, catchError, tap, switchMap } from 'rxjs/operators';
+import { map, catchError, tap, switchMap, take } from 'rxjs/operators';
 import { AuthService } from '../services/auth.service';
 
 @Injectable({
@@ -37,6 +37,7 @@ export class AuthGuard implements CanActivate {
 
         // Check if user is authenticated but doesn't have proper role
         return this.authService.isAuthenticated().pipe(
+          take(1),
           map((isAuth) => {
             if (isAuth) {
               console.log(
