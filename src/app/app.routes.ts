@@ -205,6 +205,19 @@ export const routes: Routes = [
         ],
       },
       {
+        path: 'gallery',
+        children: [
+          {
+            path: '',
+            pathMatch: 'full',
+            loadComponent: () =>
+              import('./features/gallery/gallery.component').then(
+                (c) => c.GalleryComponent,
+              ),
+          },
+        ],
+      },
+      {
         path: 'committees',
         children: [
           {
