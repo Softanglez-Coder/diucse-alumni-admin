@@ -1235,6 +1235,7 @@ export class MembershipDetailComponent implements OnInit {
         this.showStatusDialog = false;
         this.statusForm.reset();
         this.updatingStatus = false;
+        this.cdr.detectChanges();
       },
       error: (error) => {
         console.error('Error updating membership status:', error);
